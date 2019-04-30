@@ -45,7 +45,6 @@ test_md2 :: proc() -> bool {
     return passedTest;
 }
 
-/*
 test_md4 :: proc() -> bool {
 
     passedTest := true;
@@ -80,7 +79,7 @@ test_md4 :: proc() -> bool {
     }
 
     return passedTest;
-}*/
+}
 
 test_md5 :: proc() -> bool {
 
@@ -124,10 +123,9 @@ main :: proc() {
         fmt.println("Tests for MD2 passed.");
     }
 
-    /*
     if(test_md4()) {
         fmt.println("Tests for MD4 passed.");
-    }*/
+    }
 
     if(test_md5()) {
         fmt.println("Tests for MD5 passed.");
