@@ -117,6 +117,19 @@ test_md5 :: proc() -> bool {
     return passedTest;
 }
 
+test_md6 :: proc() -> bool {
+
+    msg := "Hellope";
+    // Taken from https://www.easycalculation.com/other/md6.php
+    hash := "d6fe71197b4dfc5ca5c2b741a83f3239aeca7fd5b7157827544370234a3ea9bd0fe6c96ba4062719c8a85df229fef90dd602cd05312d293a1439768bac45c37f";
+    out := crypto.md6_512(([]byte)(msg));
+    outStr := hex.hex_string(out[:]);
+
+    fmt.printf("Hash: %s", outStr);
+
+    return hash == outStr;
+}
+
 main :: proc() {
 
     if(test_md2()) {
@@ -128,6 +141,10 @@ main :: proc() {
     }
 
     if(test_md5()) {
+        fmt.println("Tests for MD5 passed.");
+    }
+
+    if(test_md6()) {
         fmt.println("Tests for MD5 passed.");
     }
 }
