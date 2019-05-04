@@ -339,29 +339,33 @@ md6_compress :: proc(C, N : []md6_word, r : i32, A : []md6_word) -> MD6_STATUS {
     if (r < 0) | (r > md6_max_r) do return MD6_STATUS.BAD_r;
 
     //if ( A == NULL) A = calloc(r*c+n,sizeof(md6_word));
-    //if ( A == NULL) return MD6_OUT_OF_MEMORY;
+    if A == nil do return MD6_STATUS.OUT_OF_MEMORY;
 
+    mem.copy(&A, &N, md6_n * size_of(md6_word));
     //memcpy( A, N, n*sizeof(md6_word) );    /* copy N to front of A */
 
     md6_main_compression_loop(A[:], r);
 
+    mem.copy(&C, &A[(r - 1) * md6_c + md6_n], md6_c * size_of(md6_word));
     //memcpy( C, A+(r-1)*c+n, c*sizeof(md6_word) ); /* output into C */
-    //if ( A_as_given == NULL )           /* zero and free A if nec. */
-    //{ memset(A,0,(r*c+n)*sizeof(md6_word)); /* contains key info */
-    //  free(A);           
-    //}
+    if A_as_given == nil {
+        mem.set(&A, 0, (int(r) * md6_c + md6_n) * size_of(md6_word));
+        delete(A);
+        //{ memset(A,0,(r*c+n)*sizeof(md6_word)); /* contains key info */
+        //  free(A); 
+    }
 
     return MD6_STATUS.SUCCESS;
 }
 
 md6_make_control_word :: proc(r, L, z, p, keylen, d : i32) -> md6_control_word {
-    return md6_control_word(0) << 60 | md6_control_word(r << 48) | md6_control_word(L) << 40 |
-           md6_control_word(z) << 36 | md6_control_word(p << 20) | md6_control_word(keylen) << 12 |
+    return md6_control_word(0) << 60 | md6_control_word(r) << 48 | md6_control_word(L) << 40 |
+           md6_control_word(z) << 36 | md6_control_word(p) << 20 | md6_control_word(keylen) << 12 |
            md6_control_word(d);
 }
 
 md6_make_nodeID :: proc(ell, i : i32) -> md6_nodeID {
-    return (md6_nodeID(ell) << 56) | md6_nodeID(i);
+    return md6_nodeID(ell) << 56 | md6_nodeID(i);
 }
 
 md6_pack :: proc(N, Q, K : []md6_word, ell, i, r, L, z, p, keylen, d : i32, B : []md6_word) {
@@ -373,13 +377,16 @@ md6_pack :: proc(N, Q, K : []md6_word, ell, i, r, L, z, p, keylen, d : i32, B : 
     for j = 0; j < md6_k; i += 1 do N[ni] = K[j]; ni += 1;
 
     U := md6_make_nodeID(ell, i);
+    mem.copy(&N[ni], &U, int(min(md6_u * (md6_w / 8), size_of(md6_nodeID))));
     //  memcpy((unsigned char *)&N[ni], &U,min(u*(w/8),sizeof(md6_nodeID)));
     ni += md6_u;
 
     V := md6_make_control_word(r, L, z, p, keylen, d);
+    mem.copy(&N[ni], &V, int(min(md6_u * (md6_w / 8), size_of(md6_control_word))));
     //   memcpy((unsigned char *)&N[ni],&V, min(v*(w/8),sizeof(md6_control_word)));
     ni += md6_v;
 
+    mem.copy(&N[ni], &B, md6_b * size_of(md6_word));
     //memcpy(N+ni,B,b*sizeof(md6_word));      /* B: data words    25--88 */
 }
 
@@ -591,6 +598,7 @@ md6_process :: proc(st : ^md6_state, ell, final : i32) -> MD6_STATUS {
     next_level = min(ell + 1, st.L + 1);
     if next_level == st.L + 1 && st.i_for_level[next_level] == 0 {
         st.bits[next_level] = md6_c * md6_w;
+        mem.copy(&st.B[next_level + (st.bits[next_level] / 8)], &C, md6_c * (md6_w / 8));
        // memcpy((char *)st->B[next_level] + st->bits[next_level]/8, C, c*(w/8));
         st.bits[next_level] += md6_c * md6_w; 
     }
@@ -611,10 +619,11 @@ md6_update :: proc(st : ^md6_state, data : ^[]byte, databitlen : u64) -> MD6_STA
         portion_size := min(i32(databitlen - j), md6_b * md6_w - (st.bits[1])); 
 
         if (portion_size % 8 == 0) && (st.bits[1] % 8 == 0) && (j % 8 == 0) {
+            mem.copy(&st.B[1 + (st.bits[1] / 8)], &data[j / 8], int(portion_size) / 8);
             //memcpy((char *)st->B[1] + st->bits[1]/8, &(data[j/8]), portion_size/8);
         } else {
             // append_bits((unsigned char *)st->B[1], st->bits[1], &(data[j/8]), portion_size); 
-            // md6_append_bits(&st.B[1], st.bits[1], data[0:(j / 8)], portion_size);
+            md6_append_bits(&st.B[1], st.bits[1], data[0:(j / 8)], portion_size);
         }
 
         j += u64(portion_size);
@@ -648,7 +657,7 @@ md6_final :: proc(st : ^md6_state, hashval : ^[]byte) -> MD6_STATUS {
 
     md6_reverse_little_endian_byte(st.hashval[:]);
     md6_trim_hashval(st);
-    //if hashval != nil do memcpy( hashval, st->hashval, (st->d+7)/8 );
+    if hashval != nil do mem.copy(hashval, &st.hashval, (int(st.d) + 7) / 8); //memcpy( hashval, st->hashval, (st->d+7)/8 );
 
     md6_compute_hex_hashval(st);
     st.finalized = 1;
