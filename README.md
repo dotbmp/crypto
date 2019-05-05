@@ -19,13 +19,8 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [ ] RIPEMD-256
 - [ ] RIPEMD-160
 - [ ] RIPEMD-320
-- [ ] SHA-0
-- [ ] SHA-1
-- [ ] SHA-256
-- [ ] SHA-512
-- [ ] SHA-384
-- [ ] SHA-512
-- [ ] SHA-224
+- [x] SHA-1
+- [ ] SHA-2
 - [x] SHA-3 (Keccak)
 - [ ] Streebog
 - [ ] Tiger
