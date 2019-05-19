@@ -545,9 +545,9 @@ md6_compress_block :: proc(C : []md6_word, st : ^md6_state, ell, z : i32) -> MD6
 
     if ell == 1 {
         if ell < st.L + 1 {
-            md6_reverse_little_endian(st.B[ell][0:md6_b]);
+            md6_reverse_little_endian(st.B[ell][0:]);
         } else {
-            md6_reverse_little_endian(st.B[ell][md6_c:md6_b]);
+            md6_reverse_little_endian(st.B[ell][md6_c:]);
         }
     }
 

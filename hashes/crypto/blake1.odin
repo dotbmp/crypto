@@ -130,14 +130,14 @@ blake1_g512 :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: u32
 }
 
 blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
-    h : [8]u32;
-	i, j : u32;
+    h : [8]u32 = ---;
+	i, j : u32 = ---, ---;
 	for i = 0; i < 8; i += 1 {
 		h[i] = ctx.h[i];
 	}
 
 	for len(p) >= BLAKE1_BLOCKSIZE_256 {
-		v : [16]u32;
+		v : [16]u32 = ---;
 		for i = 0; i < 4; i += 1 {
 			v[i], v[i + 4] = h[i], h[i + 4];
 			v[i + 8], v[i + 12] = ctx.s[i] ~ BLAKE1_U256[i], BLAKE1_U256[i + 4];
@@ -151,10 +151,9 @@ blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
 			v[15] ~= ctx.t >> 32;
 		}
 
-		m : [16]u32;
-		for i, j = 0, 0; i < 16; i += 1 {
+		m : [16]u32 = ---;
+		for i, j = 0, 0; i < 16; i, j = i+1, j+4 {
 			m[i] = u32(p[j]) << 24 | u32(p[j + 1]) << 16 | u32(p[j + 2]) << 8 | u32(p[j + 3]);
-            j += 4;
 		}
 
 		for i = 0; i < 14; i += 1 {
@@ -178,14 +177,14 @@ blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
 }
 
 blake1_block512 :: proc(ctx : ^BLAKE1_512_CTX, p : []u8) {
-    h : [8]u64;
-	i, j : u32;
+    h : [8]u64 = ---;
+	i, j : u32 = ---, ---;
 	for i = 0; i < 8; i += 1 {
 		h[i] = ctx.h[i];
 	}
 
 	for len(p) >= BLAKE1_BLOCKSIZE_512 {
-		v : [16]u64;
+		v : [16]u64 = ---;
 		for i = 0; i < 4; i += 1 {
 			v[i], v[i + 4] = h[i], h[i + 4];
 			v[i + 8], v[i + 12] = ctx.s[i] ~ BLAKE1_U512[i], u64(BLAKE1_U512[i + 4]);
@@ -199,10 +198,9 @@ blake1_block512 :: proc(ctx : ^BLAKE1_512_CTX, p : []u8) {
 			v[15] ~= 0;
 		}
 
-		m : [16]u64;
-		for i, j = 0, 0; i < 16; i += 1 {
+		m : [16]u64 = ---;
+		for i, j = 0, 0; i < 16; i, j = i+1, j+8 {
 			m[i] = u64(p[j]) << 56 | u64(p[j + 1]) << 48 | u64(p[j + 2]) << 40 | u64(p[j + 3]) << 32 | u64(p[j + 4]) << 24 | u64(p[j + 5]) << 16 | u64(p[j + 6]) << 8 | u64(p[j + 7]);
-            j += 8;
 		}
 
 		for i = 0; i < 16; i += 1 {
@@ -292,7 +290,7 @@ blake1_write_256 :: proc(ctx : ^BLAKE1_256_CTX, p: []byte) {
 	}
 	if len(p) > 0 {
 		n := copy(ctx.x[:], p);
-		ctx.nx += i32(n);
+		ctx.nx = i32(n);
 	}
 }
 
@@ -313,7 +311,7 @@ blake1_write_512 :: proc(ctx : ^BLAKE1_512_CTX, p: []byte) {
 	}
 	if len(p) > 0 {
 		n := copy(ctx.x[:], p);
-		ctx.nx += i32(n);
+		ctx.nx = i32(n);
 	}
 }
 
@@ -323,7 +321,7 @@ blake1_checksum_256 :: proc(ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte {
 
 	tmp : [65]byte;
 	tmp[0] = 0x80;
-	length := (u64(ctx.t) + nx) << 3;
+	length := u64(ctx.t) + nx << 3;
 
 	if nx == 55 {
 		if ctx.is224 {
@@ -349,19 +347,19 @@ blake1_checksum_256 :: proc(ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte {
 		}
 	}
 
-	for i : u32 = 0; i < 8; i += 1 {
+	for i : uint = 0; i < 8; i += 1 {
 		tmp[i] = byte(length >> (56 - 8 * i));
 	}
 	blake1_writeAdditionalData_256(ctx, tmp[0:8]);
+
+	assert(ctx.nx == 0);
+
 	h := ctx.h[:];
 	if ctx.is224 do h = h[0:7];
 
 	digest : [BLAKE1_SIZE_256]byte;
-
-	cap : u32 = 8;
-	if ctx.is224 do cap = 7;
 	
-	for i : u32 = 0; i < cap; i += 1 {
+	for _, i in h {
 		digest[i * 4] = byte(h[i] >> 24);
 		digest[i * 4 + 1] = byte(h[i] >> 16);
 		digest[i * 4 + 2] = byte(h[i] >> 8);
@@ -377,7 +375,7 @@ blake1_checksum_512 :: proc(ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte {
 
 	tmp : [129]byte;
 	tmp[0] = 0x80;
-	length := (ctx.t + nx) << 3;
+	length := ctx.t + nx << 3;
 
 	if nx == 111 {
 		if ctx.is384 {
@@ -403,19 +401,19 @@ blake1_checksum_512 :: proc(ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte {
 		}
 	}
 
-	for i : u32 = 0; i < 8; i += 1 {
+	for i : uint = 0; i < 8; i += 1 {
 		tmp[i] = byte(length >> (120 - 8 * i));
 	}
 	blake1_writeAdditionalData_512(ctx, tmp[0:16]);
+
+	assert(ctx.nx == 0);
+
 	h := ctx.h[:];
 	if ctx.is384 do h = h[0:6];
 
 	digest : [BLAKE1_SIZE_512]byte;
 
-	cap : u32 = 8;
-	if ctx.is384 do cap = 7;
-	
-	for i : u32 = 0; i < cap; i += 1 {
+	for _, i in h {
 		digest[i*8] = byte(h[i] >> 56);
 		digest[i*8+1] = byte(h[i] >> 48);
 		digest[i*8+2] = byte(h[i] >> 40);
@@ -430,7 +428,7 @@ blake1_checksum_512 :: proc(ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte {
 }
 
 blake1_writeAdditionalData_256 :: proc(ctx: ^BLAKE1_256_CTX, p: []byte) {
-	ctx.t -= u32(len(p)) << 3;
+	ctx.t -= u32(u64(len(p)) << 3);
 	blake1_write_256(ctx, p);
 }
 
@@ -441,20 +439,20 @@ blake1_writeAdditionalData_512 :: proc(ctx: ^BLAKE1_512_CTX, p: []byte) {
 
 blake1_224 :: proc(data: []byte) -> [BLAKE1_SIZE_224]byte {
 
-    hash : [BLAKE1_SIZE_224]byte;
+	hash : [BLAKE1_SIZE_224]byte = ---;
     ctx : BLAKE1_256_CTX;
     ctx.is224 = true;
     blake1_reset_256(&ctx);
 	blake1_write_256(&ctx, data);
 	tmp := blake1_checksum_256(&ctx);
-	mem.copy(&hash, &tmp, BLAKE1_SIZE_224);
+	copy(hash[:], tmp[:BLAKE1_SIZE_224]);
 
     return hash;
 }
 
 blake1_256 :: proc(data: []byte) -> [BLAKE1_SIZE_256]byte {
 
-    hash : [BLAKE1_SIZE_256]byte;
+	hash : [BLAKE1_SIZE_256]byte = ---;
     ctx : BLAKE1_256_CTX;
     ctx.is224 = false;
     blake1_reset_256(&ctx);
@@ -466,20 +464,20 @@ blake1_256 :: proc(data: []byte) -> [BLAKE1_SIZE_256]byte {
 
 blake1_384 :: proc(data: []byte) -> [BLAKE1_SIZE_384]byte {
 
-    hash : [BLAKE1_SIZE_384]byte;
+	hash : [BLAKE1_SIZE_384]byte = ---;
     ctx : BLAKE1_512_CTX;
     ctx.is384 = true;
     blake1_reset_512(&ctx);
 	blake1_write_512(&ctx, data);
 	tmp := blake1_checksum_512(&ctx);
-	mem.copy(&hash, &tmp, BLAKE1_SIZE_384);
+	copy(hash[:], tmp[:BLAKE1_SIZE_384]);
 
     return hash;
 }
 
 blake1_512 :: proc(data: []byte) -> [BLAKE1_SIZE_512]byte {
 
-    hash : [BLAKE1_SIZE_512]byte;
+	hash : [BLAKE1_SIZE_512]byte = ---;
     ctx : BLAKE1_512_CTX;
     ctx.is384 = false;
     blake1_reset_512(&ctx);

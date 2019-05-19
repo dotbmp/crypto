@@ -5,7 +5,7 @@ package crypto
 import "core:fmt"
 import "core:hash"
 import "core:runtime"
-import "core:bits"
+import "core:math/bits"
 
 MD2_BLOCK_SIZE :: 16;
 
