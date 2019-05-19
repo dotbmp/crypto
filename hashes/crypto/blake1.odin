@@ -94,7 +94,7 @@ BLAKE1_U512 := [16]u64 {
 	0xba7c9045f12c7f99, 0x24a19947b3916cf7, 0x0801f2e2858efc16, 0x636920d871574e69
 };
 
-blake1_g256 :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: u32) -> (u32, u32, u32, u32) {
+blake1_g256 :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int) -> (u32, u32, u32, u32) #no_bounds_check {
 	a += m[BLAKE1_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE1_U256[BLAKE1_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;
 	d ~= a;
@@ -112,7 +112,7 @@ blake1_g256 :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: u32
 	return a, b, c, d;
 }
 
-blake1_g512 :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: u32) -> (u64, u64, u64, u64) {
+blake1_g512 :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int) -> (u64, u64, u64, u64) #no_bounds_check {
 	a += m[BLAKE1_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE1_U512[BLAKE1_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;
 	d ~= a;
@@ -130,9 +130,9 @@ blake1_g512 :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: u32
 	return a, b, c, d;
 }
 
-blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
+blake1_block256 :: proc "contextless" (ctx : ^BLAKE1_256_CTX, p : []u8) #no_bounds_check {
     h := ctx.h;
-	i, j : u32 = ---, ---;
+	i, j : int = ---, ---;
 
 	for len(p) >= BLAKE1_BLOCKSIZE_256 {
 		v : [16]u32 = ---;
@@ -172,9 +172,9 @@ blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
 	ctx.h = h;
 }
 
-blake1_block512 :: proc(ctx : ^BLAKE1_512_CTX, p : []u8) {
+blake1_block512 :: proc "contextless" (ctx : ^BLAKE1_512_CTX, p : []u8) #no_bounds_check {
     h := ctx.h;
-	i, j : u32 = ---, ---;
+	i, j : int = ---, ---;
 
 	for len(p) >= BLAKE1_BLOCKSIZE_512 {
 		v : [16]u64 = ---;
@@ -214,7 +214,7 @@ blake1_block512 :: proc(ctx : ^BLAKE1_512_CTX, p : []u8) {
 	ctx.h = h;
 }
 
-blake1_reset_256 :: proc(ctx : ^BLAKE1_256_CTX) {
+blake1_reset_256 :: proc "contextless" (ctx : ^BLAKE1_256_CTX) #no_bounds_check {
     if ctx.is224 {
 		ctx.h[0] = BLAKE1_INIT_0_224;
 		ctx.h[1] = BLAKE1_INIT_1_224;
@@ -239,7 +239,7 @@ blake1_reset_256 :: proc(ctx : ^BLAKE1_256_CTX) {
 	ctx.nullt = false;
 }
 
-blake1_reset_512 :: proc(ctx : ^BLAKE1_512_CTX) {
+blake1_reset_512 :: proc "contextless" (ctx : ^BLAKE1_512_CTX) #no_bounds_check {
 	if ctx.is384 {
 		ctx.h[0] = BLAKE1_INIT_0_384;
 		ctx.h[1] = BLAKE1_INIT_1_384;
@@ -264,7 +264,7 @@ blake1_reset_512 :: proc(ctx : ^BLAKE1_512_CTX) {
 	ctx.nullt = false;
 }
 
-blake1_write_256 :: proc(ctx : ^BLAKE1_256_CTX, p: []byte) {
+blake1_write_256 :: proc "contextless" (ctx : ^BLAKE1_256_CTX, p: []byte) #no_bounds_check {
 	if ctx.nx > 0 {
 		n := copy(ctx.x[ctx.nx:], p);
 		ctx.nx += n;
@@ -284,7 +284,7 @@ blake1_write_256 :: proc(ctx : ^BLAKE1_256_CTX, p: []byte) {
 	}
 }
 
-blake1_write_512 :: proc(ctx : ^BLAKE1_512_CTX, p: []byte) {
+blake1_write_512 :: proc "contextless" (ctx : ^BLAKE1_512_CTX, p: []byte) #no_bounds_check {
 	if ctx.nx > 0 {
 		n := copy(ctx.x[ctx.nx:], p);
 		ctx.nx += n;
@@ -304,13 +304,13 @@ blake1_write_512 :: proc(ctx : ^BLAKE1_512_CTX, p: []byte) {
 	}
 }
 
-blake1_checksum_256 :: proc(ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte {
+blake1_checksum_256 :: proc "contextless" (ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte #no_bounds_check {
 	
 	nx := u64(ctx.nx);
 
 	tmp : [65]byte;
 	tmp[0] = 0x80;
-	length := ctx.t + nx << 3;
+	length := (ctx.t + nx) << 3;
 
 	if nx == 55 {
 		if ctx.is224 {
@@ -358,13 +358,13 @@ blake1_checksum_256 :: proc(ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte {
 	return digest;
 }
 
-blake1_checksum_512 :: proc(ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte {
+blake1_checksum_512 :: proc "contextless" (ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte #no_bounds_check {
 	
 	nx := u64(ctx.nx);
 
 	tmp : [129]byte;
 	tmp[0] = 0x80;
-	length := ctx.t + nx << 3;
+	length := (ctx.t + nx) << 3;
 
 	if nx == 111 {
 		if ctx.is384 {
@@ -416,17 +416,17 @@ blake1_checksum_512 :: proc(ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte {
 	return digest;
 }
 
-blake1_writeAdditionalData_256 :: proc(ctx: ^BLAKE1_256_CTX, p: []byte) {
+blake1_writeAdditionalData_256 :: proc "contextless" (ctx: ^BLAKE1_256_CTX, p: []byte) {
 	ctx.t -= u64(len(p)) << 3;
 	blake1_write_256(ctx, p);
 }
 
-blake1_writeAdditionalData_512 :: proc(ctx: ^BLAKE1_512_CTX, p: []byte) {
+blake1_writeAdditionalData_512 :: proc "contextless" (ctx: ^BLAKE1_512_CTX, p: []byte) {
 	ctx.t -= u64(len(p)) << 3;
 	blake1_write_512(ctx, p);
 }
 
-blake1_224 :: proc(data: []byte) -> [BLAKE1_SIZE_224]byte {
+blake1_224 :: proc "contextless" (data: []byte) -> [BLAKE1_SIZE_224]byte #no_bounds_check {
 
 	hash : [BLAKE1_SIZE_224]byte = ---;
     ctx : BLAKE1_256_CTX;
@@ -439,11 +439,10 @@ blake1_224 :: proc(data: []byte) -> [BLAKE1_SIZE_224]byte {
     return hash;
 }
 
-blake1_256 :: proc(data: []byte) -> [BLAKE1_SIZE_256]byte {
+blake1_256 :: proc "contextless" (data: []byte) -> [BLAKE1_SIZE_256]byte #no_bounds_check {
 
 	hash : [BLAKE1_SIZE_256]byte = ---;
     ctx : BLAKE1_256_CTX;
-    ctx.is224 = false;
     blake1_reset_256(&ctx);
 	blake1_write_256(&ctx, data);
 	hash = blake1_checksum_256(&ctx);
@@ -451,7 +450,7 @@ blake1_256 :: proc(data: []byte) -> [BLAKE1_SIZE_256]byte {
     return hash;
 }
 
-blake1_384 :: proc(data: []byte) -> [BLAKE1_SIZE_384]byte {
+blake1_384 :: proc "contextless" (data: []byte) -> [BLAKE1_SIZE_384]byte #no_bounds_check {
 
 	hash : [BLAKE1_SIZE_384]byte = ---;
     ctx : BLAKE1_512_CTX;
@@ -464,11 +463,10 @@ blake1_384 :: proc(data: []byte) -> [BLAKE1_SIZE_384]byte {
     return hash;
 }
 
-blake1_512 :: proc(data: []byte) -> [BLAKE1_SIZE_512]byte {
+blake1_512 :: proc "contextless" (data: []byte) -> [BLAKE1_SIZE_512]byte #no_bounds_check {
 
 	hash : [BLAKE1_SIZE_512]byte = ---;
     ctx : BLAKE1_512_CTX;
-    ctx.is384 = false;
     blake1_reset_512(&ctx);
 	blake1_write_512(&ctx, data);
 	hash = blake1_checksum_512(&ctx);
