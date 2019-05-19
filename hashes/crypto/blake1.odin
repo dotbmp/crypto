@@ -46,12 +46,13 @@ BLAKE1_INIT_5_512 :: 0x9b05688c2b3e6c1f;
 BLAKE1_INIT_6_512 :: 0x1f83d9abfb41bd6b;
 BLAKE1_INIT_7_512 :: 0x5be0cd19137e2179;
 
+
 BLAKE1_256_CTX :: struct {
     h : [8]u32,
     s : [4]u32,
-    t : u32,
+    t : u64,
     x : [64]byte,
-    nx : i32,
+    nx : int,
     is224 : bool,
     nullt : bool,
 }
@@ -61,12 +62,12 @@ BLAKE1_512_CTX :: struct {
     s : [4]u64,
     t : u64,
     x : [128]byte,
-    nx : i32,
+    nx : int,
     is384 : bool,
     nullt : bool,
 }
 
-BLAKE1_SIGMA := []i32 {
+BLAKE1_SIGMA := [?]int {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 	14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
 	11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4,
@@ -76,7 +77,7 @@ BLAKE1_SIGMA := []i32 {
 	12, 5, 1, 15, 14, 13, 4, 10, 0, 7, 6, 3, 9, 2, 8, 11,
 	13, 11, 7, 14, 12, 1, 3, 9, 5, 0, 15, 4, 8, 6, 2, 10,
 	6, 15, 14, 9, 11, 3, 0, 8, 12, 2, 13, 7, 1, 4, 10, 5,
-	10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0,
+	10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0
 };
 
 BLAKE1_U256 := [16]u32 {
@@ -130,11 +131,8 @@ blake1_g512 :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: u32
 }
 
 blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
-    h : [8]u32 = ---;
+    h := ctx.h;
 	i, j : u32 = ---, ---;
-	for i = 0; i < 8; i += 1 {
-		h[i] = ctx.h[i];
-	}
 
 	for len(p) >= BLAKE1_BLOCKSIZE_256 {
 		v : [16]u32 = ---;
@@ -145,10 +143,10 @@ blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
 
 		ctx.t += 512;
 		if !ctx.nullt {
-			v[12] ~= ctx.t;
-			v[13] ~= ctx.t;
-			v[14] ~= ctx.t >> 32;
-			v[15] ~= ctx.t >> 32;
+			v[12] ~= u32(ctx.t);
+			v[13] ~= u32(ctx.t);
+			v[14] ~= u32(ctx.t >> 32);
+			v[15] ~= u32(ctx.t >> 32);
 		}
 
 		m : [16]u32 = ---;
@@ -171,23 +169,18 @@ blake1_block256 :: proc(ctx : ^BLAKE1_256_CTX, p : []u8) {
 		p = p[BLAKE1_BLOCKSIZE_256:];
 	}
 
-	for i = 0; i < 8; i += 1 {
-		ctx.h[i] = h[i];
-	}
+	ctx.h = h;
 }
 
 blake1_block512 :: proc(ctx : ^BLAKE1_512_CTX, p : []u8) {
-    h : [8]u64 = ---;
+    h := ctx.h;
 	i, j : u32 = ---, ---;
-	for i = 0; i < 8; i += 1 {
-		h[i] = ctx.h[i];
-	}
 
 	for len(p) >= BLAKE1_BLOCKSIZE_512 {
 		v : [16]u64 = ---;
 		for i = 0; i < 4; i += 1 {
 			v[i], v[i + 4] = h[i], h[i + 4];
-			v[i + 8], v[i + 12] = ctx.s[i] ~ BLAKE1_U512[i], u64(BLAKE1_U512[i + 4]);
+			v[i + 8], v[i + 12] = ctx.s[i] ~ BLAKE1_U512[i], BLAKE1_U512[i + 4];
 		}
 
 		ctx.t += 1024;
@@ -218,9 +211,7 @@ blake1_block512 :: proc(ctx : ^BLAKE1_512_CTX, p : []u8) {
 		p = p[BLAKE1_BLOCKSIZE_512:];
 	}
 
-	for i = 0; i < 8; i += 1 {
-		ctx.h[i] = h[i];
-	}
+	ctx.h = h;
 }
 
 blake1_reset_256 :: proc(ctx : ^BLAKE1_256_CTX) {
@@ -276,7 +267,7 @@ blake1_reset_512 :: proc(ctx : ^BLAKE1_512_CTX) {
 blake1_write_256 :: proc(ctx : ^BLAKE1_256_CTX, p: []byte) {
 	if ctx.nx > 0 {
 		n := copy(ctx.x[ctx.nx:], p);
-		ctx.nx += i32(n);
+		ctx.nx += n;
 		if ctx.nx == BLAKE1_BLOCKSIZE_256 {
 			blake1_block256(ctx, ctx.x[:]);
 			ctx.nx = 0;
@@ -289,15 +280,14 @@ blake1_write_256 :: proc(ctx : ^BLAKE1_256_CTX, p: []byte) {
 		p = p[n:];
 	}
 	if len(p) > 0 {
-		n := copy(ctx.x[:], p);
-		ctx.nx = i32(n);
+		ctx.nx = copy(ctx.x[:], p);
 	}
 }
 
 blake1_write_512 :: proc(ctx : ^BLAKE1_512_CTX, p: []byte) {
 	if ctx.nx > 0 {
 		n := copy(ctx.x[ctx.nx:], p);
-		ctx.nx += i32(n);
+		ctx.nx += n;
 		if ctx.nx == BLAKE1_BLOCKSIZE_512 {
 			blake1_block512(ctx, ctx.x[:]);
 			ctx.nx = 0;
@@ -310,8 +300,7 @@ blake1_write_512 :: proc(ctx : ^BLAKE1_512_CTX, p: []byte) {
 		p = p[n:];
 	}
 	if len(p) > 0 {
-		n := copy(ctx.x[:], p);
-		ctx.nx = i32(n);
+		ctx.nx = copy(ctx.x[:], p);
 	}
 }
 
@@ -321,7 +310,7 @@ blake1_checksum_256 :: proc(ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte {
 
 	tmp : [65]byte;
 	tmp[0] = 0x80;
-	length := u64(ctx.t) + nx << 3;
+	length := ctx.t + nx << 3;
 
 	if nx == 55 {
 		if ctx.is224 {
@@ -352,18 +341,18 @@ blake1_checksum_256 :: proc(ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE_256]byte {
 	}
 	blake1_writeAdditionalData_256(ctx, tmp[0:8]);
 
-	assert(ctx.nx == 0);
+	assert(ctx.nx == 0); // @note(bp): remove after thorough testing?
 
 	h := ctx.h[:];
 	if ctx.is224 do h = h[0:7];
 
 	digest : [BLAKE1_SIZE_256]byte;
 	
-	for _, i in h {
-		digest[i * 4] = byte(h[i] >> 24);
-		digest[i * 4 + 1] = byte(h[i] >> 16);
-		digest[i * 4 + 2] = byte(h[i] >> 8);
-		digest[i * 4 + 3] = byte(h[i]);
+	for s, i in h {
+		digest[i * 4]     = byte(s >> 24);
+		digest[i * 4 + 1] = byte(s >> 16);
+		digest[i * 4 + 2] = byte(s >> 8);
+		digest[i * 4 + 3] = byte(s);
 	}
 
 	return digest;
@@ -401,34 +390,34 @@ blake1_checksum_512 :: proc(ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE_512]byte {
 		}
 	}
 
-	for i : uint = 0; i < 8; i += 1 {
+	for i : uint = 0; i < 16; i += 1 {
 		tmp[i] = byte(length >> (120 - 8 * i));
 	}
 	blake1_writeAdditionalData_512(ctx, tmp[0:16]);
 
-	assert(ctx.nx == 0);
+	assert(ctx.nx == 0); // @note(bp): remove after thorough testing?
 
 	h := ctx.h[:];
 	if ctx.is384 do h = h[0:6];
 
 	digest : [BLAKE1_SIZE_512]byte;
 
-	for _, i in h {
-		digest[i*8] = byte(h[i] >> 56);
-		digest[i*8+1] = byte(h[i] >> 48);
-		digest[i*8+2] = byte(h[i] >> 40);
-		digest[i*8+3] = byte(h[i] >> 32);
-		digest[i*8+4] = byte(h[i] >> 24);
-		digest[i*8+5] = byte(h[i] >> 16);
-		digest[i*8+6] = byte(h[i] >> 8);
-		digest[i*8+7] = byte(h[i]);
+	for s, i in h {
+		digest[i * 8]     = byte(s >> 56);
+		digest[i * 8 + 1] = byte(s >> 48);
+		digest[i * 8 + 2] = byte(s >> 40);
+		digest[i * 8 + 3] = byte(s >> 32);
+		digest[i * 8 + 4] = byte(s >> 24);
+		digest[i * 8 + 5] = byte(s >> 16);
+		digest[i * 8 + 6] = byte(s >> 8);
+		digest[i * 8 + 7] = byte(s);
 	}
 
 	return digest;
 }
 
 blake1_writeAdditionalData_256 :: proc(ctx: ^BLAKE1_256_CTX, p: []byte) {
-	ctx.t -= u32(u64(len(p)) << 3);
+	ctx.t -= u64(len(p)) << 3;
 	blake1_write_256(ctx, p);
 }
 
