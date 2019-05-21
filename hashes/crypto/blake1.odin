@@ -314,9 +314,9 @@ blake1_checksum_256 :: proc "contextless" (ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE
 
 	if nx == 55 {
 		if ctx.is224 {
-			blake1_writeAdditionalData_256(ctx, []byte{0x80});
+			blake1_writeAdditionalData_256(ctx, {0x80});
 		} else {
-			blake1_writeAdditionalData_256(ctx, []byte{0x81});
+			blake1_writeAdditionalData_256(ctx, {0x81});
 		}
 	} else {
 		if nx < 55 {
@@ -330,14 +330,14 @@ blake1_checksum_256 :: proc "contextless" (ctx: ^BLAKE1_256_CTX) -> [BLAKE1_SIZE
 			ctx.nullt = true;
 		}
 		if ctx.is224 {
-			blake1_writeAdditionalData_256(ctx, []byte{0x00});
+			blake1_writeAdditionalData_256(ctx, {0x00});
 		} else {
-			blake1_writeAdditionalData_256(ctx, []byte{0x01});
+			blake1_writeAdditionalData_256(ctx, {0x01});
 		}
 	}
 
 	for i : uint = 0; i < 8; i += 1 {
-		tmp[i] = byte(length >> (56 - 8 * i));
+		tmp[i] = (56 - 8 * i) < 64 ? byte(length >> (56 - 8 * i)) : 0; // @todo(bp): remove this hideous fucking monstrosity once the compiler is fixed
 	}
 	blake1_writeAdditionalData_256(ctx, tmp[0:8]);
 
@@ -368,9 +368,9 @@ blake1_checksum_512 :: proc "contextless" (ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE
 
 	if nx == 111 {
 		if ctx.is384 {
-			blake1_writeAdditionalData_512(ctx, []byte{0x80});
+			blake1_writeAdditionalData_512(ctx, {0x80});
 		} else {
-			blake1_writeAdditionalData_512(ctx, []byte{0x81});
+			blake1_writeAdditionalData_512(ctx, {0x81});
 		}
 	} else {
 		if nx < 111 {
@@ -384,14 +384,14 @@ blake1_checksum_512 :: proc "contextless" (ctx: ^BLAKE1_512_CTX) -> [BLAKE1_SIZE
 			ctx.nullt = true;
 		}
 		if ctx.is384 {
-			blake1_writeAdditionalData_512(ctx, []byte{0x00});
+			blake1_writeAdditionalData_512(ctx, {0x00});
 		} else {
-			blake1_writeAdditionalData_512(ctx, []byte{0x01});
+			blake1_writeAdditionalData_512(ctx, {0x01});
 		}
 	}
 
 	for i : uint = 0; i < 16; i += 1 {
-		tmp[i] = byte(length >> (120 - 8 * i));
+		tmp[i] = (120 - 8 * i) < 64 ? byte(length >> (120 - 8 * i)) : 0; // @todo(bp): remove this hideous fucking monstrosity once the compiler is fixed
 	}
 	blake1_writeAdditionalData_512(ctx, tmp[0:16]);
 
