@@ -5,7 +5,7 @@ A cryptographic hash function library for the Odin language
 List taken [from](https://en.wikipedia.org/wiki/Comparison_of_cryptographic_hash_functions#General_information)
 and [here](https://en.wikipedia.org/wiki/Bcrypt)
 
-- [ ] BLAKE
+- [x] BLAKE
 - [ ] BLAKE2
 - [ ] GOST
 - [ ] HAVAL
