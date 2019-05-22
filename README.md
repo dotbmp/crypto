@@ -26,3 +26,5 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [ ] Tiger
 - [ ] Whirlpool
 - [ ] Bcrypt
+- [ ] DES
+- [ ] AES
