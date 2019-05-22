@@ -26,5 +26,7 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [ ] Tiger
 - [ ] Whirlpool
 - [ ] Bcrypt
+
+Probably belong in a separate package:
 - [ ] DES
 - [ ] AES
