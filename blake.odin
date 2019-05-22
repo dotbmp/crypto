@@ -127,7 +127,7 @@ blake256_g :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int)
 	return a, b, c, d;
 }
 
-blake_g512 :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int) -> (u64, u64, u64, u64) #no_bounds_check {
+blake512_g :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int) -> (u64, u64, u64, u64) #no_bounds_check {
 	a += m[BLAKE_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE_U512[BLAKE_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;
 	d ~= a;
@@ -170,12 +170,14 @@ blake_block256 :: proc "contextless" (ctx : ^BLAKE_256, p : []u8) #no_bounds_che
 		}
 
 		for i = 0; i < 14; i += 1 {
-			for j = 0; j < 4; j += 1 {
-				v[j], v[j + 4], v[j + 8], v[j + 12] = blake256_g(v[j], v[j + 4], v[j + 8], v[j + 12], m, i, j);
-			}
-			for j = 0; j < 4; j += 1 {
-				v[j], v[((j + 1) % 4) + 4], v[((j + 2) % 4) + 8], v[((j + 3) % 4) + 12] = blake256_g(v[j], v[((j + 1) % 4) + 4], v[((j + 2) % 4) + 8], v[((j + 3) % 4) + 12], m, i, j + 4);
-			}
+			v[0], v[4], v[8],  v[12] = blake256_g(v[0], v[4], v[8],  v[12], m, i, 0);
+			v[1], v[5], v[9],  v[13] = blake256_g(v[1], v[5], v[9],  v[13], m, i, 1);
+			v[2], v[6], v[10], v[14] = blake256_g(v[2], v[6], v[10], v[14], m, i, 2);
+			v[3], v[7], v[11], v[15] = blake256_g(v[3], v[7], v[11], v[15], m, i, 3);
+			v[0], v[5], v[10], v[15] = blake256_g(v[0], v[5], v[10], v[15], m, i, 4);
+			v[1], v[6], v[11], v[12] = blake256_g(v[1], v[6], v[11], v[12], m, i, 5);
+			v[2], v[7], v[8],  v[13] = blake256_g(v[2], v[7], v[8],  v[13], m, i, 6);
+			v[3], v[4], v[9],  v[14] = blake256_g(v[3], v[4], v[9],  v[14], m, i, 7);
 		}
 
 		for i = 0; i < 8; i += 1 {
@@ -212,12 +214,14 @@ blake512_compress :: proc "contextless" (ctx : ^BLAKE_512, p : []u8) #no_bounds_
 		}
 
 		for i = 0; i < 16; i += 1 {
-			for j = 0; j < 4; j += 1 {
-				v[j], v[j + 4], v[j + 8], v[j + 12] = blake_g512(v[j], v[j + 4], v[j + 8], v[j + 12], m, i, j);
-			}
-			for j = 0; j < 4; j += 1 {
-				v[j], v[((j + 1) % 4) + 4], v[((j + 2) % 4) + 8], v[((j + 3) % 4) + 12] = blake_g512(v[j], v[((j + 1) % 4) + 4], v[((j + 2) % 4) + 8], v[((j + 3) % 4) + 12], m, i, j + 4);
-			}
+			v[0], v[4], v[8],  v[12] = blake512_g(v[0], v[4], v[8],  v[12], m, i, 0);
+			v[1], v[5], v[9],  v[13] = blake512_g(v[1], v[5], v[9],  v[13], m, i, 1);
+			v[2], v[6], v[10], v[14] = blake512_g(v[2], v[6], v[10], v[14], m, i, 2);
+			v[3], v[7], v[11], v[15] = blake512_g(v[3], v[7], v[11], v[15], m, i, 3);
+			v[0], v[5], v[10], v[15] = blake512_g(v[0], v[5], v[10], v[15], m, i, 4);
+			v[1], v[6], v[11], v[12] = blake512_g(v[1], v[6], v[11], v[12], m, i, 5);
+			v[2], v[7], v[8],  v[13] = blake512_g(v[2], v[7], v[8],  v[13], m, i, 6);
+			v[3], v[4], v[9],  v[14] = blake512_g(v[3], v[4], v[9],  v[14], m, i, 7);
 		}
 
 		for i = 0; i < 8; i += 1 {
