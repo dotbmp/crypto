@@ -1,7 +1,7 @@
 package main
 
 import "core:fmt"
-import "../hashes/crypto"
+import ".."
 
 TestHash :: struct {
     hash: string,
@@ -48,16 +48,16 @@ test :: proc(testVectors: []TestHash, algo: string) {
 
             // BLAKE1
             case "BLAKE1-224":
-                out:= crypto.blake1_224(([]byte)(s.str));
+                out:= crypto.blake224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE1-256":
-                out:= crypto.blake1_256(([]byte)(s.str));
+                out:= crypto.blake256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE1-384":
-                out:= crypto.blake1_384(([]byte)(s.str));
+                out:= crypto.blake384(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE1-512":
-                out:= crypto.blake1_512(([]byte)(s.str));
+                out:= crypto.blake512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             case: 
