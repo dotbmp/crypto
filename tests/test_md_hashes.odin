@@ -1,8 +1,8 @@
 package main
 
 import "core:fmt"
-import "shared:hex";
-import "hashes/crypto"
+import "shared:encodings/hex";
+import ".."
 
 TestHash :: struct {
     hash: string,
@@ -33,7 +33,7 @@ test_md2 :: proc() -> bool {
         msg = md2TestVectors[i].str;
         hash = md2TestVectors[i].hash;
         out = crypto.md2(([]byte)(msg));
-        outStr = hex.hex_string(out[:]);
+        outStr = hex.encode(out[:]);
 
         if(outStr != hash) {
             passedTest = false;
@@ -69,7 +69,7 @@ test_md4 :: proc() -> bool {
         msg = md4TestVectors[i].str;
         hash = md4TestVectors[i].hash;
         out = crypto.md4(([]byte)(msg));
-        outStr = hex.hex_string(out[:]);
+        outStr = hex.encode(out[:]);
 
         if(outStr != hash) {
             passedTest = false;
@@ -105,7 +105,7 @@ test_md5 :: proc() -> bool {
         msg = md5TestVectors[i].str;
         hash = md5TestVectors[i].hash;
         out = crypto.md5(([]byte)(msg));
-        outStr = hex.hex_string(out[:]);
+        outStr = hex.encode(out[:]);
 
         if(outStr != hash) {
             passedTest = false;
@@ -123,7 +123,7 @@ test_md6 :: proc() -> bool {
     // Taken from https://www.easycalculation.com/other/md6.php
     hash := "d6fe71197b4dfc5ca5c2b741a83f3239aeca7fd5b7157827544370234a3ea9bd0fe6c96ba4062719c8a85df229fef90dd602cd05312d293a1439768bac45c37f";
     out := crypto.md6_512(([]byte)(msg));
-    outStr := hex.hex_string(out[:]);
+    outStr := hex.encode(out[:]);
 
     fmt.printf("Hash: %s", outStr);
 

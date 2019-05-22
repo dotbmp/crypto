@@ -1,8 +1,8 @@
 package main
 
 import "core:fmt"
-import "shared:hex";
-import "hashes/crypto"
+import "shared:encodings/hex";
+import ".."
 
 TestHash :: struct {
     hash: string,
@@ -31,7 +31,7 @@ test_sha1 :: proc() -> bool {
         msg = sha1TestVectors[i].str;
         hash = sha1TestVectors[i].hash;
         out = crypto.sha1(([]byte)(msg));
-        outStr = hex.hex_string(out[:]);
+        outStr = hex.encode(out[:]);
 
         if(outStr != hash) {
             passedTest = false;
