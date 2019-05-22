@@ -145,28 +145,38 @@ blake512_g :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int)
 	return a, b, c, d;
 }
 
-blake_block256 :: proc "contextless" (ctx : ^BLAKE_256, p : []u8) #no_bounds_check {
-    h := ctx.h;
+blake_block256 :: proc "contextless" (using ctx : ^BLAKE_256, p : []u8) #no_bounds_check {
 	i, j : int = ---, ---;
-
+	v, m : [16]u32 = ---, ---;
+	
 	for len(p) >= BLAKE_BLOCKSIZE_256 {
-		v : [16]u32 = ---;
-		for i = 0; i < 4; i += 1 {
-			v[i], v[i + 4] = h[i], h[i + 4];
-			v[i + 8], v[i + 12] = ctx.s[i] ~ BLAKE_U256[i], BLAKE_U256[i + 4];
-		}
+		v[0]  = h[0];
+		v[1]  = h[1];
+		v[2]  = h[2];
+		v[3]  = h[3];
+		v[4]  = h[4];
+		v[5]  = h[5];
+		v[6]  = h[6];
+		v[7]  = h[7];
+		v[8]  = s[0] ~ BLAKE_U256[0]; 
+		v[9]  = s[1] ~ BLAKE_U256[1]; 
+		v[10] = s[2] ~ BLAKE_U256[2]; 
+		v[11] = s[3] ~ BLAKE_U256[3];
+		v[12] = BLAKE_U256[4];
+		v[13] = BLAKE_U256[5];
+		v[14] = BLAKE_U256[6];
+		v[15] = BLAKE_U256[7];
 
-		ctx.t += 512;
-		if !ctx.nullt {
+		t += 512;
+		if !nullt {
 			v[12] ~= u32(ctx.t);
 			v[13] ~= u32(ctx.t);
 			v[14] ~= u32(ctx.t >> 32);
 			v[15] ~= u32(ctx.t >> 32);
 		}
 
-		m : [16]u32 = ---;
 		for i, j = 0, 0; i < 16; i, j = i+1, j+4 {
-			m[i] = u32(p[j]) << 24 | u32(p[j + 1]) << 16 | u32(p[j + 2]) << 8 | u32(p[j + 3]);
+			m[i] = u32((^u32be)(&p[j])^);
 		}
 
 		for i = 0; i < 14; i += 1 {
@@ -181,36 +191,44 @@ blake_block256 :: proc "contextless" (ctx : ^BLAKE_256, p : []u8) #no_bounds_che
 		}
 
 		for i = 0; i < 8; i += 1 {
-			h[i] ~= ctx.s[i % 4] ~ v[i] ~ v[i + 8];
+			h[i] ~= s[i % 4] ~ v[i] ~ v[i + 8];
 		}
 		p = p[BLAKE_BLOCKSIZE_256:];
 	}
-
-	ctx.h = h;
 }
 
-blake512_compress :: proc "contextless" (ctx : ^BLAKE_512, p : []u8) #no_bounds_check {
-    h := ctx.h;
+blake512_compress :: proc "contextless" (using ctx : ^BLAKE_512, p : []u8) #no_bounds_check {
 	i, j : int = ---, ---;
+	v, m : [16]u64 = ---, ---;
 
 	for len(p) >= BLAKE_BLOCKSIZE_512 {
-		v : [16]u64 = ---;
-		for i = 0; i < 4; i += 1 {
-			v[i], v[i + 4] = h[i], h[i + 4];
-			v[i + 8], v[i + 12] = ctx.s[i] ~ BLAKE_U512[i], BLAKE_U512[i + 4];
-		}
+		v[0]  = h[0];
+		v[1]  = h[1];
+		v[2]  = h[2];
+		v[3]  = h[3];
+		v[4]  = h[4];
+		v[5]  = h[5];
+		v[6]  = h[6];
+		v[7]  = h[7];
+		v[8]  = s[0] ~ BLAKE_U512[0]; 
+		v[9]  = s[1] ~ BLAKE_U512[1]; 
+		v[10] = s[2] ~ BLAKE_U512[2]; 
+		v[11] = s[3] ~ BLAKE_U512[3];
+		v[12] = BLAKE_U512[4];
+		v[13] = BLAKE_U512[5];
+		v[14] = BLAKE_U512[6];
+		v[15] = BLAKE_U512[7];
 
-		ctx.t += 1024;
-		if !ctx.nullt {
-			v[12] ~= ctx.t;
-			v[13] ~= ctx.t;
+		t += 1024;
+		if !nullt {
+			v[12] ~= t;
+			v[13] ~= t;
 			v[14] ~= 0;
 			v[15] ~= 0;
 		}
 
-		m : [16]u64 = ---;
 		for i, j = 0, 0; i < 16; i, j = i+1, j+8 {
-			m[i] = u64(p[j]) << 56 | u64(p[j + 1]) << 48 | u64(p[j + 2]) << 40 | u64(p[j + 3]) << 32 | u64(p[j + 4]) << 24 | u64(p[j + 5]) << 16 | u64(p[j + 6]) << 8 | u64(p[j + 7]);
+			m[i] = u64((^u64be)(&p[j])^);
 		}
 
 		for i = 0; i < 16; i += 1 {
@@ -225,12 +243,10 @@ blake512_compress :: proc "contextless" (ctx : ^BLAKE_512, p : []u8) #no_bounds_
 		}
 
 		for i = 0; i < 8; i += 1 {
-			h[i] ~= ctx.s[i % 4] ~ v[i] ~ v[i + 8];
+			h[i] ~= s[i % 4] ~ v[i] ~ v[i + 8];
 		}
 		p = p[BLAKE_BLOCKSIZE_512:];
 	}
-
-	ctx.h = h;
 }
 
 blake_reset_256 :: proc "contextless" (ctx : ^BLAKE_256) #no_bounds_check {
