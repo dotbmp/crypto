@@ -105,8 +105,6 @@ md2_final :: proc(ctx: ^MD2_CTX, hash: ^[MD2_BLOCK_SIZE]u8){
     }
 }
 
-// @todo(zh): add procs for file, compare and check for endianness
-
 md2 :: proc(data: []byte) -> [MD2_BLOCK_SIZE]byte {
 
     hash : [MD2_BLOCK_SIZE]byte;
