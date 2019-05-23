@@ -59,7 +59,16 @@ test :: proc(testVectors: []TestHash, algo: string) {
             case "BLAKE-512":
                 out:= crypto.blake512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
-
+            
+            // BLAKE2
+            case "BLAKE2S-256":
+                out:= crypto.blake2s_256(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "BLAKE2B-512":
+                out:= crypto.blake2b_512(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            
+            // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
                 return;
@@ -116,8 +125,8 @@ main :: proc() {
     };
     test(sha1TestVectors[:], "SHA1");
     // =================== //
-    // BLAKE1 Series       //
-    // BLAKE1-224          //
+    // BLAKE Series       //
+    // BLAKE-224          //
     blake224TestVectors := [4]TestHash {
         TestHash{"7dc5313b1c04512a174bd6503b89607aecbee0903d40a8a569c94eed", ""},
         TestHash{"304c27fdbf308aea06955e331adc6814223a21fccd24c09fde9eda7b", "ube"},
@@ -125,7 +134,7 @@ main :: proc() {
         TestHash{"8bd036c145222cd5401f36bcc79628b8d577f5e815910a71b92cb2be", "Golang"},
     };
     test(blake224TestVectors[:], "BLAKE-224");
-    // BLAKE1-256          //
+    // BLAKE-256          //
     blake256TestVectors := [4]TestHash {
         TestHash{"716f6e863f744b9ac22c97ec7b76ea5f5908bc5b2f67c61510bfc4751384ea7a", ""},
         TestHash{"e802fe2a73fbe5853408f051d040aeb3a76a4d7a0fc5c3415d1af090f76a2c81", "ube"},
@@ -149,5 +158,19 @@ main :: proc() {
         TestHash{"cc6d779ca76673932e2f93681d502a1c6fd82932b48632c2a2f3c599e7bf016e7280a2e74da8a6fe76d5a36dd412ef7d67778acc1a458856f1181e9fe0a0c25c", "Golang"},
     };
     test(blake512TestVectors[:], "BLAKE-512");
+    // =================== //
+    // BLAKE2 Series       //
+    // BLAKE2S-256         //
+    blake2s256TestVectors := [3]TestHash {
+        TestHash{"69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9", ""},
+        TestHash{"606beeec743ccbeff6cbcdf5d5302aa855c256c29b88c8ed331ea1a6bf3c8812", "The quick brown fox jumps over the lazy dog"},
+    };
+    test(blake2s256TestVectors[:], "BLAKE2S-256");
+    // BLAKE2B-512         //
+    blake2b512TestVectors := [2]TestHash {
+        TestHash{"786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce", ""},
+        TestHash{"a8add4bdddfd93e4877d2746e62817b116364a1fa7bc148d95090bc7333b3673f82401cf7aa2e4cb1ecd90296e3f14cb5413f8ed77be73045b13914cdcd6a918", "The quick brown fox jumps over the lazy dog"},
+    };
+    test(blake2b512TestVectors[:], "BLAKE2B-512");
     // =================== //
 }
