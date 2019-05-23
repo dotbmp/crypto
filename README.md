@@ -6,7 +6,7 @@ List taken [from](https://en.wikipedia.org/wiki/Comparison_of_cryptographic_hash
 and [here](https://en.wikipedia.org/wiki/Bcrypt)
 
 - [x] BLAKE
-- [ ] BLAKE2
+- [x] BLAKE2
 - [ ] GOST
 - [ ] HAVAL
 - [ ] KangarooTwelve
