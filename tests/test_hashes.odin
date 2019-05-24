@@ -40,9 +40,6 @@ test :: proc(testVectors: []TestHash, algo: string) {
             case "MD5":
                 out:= crypto.md5(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
-            case "MD6":
-                out:= crypto.md6_512(([]byte)(s.str));
-                if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA
             case "SHA1":
@@ -71,6 +68,11 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= crypto.blake2b_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
+            // RIPEMD
+            case "RIPEMD-128":
+                out:= crypto.ripemd_128(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
@@ -116,11 +118,6 @@ main :: proc() {
         TestHash{"57edf4a22be3c955ac49da2e2107b67a", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"}
     };
     test(md5TestVectors[:], "MD5");
-    // MD6                 //
-    md6TestVectors := [1]TestHash {
-        TestHash{"d6fe71197b4dfc5ca5c2b741a83f3239aeca7fd5b7157827544370234a3ea9bd0fe6c96ba4062719c8a85df229fef90dd602cd05312d293a1439768bac45c37f", "Hellope"},
-    };
-    test(md6TestVectors[:], "MD6");
     // =================== //
     // SHA Series          //
     // SHA1                //
@@ -180,5 +177,15 @@ main :: proc() {
         TestHash{"a8add4bdddfd93e4877d2746e62817b116364a1fa7bc148d95090bc7333b3673f82401cf7aa2e4cb1ecd90296e3f14cb5413f8ed77be73045b13914cdcd6a918", "The quick brown fox jumps over the lazy dog"},
     };
     test(blake2b512TestVectors[:], "BLAKE2B-512");
+    // =================== //
+    // RIPEMD Series       //
+    // RIPEMD-128          //
+    ripemd128TestVectors := [4]TestHash {
+        TestHash{"cdf26213a150dc3ecb610f18f6b38b46", ""},   
+        TestHash{"86be7afa339d0fc7cfc785e72f578d33", "a"},
+        TestHash{"d6d56cab46e0f3af2c756289f2b447e0", "123456"},   
+        TestHash{"8c50b43a578e2df899a5b299d4c84794", "hellope"},    
+    };
+    test(ripemd128TestVectors[:], "RIPEMD-128");
     // =================== //
 }
