@@ -146,8 +146,7 @@ MD6_BIG_ENDIAN : bool;
 md6_state :: struct {
     d : i32,
     hashbitlen : i32,
-    hashval : []byte,
-    hexhashval : []byte,
+    hashval : [md6_c*(md6_w/8)]byte,
     initialized : i32,
     bits_processed : u64,
     compression_calls : u64,
@@ -162,90 +161,94 @@ md6_state :: struct {
     i_for_level : [md6_max_stack_height]i32,
 }
 
-md6_loop_body :: inline proc "contextless"(rs, ls, step, i : i32, A : []md6_word, S : md6_word) {
-    x := S;
-    x ~= A[i + step - md6_t5];                   
-    x ~= A[i + step - md6_t0];                   
-    x ~= A[i + step - md6_t1] & A[i + step - md6_t2]; 
-    x ~= A[i + step - md6_t3] & A[i + step - md6_t4]; 
-    x ~= (x >> u32(rs));                       
-    A[i + step] = x ~ (x << u32(ls)); 
+md6_loop_body :: inline proc "contextless"(rs, ls, step, i : i32, A : []md6_word, S : md6_word) -> md6_word #no_bounds_check { // @todo(bp): confirm no bounds is okay
+    S ~= A[i + step - md6_t5];                   
+    S ~= A[i + step - md6_t0];                   
+    S ~= A[i + step - md6_t1] & A[i + step - md6_t2]; 
+    S ~= A[i + step - md6_t3] & A[i + step - md6_t4]; 
+    S ~= (S >> u32(rs));                       
+    A[i + step] = S ~ (S << u32(ls));
+    return S;
 }
 
-md6_loop_body_64 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) {
-    md6_loop_body(10,11, 0, i, A[:], S);
-    md6_loop_body( 5,24, 1, i, A[:], S);
-    md6_loop_body(13, 9, 2, i, A[:], S);
-    md6_loop_body(10,16, 3, i, A[:], S);
-    md6_loop_body(11,15, 4, i, A[:], S);
-    md6_loop_body(12, 9, 5, i, A[:], S);
-    md6_loop_body( 2,27, 6, i, A[:], S);
-    md6_loop_body( 7,15, 7, i, A[:], S);
-    md6_loop_body(14, 6, 8, i, A[:], S);
-    md6_loop_body(15, 2, 9, i, A[:], S);
-    md6_loop_body( 7,29,10, i, A[:], S);
-    md6_loop_body(13, 8,11, i, A[:], S);
-    md6_loop_body(11,15,12, i, A[:], S);
-    md6_loop_body( 7, 5,13, i, A[:], S);
-    md6_loop_body( 6,31,14, i, A[:], S);
-    md6_loop_body(12, 9,15, i, A[:], S);
+md6_loop_body_64 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) -> md6_word {
+    S = md6_loop_body(10,11, 0, i, A[:], S);
+    S = md6_loop_body( 5,24, 1, i, A[:], S);
+    S = md6_loop_body(13, 9, 2, i, A[:], S);
+    S = md6_loop_body(10,16, 3, i, A[:], S);
+    S = md6_loop_body(11,15, 4, i, A[:], S);
+    S = md6_loop_body(12, 9, 5, i, A[:], S);
+    S = md6_loop_body( 2,27, 6, i, A[:], S);
+    S = md6_loop_body( 7,15, 7, i, A[:], S);
+    S = md6_loop_body(14, 6, 8, i, A[:], S);
+    S = md6_loop_body(15, 2, 9, i, A[:], S);
+    S = md6_loop_body( 7,29,10, i, A[:], S);
+    S = md6_loop_body(13, 8,11, i, A[:], S);
+    S = md6_loop_body(11,15,12, i, A[:], S);
+    S = md6_loop_body( 7, 5,13, i, A[:], S);
+    S = md6_loop_body( 6,31,14, i, A[:], S);
+    S = md6_loop_body(12, 9,15, i, A[:], S);
+    return S;
 }
 
-md6_loop_body_32 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) {
-    md6_loop_body( 5, 4, 0, i, A[:], S);
-    md6_loop_body( 3, 7, 1, i, A[:], S);
-    md6_loop_body( 6, 7, 2, i, A[:], S);
-    md6_loop_body( 5, 9, 3, i, A[:], S);
-    md6_loop_body( 4,13, 4, i, A[:], S);
-    md6_loop_body( 6, 8, 5, i, A[:], S);
-    md6_loop_body( 7, 4, 6, i, A[:], S);
-    md6_loop_body( 3,14, 7, i, A[:], S);
-    md6_loop_body( 5, 7, 8, i, A[:], S);
-    md6_loop_body( 6, 4, 9, i, A[:], S);
-    md6_loop_body( 5, 8,10, i, A[:], S);
-    md6_loop_body( 5,11,11, i, A[:], S);
-    md6_loop_body( 4, 5,12, i, A[:], S);
-    md6_loop_body( 6, 8,13, i, A[:], S);
-    md6_loop_body( 7, 2,14, i, A[:], S);
-    md6_loop_body( 5,11,15, i, A[:], S);
+md6_loop_body_32 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) -> md6_word {
+    S = md6_loop_body( 5, 4, 0, i, A[:], S);
+    S = md6_loop_body( 3, 7, 1, i, A[:], S);
+    S = md6_loop_body( 6, 7, 2, i, A[:], S);
+    S = md6_loop_body( 5, 9, 3, i, A[:], S);
+    S = md6_loop_body( 4,13, 4, i, A[:], S);
+    S = md6_loop_body( 6, 8, 5, i, A[:], S);
+    S = md6_loop_body( 7, 4, 6, i, A[:], S);
+    S = md6_loop_body( 3,14, 7, i, A[:], S);
+    S = md6_loop_body( 5, 7, 8, i, A[:], S);
+    S = md6_loop_body( 6, 4, 9, i, A[:], S);
+    S = md6_loop_body( 5, 8,10, i, A[:], S);
+    S = md6_loop_body( 5,11,11, i, A[:], S);
+    S = md6_loop_body( 4, 5,12, i, A[:], S);
+    S = md6_loop_body( 6, 8,13, i, A[:], S);
+    S = md6_loop_body( 7, 2,14, i, A[:], S);
+    S = md6_loop_body( 5,11,15, i, A[:], S);
+    return S;
 }
 
-md6_loop_body_16 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) {
-    md6_loop_body( 5, 6, 0, i, A[:], S);
-    md6_loop_body( 4, 7, 1, i, A[:], S);
-    md6_loop_body( 3, 2, 2, i, A[:], S);
-    md6_loop_body( 5, 4, 3, i, A[:], S);
-    md6_loop_body( 7, 2, 4, i, A[:], S);
-    md6_loop_body( 5, 6, 5, i, A[:], S);
-    md6_loop_body( 5, 3, 6, i, A[:], S);
-    md6_loop_body( 2, 7, 7, i, A[:], S);
-    md6_loop_body( 4, 5, 8, i, A[:], S);
-    md6_loop_body( 3, 7, 9, i, A[:], S);
-    md6_loop_body( 4, 6,10, i, A[:], S);
-    md6_loop_body( 3, 5,11, i, A[:], S);
-    md6_loop_body( 4, 5,12, i, A[:], S);
-    md6_loop_body( 7, 6,13, i, A[:], S);
-    md6_loop_body( 7, 4,14, i, A[:], S);
-    md6_loop_body( 2, 3,15, i, A[:], S);
+md6_loop_body_16 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) -> md6_word {
+    S = md6_loop_body( 5, 6, 0, i, A[:], S);
+    S = md6_loop_body( 4, 7, 1, i, A[:], S);
+    S = md6_loop_body( 3, 2, 2, i, A[:], S);
+    S = md6_loop_body( 5, 4, 3, i, A[:], S);
+    S = md6_loop_body( 7, 2, 4, i, A[:], S);
+    S = md6_loop_body( 5, 6, 5, i, A[:], S);
+    S = md6_loop_body( 5, 3, 6, i, A[:], S);
+    S = md6_loop_body( 2, 7, 7, i, A[:], S);
+    S = md6_loop_body( 4, 5, 8, i, A[:], S);
+    S = md6_loop_body( 3, 7, 9, i, A[:], S);
+    S = md6_loop_body( 4, 6,10, i, A[:], S);
+    S = md6_loop_body( 3, 5,11, i, A[:], S);
+    S = md6_loop_body( 4, 5,12, i, A[:], S);
+    S = md6_loop_body( 7, 6,13, i, A[:], S);
+    S = md6_loop_body( 7, 4,14, i, A[:], S);
+    S = md6_loop_body( 2, 3,15, i, A[:], S);
+    return S;
 }
 
-md6_loop_body_8 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) {
-    md6_loop_body( 3, 2, 0, i, A[:], S);
-    md6_loop_body( 3, 4, 1, i, A[:], S);
-    md6_loop_body( 3, 2, 2, i, A[:], S);
-    md6_loop_body( 4, 3, 3, i, A[:], S);
-    md6_loop_body( 3, 2, 4, i, A[:], S);
-    md6_loop_body( 3, 2, 5, i, A[:], S);
-    md6_loop_body( 3, 2, 6, i, A[:], S);
-    md6_loop_body( 3, 4, 7, i, A[:], S);
-    md6_loop_body( 2, 3, 8, i, A[:], S);
-    md6_loop_body( 2, 3, 9, i, A[:], S);
-    md6_loop_body( 3, 2,10, i, A[:], S);
-    md6_loop_body( 2, 3,11, i, A[:], S);
-    md6_loop_body( 2, 3,12, i, A[:], S);
-    md6_loop_body( 3, 4,13, i, A[:], S);
-    md6_loop_body( 2, 3,14, i, A[:], S);
-    md6_loop_body( 3, 4,15, i, A[:], S);
+md6_loop_body_8 :: inline proc "contextless"(i : i32, A : []md6_word, S : md6_word) -> md6_word {
+    S = md6_loop_body( 3, 2, 0, i, A[:], S);
+    S = md6_loop_body( 3, 4, 1, i, A[:], S);
+    S = md6_loop_body( 3, 2, 2, i, A[:], S);
+    S = md6_loop_body( 4, 3, 3, i, A[:], S);
+    S = md6_loop_body( 3, 2, 4, i, A[:], S);
+    S = md6_loop_body( 3, 2, 5, i, A[:], S);
+    S = md6_loop_body( 3, 2, 6, i, A[:], S);
+    S = md6_loop_body( 3, 4, 7, i, A[:], S);
+    S = md6_loop_body( 2, 3, 8, i, A[:], S);
+    S = md6_loop_body( 2, 3, 9, i, A[:], S);
+    S = md6_loop_body( 3, 2,10, i, A[:], S);
+    S = md6_loop_body( 2, 3,11, i, A[:], S);
+    S = md6_loop_body( 2, 3,12, i, A[:], S);
+    S = md6_loop_body( 3, 4,13, i, A[:], S);
+    S = md6_loop_body( 2, 3,14, i, A[:], S);
+    S = md6_loop_body( 3, 4,15, i, A[:], S);
+    return S;
 }
 
 md6_detect_byte_order :: inline proc "contextless"() {
@@ -320,12 +323,11 @@ md6_main_compression_loop :: proc(A : []md6_word, r : i32) {
     j, i : i32;
 
     S := MD6_S0;
-    for j, i = 0, md6_n; j < r * md6_c; j += 1 {
+    for j, i = 0, md6_n; j < r * md6_c; j, i = j+1, j+16 {
         
-        md6_loop_body_64(i, A[:], S);
+        S = md6_loop_body_64(i, A[:], S);
 
         S = (S << 1) ~ (S >> (md6_w - 1)) ~ (S & MD6_Smask);
-        i += 16;
     }
 
 }
@@ -341,15 +343,15 @@ md6_compress :: proc(C, N : []md6_word, r : i32, A : []md6_word) -> MD6_STATUS {
     //if ( A == NULL) A = calloc(r*c+n,sizeof(md6_word));
     if A == nil do return MD6_STATUS.OUT_OF_MEMORY;
 
-    copy(A[:], N[:md6_n*size_of(md6_word)]);
+    copy(A[:], N[:md6_n]);
     //memcpy( A, N, n*sizeof(md6_word) );    /* copy N to front of A */
 
     md6_main_compression_loop(A[:], r);
 
-    copy(C[:], A[(r - 1) * md6_c + md6_n:md6_c * size_of(md6_word)]);
+    copy(C[:], A[(r - 1) * md6_c + md6_n:(r - 1) * md6_c + md6_n + md6_c]);
     //memcpy( C, A+(r-1)*c+n, c*sizeof(md6_word) ); /* output into C */
     if A_as_given == nil {
-        mem.zero_slice(A[0:(int(r) * md6_c + md6_n) * size_of(md6_word)]);
+        mem.zero_slice(A[:(int(r) * md6_c + md6_n)]);
         delete(A);
         //{ memset(A,0,(r*c+n)*sizeof(md6_word)); /* contains key info */
         //  free(A); 
@@ -373,8 +375,8 @@ md6_pack :: proc(N, Q, K : []md6_word, ell, i, r, L, z, p, keylen, d : i32, B : 
     j : i32;
     ni : i32 = 0;
 
-    for j = 0; j < md6_q; i += 1 do N[ni] = Q[j]; ni += 1;
-    for j = 0; j < md6_k; i += 1 do N[ni] = K[j]; ni += 1;
+    for j = 0; j < md6_q; j += 1 do N[ni] = Q[j]; ni += 1;
+    for j = 0; j < md6_k; j += 1 do N[ni] = K[j]; ni += 1;
 
     U := md6_make_nodeID(ell, i);
     mem.copy(&N[ni], &U, int(min(md6_u * (md6_w / 8), size_of(md6_nodeID))));
@@ -416,23 +418,23 @@ md6_standard_compress :: proc(C, Q, K : []md6_word, ell, i, r, L, z, p, keylen, 
 }
 
 md6_init :: proc(st : ^md6_state, d : i32) -> MD6_STATUS {
-    return md6_full_init(st, d, nil, 0, md6_default_L, md6_default_r(d,0));
+    return md6_full_init(st, d, nil, md6_default_L, md6_default_r(d,0));
 }
 
-md6_full_init :: proc(st : ^md6_state, d : i32, key : ^[]byte, keylen, L, r : i32) -> MD6_STATUS {
+md6_full_init :: proc(st : ^md6_state, d : i32, key : []byte, L, r : i32) -> MD6_STATUS {
 
     if st == nil do return MD6_STATUS.NULLSTATE;
-    if key != nil && (keylen < 0 || keylen > md6_k * (md6_w / 8)) do return MD6_STATUS.BADKEYLEN;
+    if key != nil && (len(key) < 0 || len(key) > md6_k * (md6_w / 8)) do return MD6_STATUS.BADKEYLEN;
     if d < 1 || d > 512 || d > md6_w * md6_c / 2 do return MD6_STATUS.BADHASHLEN;
 
     md6_detect_byte_order();
     st^ = {};
     st.d = d;
 
-    if key != nil && keylen > 0 {
-        mem.copy(&st.K, key, int(keylen));
+    if key != nil && len(key) > 0 {
+        copy(mem.slice_to_bytes(st.K[:]), key);
         //memcpy(st->K,key,keylen);  
-        st.keylen = keylen;
+        st.keylen = i32(len(key));
         md6_reverse_little_endian(st.K[:]);
     } else {
         st.keylen = 0;
@@ -476,25 +478,9 @@ md6_trim_hashval :: proc(st : ^md6_state) {
     }
 }
 
-md6_compute_hex_hashval :: proc(st : ^md6_state) -> MD6_STATUS{
+md6_append_bits :: proc(dest : ^[md6_b]md6_word, destlen : i32 , src : []byte) {
 
-    hex_digits : []byte = {0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'};
-
-    if st == nil do return MD6_STATUS.NULLSTATE;
-
-    for i : i32 = 0; i < (st.d + 7) / 8; i += 1 {
-        st.hexhashval[2 * i] = hex_digits[(st.hashval[i] >> 4) & 0xf];
-        st.hexhashval[2 * i + 1] = hex_digits[(st.hashval[i]) & 0xf];
-    }
-
-    st.hexhashval[(st.d + 3) / 4] = 0;
-
-    return MD6_STATUS.SUCCESS;
-}
-
-md6_append_bits :: proc(dest : ^[md6_b]md6_word, destlen : i32 , src : []byte, srclen : i32) {
-
-    if srclen == 0 do return;
+    if len(src) == 0 do return;
 
     accum : u16 = 0;
     accumlen : i32 = 0;
@@ -506,17 +492,17 @@ md6_append_bits :: proc(dest : ^[md6_b]md6_word, destlen : i32 , src : []byte, s
     }
     di : i32 = destlen / 8;
 
-    srcbytes : i32 = (srclen + 7) / 8;
+    srcbytes := i32((len(src) + 7) / 8);
     for i : i32 = 0; i < srcbytes; i += 1 {
         if i != srcbytes - 1 {
             accum = (accum << 8) ~ u16(src[i]);  
 	        accumlen += 8;
         } else {
             newbits : i32;
-            if srclen % 8 == 0 {
+            if len(src) % 8 == 0 {
                 newbits = 8;
             } else {
-                newbits = srclen % 8;
+                newbits = i32(len(src) % 8);
                 accum = (u16(accum) << u16(newbits)) | (u16(src[i]) >> (8 - u16(newbits)));
                 accumlen += newbits;
             } 
@@ -590,7 +576,7 @@ md6_process :: proc(st : ^md6_state, ell, final : i32) -> MD6_STATUS {
     if final != 0 && ell == st.top do z = 1;
     if err = md6_compress_block(C[:], st, ell, z); err != MD6_STATUS.SUCCESS do return err;
     if z == 1 {
-        mem.copy(&st.hashval, &C, md6_c * (md6_w / 8));
+        mem.copy(&st.hashval[0], &C[0], md6_c * (md6_w / 8));
         //memcpy( st->hashval, C, md6_c*(w/8) );
         return MD6_STATUS.SUCCESS;
     }
@@ -607,11 +593,13 @@ md6_process :: proc(st : ^md6_state, ell, final : i32) -> MD6_STATUS {
     return md6_process(st, next_level, final);
 }
 
-md6_update :: proc(st : ^md6_state, data : ^[]byte, databitlen : u64) -> MD6_STATUS {
+md6_update :: proc(st : ^md6_state, data : []byte) -> MD6_STATUS {
 
     if st == nil do return MD6_STATUS.NULLSTATE;
     if st.initialized == 0 do return MD6_STATUS.STATENOTINIT;
     if data == nil do return MD6_STATUS.NULLDATA;
+
+    databitlen := u64(len(data)) * size_of(byte);
 
     j : u64 = 0;
     for j < databitlen {
@@ -623,7 +611,7 @@ md6_update :: proc(st : ^md6_state, data : ^[]byte, databitlen : u64) -> MD6_STA
             //memcpy((char *)st->B[1] + st->bits[1]/8, &(data[j/8]), portion_size/8);
         } else {
             // append_bits((unsigned char *)st->B[1], st->bits[1], &(data[j/8]), portion_size); 
-            md6_append_bits(&st.B[1], st.bits[1], data[(j / 8):], portion_size);
+            md6_append_bits(&st.B[1], st.bits[1], data[(j / 8):(j / 8) + u64(portion_size)]);
         }
 
         j += u64(portion_size);
@@ -644,7 +632,7 @@ md6_final :: proc(st : ^md6_state, hashval : []byte) -> MD6_STATUS {
 
     if st == nil do return MD6_STATUS.NULLSTATE;
     if st.initialized == 0 do return MD6_STATUS.STATENOTINIT;
-    if st.initialized == 1 do return MD6_STATUS.SUCCESS;
+    if st.finalized == 1 do return MD6_STATUS.SUCCESS;
     if st.top == 1 {
         ell = 0;
     } else {
@@ -657,21 +645,20 @@ md6_final :: proc(st : ^md6_state, hashval : []byte) -> MD6_STATUS {
 
     md6_reverse_little_endian_byte(st.hashval[:]);
     md6_trim_hashval(st);
-    if hashval != nil do mem.copy(hashval, &st.hashval, (int(st.d) + 7) / 8); //memcpy( hashval, st->hashval, (st->d+7)/8 );
+    mem.copy(&hashval[0], &st.hashval[0], (int(st.d) + 7) / 8); //memcpy( hashval, st->hashval, (st->d+7)/8 );
 
-    md6_compute_hex_hashval(st);
     st.finalized = 1;
 
     return MD6_STATUS.SUCCESS;
 }
 
-md6_full_hash :: proc(d : i32, data : []byte, databitlen : u64, key : []byte, keylen, L, r : i32, hashval : []byte) -> MD6_STATUS {
+md6_full_hash :: proc(d : i32, data : []byte, key : []byte, keylen, L, r : i32, hashval : []byte) -> MD6_STATUS {
     
     st : md6_state;
     err: MD6_STATUS = ---;
 
-    if err = md6_full_init(&st, d, key, keylen, L, r); err != MD6_STATUS.SUCCESS do return err;
-    if err = md6_update(&st, data, databitlen); err != MD6_STATUS.SUCCESS do return err;
+    if err = md6_full_init(&st, d, key, L, r); err != MD6_STATUS.SUCCESS do return err;
+    if err = md6_update(&st, data); err != MD6_STATUS.SUCCESS do return err;
     if err = md6_final(&st, hashval); err != MD6_STATUS.SUCCESS do return err;
 
     return MD6_STATUS.SUCCESS;
@@ -679,14 +666,14 @@ md6_full_hash :: proc(d : i32, data : []byte, databitlen : u64, key : []byte, ke
 
 md6_hash :: proc(d : i32, data : []byte, hashval : []byte) -> MD6_STATUS {
 
-    return md6_full_hash(d, data, u64(len(data)), nil, 0, md6_default_L, md6_default_r(d, 0), hashval);
+    return inline md6_full_hash(d, data, nil, 0, md6_default_L, md6_default_r(d, 0), hashval);
 }
 
 md6_128 :: proc(data: []byte) -> [16]byte {
 
     hash : [16]byte;
 
-    md6_hash(128, data, hash);
+    md6_hash(128, data, hash[:]);
 
     return hash;
 }
