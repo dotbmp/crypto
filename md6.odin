@@ -340,7 +340,9 @@ md6_compress :: proc(C, N : []md6_word, r : i32, A : []md6_word) -> MD6_STATUS {
     if C == nil do return MD6_STATUS.NULL_C;
     if (r < 0) | (r > md6_max_r) do return MD6_STATUS.BAD_r;
 
+    if A == nil do A = make([]md6_word, r * md6_c + md6_n);
     //if ( A == NULL) A = calloc(r*c+n,sizeof(md6_word));
+    
     if A == nil do return MD6_STATUS.OUT_OF_MEMORY;
 
     copy(A[:], N[:md6_n]);
