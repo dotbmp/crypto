@@ -14,11 +14,7 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [x] MD4
 - [x] MD5
 - [ ] MD6
-- [ ] RIPEMD
-- [ ] RIPEMD-128
-- [ ] RIPEMD-256
-- [ ] RIPEMD-160
-- [ ] RIPEMD-320
+- [x] RIPEMD
 - [x] SHA-1
 - [ ] SHA-2
 - [x] SHA-3 (Keccak)

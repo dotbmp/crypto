@@ -3,13 +3,14 @@ package crypto
 import "core:fmt"
 import "core:mem"
 
-// @ref(zh): https://github.com/maoxs2/go-ripemd
+// @ref(zh): https://github.com/maoxs2/go-ripemd <- Has a lot of errors and mixups with 256 and 320
+// Fixed them using info from https://homes.esat.kuleuven.be/~bosselae/ripemd160.html#Outline
 
 RIPEMD_128_SIZE :: 16;
 RIPEMD_128_BLOCK_SIZE :: 64;
 RIPEMD_160_SIZE :: 20;
 RIPEMD_160_BLOCK_SIZE :: 64;
-RIPEMD_256_SIZE :: 34;
+RIPEMD_256_SIZE :: 32;
 RIPEMD_256_BLOCK_SIZE :: 64;
 RIPEMD_320_SIZE :: 40;
 RIPEMD_320_BLOCK_SIZE :: 64;
@@ -77,58 +78,6 @@ RIPEMD_160_R1 := [80]uint{
 	15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
 	8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11,
 };
-RIPEMD_256_N0 := [64]uint{
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
-	7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
-	6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
-};
-RIPEMD_256_R0 := [64]uint{
-	11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
-	8, 9, 9, 11, 13, 15,15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
-	7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
-	9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
-};
-RIPEMD_256_N1 := [64]uint{
-	3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
-	15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
-	1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2,
-	8, 6, 4, 1, 3, 11, 15, 0, 5, 12, 2, 13, 9, 7, 10, 14,
-};
-RIPEMD_256_R1 := [64]uint{
-	11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
-	9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
-	11, 12, 14, 15, 14, 15, 9, 8, 9, 14, 5, 6, 8, 6, 5, 12,
-	15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
-};
-RIPEMD_320_N0 := [80]uint{
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
-	7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
-	6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
-	3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
-};
-RIPEMD_320_R0 := [80]uint{
-	11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
-	8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
-	7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
-	9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
-	11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
-};
-RIPEMD_320_N1 := [80]uint{
-	15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
-	1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2,
-	8, 6, 4, 1, 3, 11, 15, 0, 5, 12, 2, 13, 9, 7, 10, 14,
-	4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13,
-	12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11,
-};
-RIPEMD_320_R1 := [80]uint{
-	9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
-	11, 12, 14, 15, 14, 15, 9, 8, 9, 14, 5, 6, 8, 6, 5, 12,
-	15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
-	9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6,
-	8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11,
-};
 
 RIPEMD_128 :: struct {
 	s : [4]u32,
@@ -171,7 +120,7 @@ ripemd_reset :: proc(ctx: ^$T) {
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3], ctx.s[4] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3, RIPEMD_S4;
     } else when T == RIPEMD_256{
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3;
-        ctx.s[4], ctx.s[5], ctx.s[6], ctx.s[7] = RIPEMD_S4, RIPEMD_S5, RIPEMD_S6, RIPEMD_S7;
+        ctx.s[4], ctx.s[5], ctx.s[6], ctx.s[7] = RIPEMD_S5, RIPEMD_S6, RIPEMD_S7, RIPEMD_S8;
     } else when T == RIPEMD_320{
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3], ctx.s[4] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3, RIPEMD_S4;
         ctx.s[5], ctx.s[6], ctx.s[7], ctx.s[8], ctx.s[9] = RIPEMD_S5, RIPEMD_S6, RIPEMD_S7, RIPEMD_S8, RIPEMD_S9;
@@ -352,12 +301,12 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		}
 		i := 0;
 		for i < 16 {
-			alpha = a + (b ~ c ~ d) + x[RIPEMD_256_N0[i]];
-			s := int(RIPEMD_256_R0[i]);
+			alpha = a + (b ~ c ~ d) + x[RIPEMD_128_N0[i]];
+			s := int(RIPEMD_128_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			a, b, c, d = d, alpha, b, c;
-			alpha = aa + (bb & dd | cc &~ dd) + x[RIPEMD_256_N1[i]] + 0x50a28be6;
-			s = int(RIPEMD_256_R1[i]);
+			alpha = aa + (bb & dd | cc &~ dd) + x[RIPEMD_128_N1[i]] + 0x50a28be6;
+			s = int(RIPEMD_128_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			aa, bb, cc, dd= dd, alpha, bb, cc;
 			i += 1;
@@ -366,12 +315,12 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		a = aa;
 		aa = t;
 		for i < 32 {
-			alpha = a + (d ~ (b & (c~d))) + x[RIPEMD_256_N0[i]] + 0x5a827999;
-			s := int(RIPEMD_256_R0[i]);
+			alpha = a + (d ~ (b & (c~d))) + x[RIPEMD_128_N0[i]] + 0x5a827999;
+			s := int(RIPEMD_128_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			a, b, c, d = d, alpha, b, c;
-			alpha = aa + (dd ~ (bb | ~cc)) + x[RIPEMD_256_N1[i]] + 0x5c4dd124;
-			s = int(RIPEMD_256_R1[i]);
+			alpha = aa + (dd ~ (bb | ~cc)) + x[RIPEMD_128_N1[i]] + 0x5c4dd124;
+			s = int(RIPEMD_128_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
@@ -380,12 +329,12 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		b = bb; 
 		bb = t;
 		for i < 48 {
-			alpha = a + (d ~ (b | ~c)) + x[RIPEMD_256_N0[i]] + 0x6ed9eba1;
-			s := int(RIPEMD_256_R0[i]);
+			alpha = a + (d ~ (b | ~c)) + x[RIPEMD_128_N0[i]] + 0x6ed9eba1;
+			s := int(RIPEMD_128_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			a, b, c, d = d, alpha, b, c;
-			alpha = aa + (dd ~ (bb & (cc~dd))) + x[RIPEMD_256_N1[i]] + 0x6d703ef3;
-			s = int(RIPEMD_256_R1[i]);
+			alpha = aa + (dd ~ (bb & (cc~dd))) + x[RIPEMD_128_N1[i]] + 0x6d703ef3;
+			s = int(RIPEMD_128_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
@@ -394,12 +343,12 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		c = cc; 
 		cc = t;
 		for i < 64 {
-			alpha = a + (c ~ (d & (b~c))) + x[RIPEMD_256_N0[i]] + 0x8f1bbcdc;
-			s := int(RIPEMD_256_R0[i]);
+			alpha = a + (c ~ (d & (b~c))) + x[RIPEMD_128_N0[i]] + 0x8f1bbcdc;
+			s := int(RIPEMD_128_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			a, b, c, d = d, alpha, b, c;
-			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_256_N1[i]];
-			s = int(RIPEMD_256_R1[i]);
+			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_128_N1[i]];
+			s = int(RIPEMD_128_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s));
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
@@ -433,61 +382,29 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		}
 		i := 0;
 		for i < 16 {
-			alpha = a + (b ~ c ~ d) + x[RIPEMD_320_N0[i]];
-			s := int(RIPEMD_320_R0[i]);
+			alpha = a + (b ~ c ~ d) + x[RIPEMD_160_N0[i]];
+			s := int(RIPEMD_160_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
 			beta = RIPEMD_ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
-			alpha = aa + (bb ~ (cc | ~dd)) + x[RIPEMD_320_N1[i]] + 0x50a28be6;
-			s = int(RIPEMD_320_R1[i]);
+			alpha = aa + (bb ~ (cc | ~dd)) + x[RIPEMD_160_N1[i]] + 0x50a28be6;
+			s = int(RIPEMD_160_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
 			beta = RIPEMD_ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
-		t := a;
-		a = aa;
-		aa = t;
-		for i < 32 {
-			alpha = a + (b&c | ~b&d) + x[RIPEMD_320_N0[i]] + 0x5a827999;
-			s := int(RIPEMD_320_R0[i]);
-			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
-			beta = RIPEMD_ROTL32(c, 10);
-			a, b, c, d, e = e, alpha, b, beta, d;
-			alpha = aa + (bb&dd | cc&~dd) + x[RIPEMD_320_N1[i]] + 0x5c4dd124;
-			s = int(RIPEMD_320_R1[i]);
-			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
-			beta = RIPEMD_ROTL32(cc, 10);
-			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
-			i += 1;
-		}
-		t = b;
+		t := b;
 		b = bb;
 		bb = t;
-		for i < 48 {
-			alpha = a + (b | ~c ~ d) + x[RIPEMD_320_N0[i]] + 0x6ed9eba1;
-			s := int(RIPEMD_320_R0[i]);
+		for i < 32 {
+			alpha = a + (b&c | ~b&d) + x[RIPEMD_160_N0[i]] + 0x5a827999;
+			s := int(RIPEMD_160_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
 			beta = RIPEMD_ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
-			alpha = aa + (bb | ~cc ~ dd) + x[RIPEMD_320_N1[i]] + 0x6d703ef3;
-			s = int(RIPEMD_320_R1[i]);
-			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
-			beta = RIPEMD_ROTL32(cc, 10);
-			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
-			i += 1;
-		}
-		t = c;
-		c = cc;
-		cc = t;
-		for i < 64 {
-			alpha = a + (b&d | c&~d) + x[RIPEMD_320_N0[i]] + 0x8f1bbcdc;
-			s := int(RIPEMD_320_R0[i]);
-			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
-			beta = RIPEMD_ROTL32(c, 10);
-			a, b, c, d, e = e, alpha, b, beta, d;
-			alpha = aa + (bb&cc | ~bb&dd) + x[RIPEMD_320_N1[i]] + 0x7a6d76e9;
-			s = int(RIPEMD_320_R1[i]);
+			alpha = aa + (bb&dd | cc&~dd) + x[RIPEMD_160_N1[i]] + 0x5c4dd124;
+			s = int(RIPEMD_160_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
 			beta = RIPEMD_ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
@@ -496,14 +413,46 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		t = d;
 		d = dd;
 		dd = t;
-		for i < 80 {
-			alpha = a + (b ~ (c | ~d)) + x[RIPEMD_320_N0[i]] + 0xa953fd4e;
-			s := int(RIPEMD_320_R0[i]);
+		for i < 48 {
+			alpha = a + (b | ~c ~ d) + x[RIPEMD_160_N0[i]] + 0x6ed9eba1;
+			s := int(RIPEMD_160_R0[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
 			beta = RIPEMD_ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
-			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_320_N1[i]];
-			s = int(RIPEMD_320_R1[i]);
+			alpha = aa + (bb | ~cc ~ dd) + x[RIPEMD_160_N1[i]] + 0x6d703ef3;
+			s = int(RIPEMD_160_R1[i]);
+			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
+			beta = RIPEMD_ROTL32(cc, 10);
+			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
+			i += 1;
+		}
+		t = a;
+		a = aa;
+		aa = t;
+		for i < 64 {
+			alpha = a + (b&d | c&~d) + x[RIPEMD_160_N0[i]] + 0x8f1bbcdc;
+			s := int(RIPEMD_160_R0[i]);
+			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
+			beta = RIPEMD_ROTL32(c, 10);
+			a, b, c, d, e = e, alpha, b, beta, d;
+			alpha = aa + (bb&cc | ~bb&dd) + x[RIPEMD_160_N1[i]] + 0x7a6d76e9;
+			s = int(RIPEMD_160_R1[i]);
+			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
+			beta = RIPEMD_ROTL32(cc, 10);
+			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
+			i += 1;
+		}
+		t = c;
+		c = cc;
+		cc = t;
+		for i < 80 {
+			alpha = a + (b ~ (c | ~d)) + x[RIPEMD_160_N0[i]] + 0xa953fd4e;
+			s := int(RIPEMD_160_R0[i]);
+			alpha = RIPEMD_ROTL32(alpha, u32(s)) + e;
+			beta = RIPEMD_ROTL32(c, 10);
+			a, b, c, d, e = e, alpha, b, beta, d;
+			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_160_N1[i]];
+			s = int(RIPEMD_160_R1[i]);
 			alpha = RIPEMD_ROTL32(alpha, u32(s)) + ee;
 			beta = RIPEMD_ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
