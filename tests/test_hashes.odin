@@ -82,6 +82,11 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= crypto.ripemd_320(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
+            // HAVAL
+            case "HAVAL-3-128":
+                out:= crypto.haval_3_128(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
@@ -233,4 +238,15 @@ main :: proc() {
     };
     test(ripemd320TestVectors[:], "RIPEMD-320");
     // =================== //
+    // HAVAL Series       //
+    // HAVAL-3-128        //
+    haval_3_128TestVectors := [6]TestHash {
+		TestHash{"0cd40739683e15f01ca5dbceef4059f1", "a"},
+		TestHash{"9e40ed883fb63e985d299b40cda2b8f2", "abc"},
+		TestHash{"3caf4a79e81adcd6d1716bcc1cef4573", "message digest"},
+		TestHash{"dc502247fb3eb8376109eda32d361d82", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"44068770868768964d1f2c3bff4aa3d8", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
+        TestHash{"de5eb3f7d9eb08fae7a07d68e3047ec6", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},  
+    };
+    test(haval_3_128TestVectors[:], "HAVAL-3-128");
 }
