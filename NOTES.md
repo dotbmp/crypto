@@ -7,3 +7,7 @@
     - Tests as a sub-package; convenient for end users to run tests
         - Should end users even be getting the tests
         - I like having them in one folder, works well with single file builds
+
+# Broken stuff
+    - 256 and 320 of RIPEMD do not yet produce the correct hash result
+
