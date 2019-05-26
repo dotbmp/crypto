@@ -145,6 +145,21 @@ HAVAL_FF_5 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, ro
     return x7;
 }
 
+HAVAL_CH2UINT :: inline proc "contextless" (str: []u8, word: []u32) {
+    for _, i in word[:32] {
+        word[i] = u32(str[i*4+0]) << 0 | u32(str[i*4+1]) << 8 | u32(str[i*4+2]) << 16 | u32(str[i*4+3]) << 24;
+    }
+}
+
+HAVAL_UINT2CH :: inline proc "contextless"(word: []u32, str: []u8, wlen: u32) {
+    for _, i in word[:wlen] {
+        str[i*4+0] = byte(word[i] >> 0) & 0xff;
+        str[i*4+1] = byte(word[i] >> 8) & 0xff;
+        str[i*4+2] = byte(word[i] >> 16) & 0xff;
+        str[i*4+3] = byte(word[i] >> 24) & 0xff;
+    }
+}
+
 haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t0, t1, t2, t3 := ctx.fingerprint[0], ctx.fingerprint[1], ctx.fingerprint[2], ctx.fingerprint[3];
     t4, t5, t6, t7 := ctx.fingerprint[4], ctx.fingerprint[5], ctx.fingerprint[6], ctx.fingerprint[7]; 
@@ -186,7 +201,6 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t1 = HAVAL_FF_1(t1, t0, t7, t6, t5, t4, t3, t2, w[30], rounds);
     t0 = HAVAL_FF_1(t0, t7, t6, t5, t4, t3, t2, t1, w[31], rounds);
 
-    /* pass 2 */
     t7 = HAVAL_FF_2(t7, t6, t5, t4, t3, t2, t1, t0, w[ 5], 0x452821e6, rounds);
     t6 = HAVAL_FF_2(t6, t5, t4, t3, t2, t1, t0, t7, w[14], 0x38d01377, rounds);
     t5 = HAVAL_FF_2(t5, t4, t3, t2, t1, t0, t7, t6, w[26], 0xbe5466cf, rounds);
@@ -223,7 +237,6 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t1 = HAVAL_FF_2(t1, t0, t7, t6, t5, t4, t3, t2, w[31], 0x7b54a41d, rounds);
     t0 = HAVAL_FF_2(t0, t7, t6, t5, t4, t3, t2, t1, w[27], 0xc25a59b5, rounds);
 
-    /* pass 3 */
     t7 = HAVAL_FF_3(t7, t6, t5, t4, t3, t2, t1, t0, w[19], 0x9c30d539, rounds);
     t6 = HAVAL_FF_3(t6, t5, t4, t3, t2, t1, t0, t7, w[ 9], 0x2af26013, rounds);
     t5 = HAVAL_FF_3(t5, t4, t3, t2, t1, t0, t7, t6, w[ 4], 0xc5d1b023, rounds);
@@ -260,84 +273,82 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t1 = HAVAL_FF_3(t1, t0, t7, t6, t5, t4, t3, t2, w[ 5], 0xafd6ba33, rounds);
     t0 = HAVAL_FF_3(t0, t7, t6, t5, t4, t3, t2, t1, w[ 2], 0x6c24cf5c, rounds);
 
-    /*
-    #if pass >= 4
-    /* pass 4. executed only when pass =4 or 5 */
-    HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[24], 0x7a325381, rounds);
-    HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[ 4], 0x28958677, rounds);
-    HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[0 ], 0x3b8f4898, rounds);
-    HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[14], 0x6b4bb9af, rounds);
-    HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[ 2], 0xc4bfe81b, rounds);
-    HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[ 7], 0x66282193, rounds);
-    HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[28], 0x61d809cc, rounds);
-    HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[23], 0xfb21a991, rounds);
+    if rounds >= 4 {
+        t7 = HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[24], 0x7a325381, rounds);
+        t6 = HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[ 4], 0x28958677, rounds);
+        t5 = HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[ 0], 0x3b8f4898, rounds);
+        t4 = HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[14], 0x6b4bb9af, rounds);
+        t3 = HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[ 2], 0xc4bfe81b, rounds);
+        t2 = HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[ 7], 0x66282193, rounds);
+        t1 = HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[28], 0x61d809cc, rounds);
+        t0 = HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[23], 0xfb21a991, rounds);
 
-    HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[26], 0x487cac60, rounds);
-    HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[ 6], 0x5dec8032, rounds);
-    HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[30], 0xef845d5d, rounds);
-    HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[20], 0xe98575b1, rounds);
-    HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[18], 0xdc262302, rounds);
-    HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[25], 0xeb651b88, rounds);
-    HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[19], 0x23893e81, rounds);
-    HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[ 3], 0xd396acc5, rounds);
+        t7 = HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[26], 0x487cac60, rounds);
+        t6 = HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[ 6], 0x5dec8032, rounds);
+        t5 = HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[30], 0xef845d5d, rounds);
+        t4 = HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[20], 0xe98575b1, rounds);
+        t3 = HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[18], 0xdc262302, rounds);
+        t2 = HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[25], 0xeb651b88, rounds);
+        t1 = HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[19], 0x23893e81, rounds);
+        t0 = HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[ 3], 0xd396acc5, rounds);
 
-    HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[22], 0x0f6d6ff3, rounds);
-    HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[11], 0x83f44239, rounds);
-    HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[31], 0x2e0b4482, rounds);
-    HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[21], 0xa4842004, rounds);
-    HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[ 8], 0x69c8f04a, rounds);
-    HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[27], 0x9e1f9b5e, rounds);
-    HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[12], 0x21c66842, rounds);
-    HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[ 9], 0xf6e96c9a, rounds);
+        t7 = HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[22], 0x0f6d6ff3, rounds);
+        t6 = HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[11], 0x83f44239, rounds);
+        t5 = HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[31], 0x2e0b4482, rounds);
+        t4 = HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[21], 0xa4842004, rounds);
+        t3 = HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[ 8], 0x69c8f04a, rounds);
+        t2 = HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[27], 0x9e1f9b5e, rounds);
+        t1 = HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[12], 0x21c66842, rounds);
+        t0 = HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[ 9], 0xf6e96c9a, rounds);
 
-    HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[ 1], 0x670c9c61, rounds);
-    HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[29], 0xabd388f0, rounds);
-    HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[ 5], 0x6a51a0d2, rounds);
-    HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[15], 0xd8542f68, rounds);
-    HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[17], 0x960fa728, rounds);
-    HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[10], 0xab5133a3, rounds);
-    HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[16], 0x6eef0b6c, rounds);
-    HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[13], 0x137a3be4, rounds);
-    #endif
+        t7 = HAVAL_FF_4(t7, t6, t5, t4, t3, t2, t1, t0, w[ 1], 0x670c9c61, rounds);
+        t6 = HAVAL_FF_4(t6, t5, t4, t3, t2, t1, t0, t7, w[29], 0xabd388f0, rounds);
+        t5 = HAVAL_FF_4(t5, t4, t3, t2, t1, t0, t7, t6, w[ 5], 0x6a51a0d2, rounds);
+        t4 = HAVAL_FF_4(t4, t3, t2, t1, t0, t7, t6, t5, w[15], 0xd8542f68, rounds);
+        t3 = HAVAL_FF_4(t3, t2, t1, t0, t7, t6, t5, t4, w[17], 0x960fa728, rounds);
+        t2 = HAVAL_FF_4(t2, t1, t0, t7, t6, t5, t4, t3, w[10], 0xab5133a3, rounds);
+        t1 = HAVAL_FF_4(t1, t0, t7, t6, t5, t4, t3, t2, w[16], 0x6eef0b6c, rounds);
+        t0 = HAVAL_FF_4(t0, t7, t6, t5, t4, t3, t2, t1, w[13], 0x137a3be4, rounds);
+    }
 
-    #if pass == 5
-    /* pass 5. executed only when pass = 5 */
-    HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[27], 0xba3bf050, rounds);
-    HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[ 3], 0x7efb2a98, rounds);
-    HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[21], 0xa1f1651d, rounds);
-    HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[26], 0x39af0176, rounds);
-    HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[17], 0x66ca593e, rounds);
-    HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[11], 0x82430e88, rounds);
-    HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[20], 0x8cee8619, rounds);
-    HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[29], 0x456f9fb4, rounds);
+    if rounds == 5 {
+        t7 = HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[27], 0xba3bf050, rounds);
+        t6 = HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[ 3], 0x7efb2a98, rounds);
+        t5 = HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[21], 0xa1f1651d, rounds);
+        t4 = HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[26], 0x39af0176, rounds);
+        t3 = HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[17], 0x66ca593e, rounds);
+        t2 = HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[11], 0x82430e88, rounds);
+        t1 = HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[20], 0x8cee8619, rounds);
+        t0 = HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[29], 0x456f9fb4, rounds);
 
-    HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[19], 0x7d84a5c3, rounds);
-    HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[0   ], 0x3b8b5ebe, rounds);
-    HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[12], 0xe06f75d8, rounds);
-    HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[ 7], 0x85c12073, rounds);
-    HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[13], 0x401a449f, rounds);
-    HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[ 8], 0x56c16aa6, rounds);
-    HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[31], 0x4ed3aa62, rounds);
-    HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[10], 0x363f7706, rounds);
+        t7 = HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[19], 0x7d84a5c3, rounds);
+        t6 = HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[ 0], 0x3b8b5ebe, rounds);
+        t5 = HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[12], 0xe06f75d8, rounds);
+        t4 = HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[ 7], 0x85c12073, rounds);
+        t3 = HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[13], 0x401a449f, rounds);
+        t2 = HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[ 8], 0x56c16aa6, rounds);
+        t1 = HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[31], 0x4ed3aa62, rounds);
+        t0 = HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[10], 0x363f7706, rounds);
 
-    HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[ 5], 0x1bfedf72, rounds);
-    HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[ 9], 0x429b023d, rounds);
-    HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[14], 0x37d0d724, rounds);
-    HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[30], 0xd00a1248, rounds);
-    HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[18], 0xdb0fead3, rounds);
-    HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[ 6], 0x49f1c09b, rounds);
-    HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[28], 0x075372c9, rounds);
-    HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[24], 0x80991b7b, rounds);
+        t7 = HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[ 5], 0x1bfedf72, rounds);
+        t6 = HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[ 9], 0x429b023d, rounds);
+        t5 = HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[14], 0x37d0d724, rounds);
+        t4 = HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[30], 0xd00a1248, rounds);
+        t3 = HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[18], 0xdb0fead3, rounds);
+        t2 = HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[ 6], 0x49f1c09b, rounds);
+        t1 = HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[28], 0x075372c9, rounds);
+        t0 = HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[24], 0x80991b7b, rounds);
 
-    HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[ 2], 0x25d479d8, rounds);
-    HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[23], 0xf6e8def7, rounds);
-    HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[16], 0xe3fe501a, rounds);
-    HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[22], 0xb6794c3b, rounds);
-    HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[ 4], 0x976ce0bd, rounds);
-    HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[ 1], 0x04c006ba, rounds);
-    HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[25], 0xc1a94fb6, rounds);
-    HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[15], 0x409f60c4, rounds);
-*/
+        t7 = HAVAL_FF_5(t7, t6, t5, t4, t3, t2, t1, t0, w[ 2], 0x25d479d8, rounds);
+        t6 = HAVAL_FF_5(t6, t5, t4, t3, t2, t1, t0, t7, w[23], 0xf6e8def7, rounds);
+        t5 = HAVAL_FF_5(t5, t4, t3, t2, t1, t0, t7, t6, w[16], 0xe3fe501a, rounds);
+        t4 = HAVAL_FF_5(t4, t3, t2, t1, t0, t7, t6, t5, w[22], 0xb6794c3b, rounds);
+        t3 = HAVAL_FF_5(t3, t2, t1, t0, t7, t6, t5, t4, w[ 4], 0x976ce0bd, rounds);
+        t2 = HAVAL_FF_5(t2, t1, t0, t7, t6, t5, t4, t3, w[ 1], 0x04c006ba, rounds);
+        t1 = HAVAL_FF_5(t1, t0, t7, t6, t5, t4, t3, t2, w[25], 0xc1a94fb6, rounds);
+        t0 = HAVAL_FF_5(t0, t7, t6, t5, t4, t3, t2, t1, w[15], 0x409f60c4, rounds);
+    }
+
     ctx.fingerprint[0] += t0;
     ctx.fingerprint[1] += t1;
     ctx.fingerprint[2] += t2;
@@ -372,38 +383,41 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
 
     when ODIN_ENDIAN != "little" {
         if rmd_len + data_len >= 128 {
-            mem.copy(&ctx.block[rmd_len], data, fill_len);
             // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
+            mem.copy(&ctx.block[rmd_len], data, fill_len);
             haval_block(ctx, rounds);
             for i = fill_len; i + 127 < data_len; i += 128 {
-                mem.copy(&ctx.block[0], data[i], 128);
                 // memcpy ((unsigned char *)state->block, str+i, 128);
+                mem.copy(&ctx.block[0], data[i], 128);
                 haval_block(ctx, rounds);
             }
             rmd_len = 0;
         } else {
             i = 0;
         }
-        mem.copy(&ctx.block[rmd_len], data[i], str_len - i);
         // memcpy (((unsigned char *)state->block)+rmd_len, str+i, str_len-i);
+        mem.copy(&ctx.block[rmd_len], data[i], str_len - i);
+        
     } else {
         if rmd_len + data_len >= 128 {
-            mem.copy(&ctx.block[rmd_len], &data, int(fill_len));
             // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
             // ch2uint(state->remainder, state->block, 128);
+            mem.copy(&ctx.block[rmd_len], &data, int(fill_len));
+            HAVAL_CH2UINT(ctx.remainder[:], ctx.block[:]);
             haval_block(ctx, rounds);
             for i = fill_len; i + 127 < data_len; i += 128 {
-                mem.copy(&ctx.block[0], &data[i], 128);
                 // memcpy ((unsigned char *)state->block, str+i, 128);
                 // ch2uint(state->remainder, state->block, 128);
+                mem.copy(&ctx.block[0], &data[i], 128);
+                HAVAL_CH2UINT(ctx.remainder[:], ctx.block[:]);
                 haval_block(ctx, rounds);
             }
             rmd_len = 0;
         } else {
             i = 0;
         }
-        mem.copy(&ctx.block[rmd_len], &data[i], int(data_len - i));
         // memcpy (((unsigned char *)state->block)+rmd_len, str+i, str_len-i);
+        mem.copy(&ctx.block[rmd_len], &data[i], int(data_len - i));
     }
 }
 
@@ -503,6 +517,7 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     tail[0] = (ssize & 0x3) << 6 | (rrounds & 0x7) << 3 | (HAVAL_VERSION & 0x7);
     tail[1] = (ssize >> 2) & 0xff;
     // uint2ch (state->count, &tail[2], 2);
+    HAVAL_UINT2CH(ctx.count[:], tail[:], 2);
     rmd_len := (ctx.count[0] >> 3) & 0x7f;
     if rmd_len < 118 {
         pad_len = 118 - rmd_len;
@@ -513,6 +528,7 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     haval_update(ctx, tail[:], rounds);
     haval_tailor(ctx, size);
     // uint2ch (state->fingerprint, final_fpt, FPTLEN >> 5);
+    HAVAL_UINT2CH(ctx.fingerprint[:], digest, size >> 5);
     mem.set(&ctx, 0, size_of(ctx));
 }
 
