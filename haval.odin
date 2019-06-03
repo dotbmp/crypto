@@ -381,14 +381,14 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
     if ctx.count[0] < (data_len << 3) do ctx.count[1] += 1;
     ctx.count[1] += data_len >> 29;
 
-    when ODIN_ENDIAN != "little" {
+    when ODIN_ENDIAN == "little" {
         if rmd_len + data_len >= 128 {
             // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
-            mem.copy(&ctx.block[rmd_len], data, fill_len);
+            mem.copy(&ctx.block[rmd_len], &data[0], int(fill_len));
             haval_block(ctx, rounds);
             for i = fill_len; i + 127 < data_len; i += 128 {
                 // memcpy ((unsigned char *)state->block, str+i, 128);
-                mem.copy(&ctx.block[0], data[i], 128);
+                mem.copy(&ctx.block[0], &data[i], 128);
                 haval_block(ctx, rounds);
             }
             rmd_len = 0;
@@ -396,7 +396,7 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
             i = 0;
         }
         // memcpy (((unsigned char *)state->block)+rmd_len, str+i, str_len-i);
-        mem.copy(&ctx.block[rmd_len], data[i], str_len - i);
+        mem.copy(&ctx.block[rmd_len], &data[i], int(data_len - i));
         
     } else {
         if rmd_len + data_len >= 128 {
@@ -416,8 +416,8 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
         } else {
             i = 0;
         }
-        // memcpy (((unsigned char *)state->block)+rmd_len, str+i, str_len-i);
-        mem.copy(&ctx.block[rmd_len], &data[i], int(data_len - i));
+        // memcpy (&state->remainder[rmd_len], str+i, str_len-i);
+        mem.copy(&ctx.remainder[rmd_len], &data[i], int(data_len - i));
     }
 }
 
