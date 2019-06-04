@@ -371,24 +371,38 @@ haval_init :: proc(ctx: ^HAVAL) {
     ctx.fingerprint[7] = 0xec4e6c89;
 }
 
+// @note(zh): This should be in core:mem
+bytes_to_slice :: inline proc "contextless" ($T: typeid, bytes: []byte) -> []T {
+    s := transmute(mem.Raw_Slice)bytes;
+    s.len /= size_of(T);
+    return transmute([]T)s;
+}
+
+// @note(zh): This should be in core:mem
+slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
+    s := transmute(mem.Raw_Slice)slice;
+    s.len *= size_of(T);
+    return transmute([]byte)s;
+}
+
 haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
     i : u32;
-    data_len := u32(len(data));
+    str_len := u32(len(data));
     rmd_len := u32((ctx.count[0] >> 3) & 0x7f);
     fill_len := 128 - rmd_len;
 
-    ctx.count[0] += data_len << 3;
-    if ctx.count[0] < (data_len << 3) do ctx.count[1] += 1;
-    ctx.count[1] += data_len >> 29;
+    ctx.count[0] += str_len << 3;
+    if ctx.count[0] < (str_len << 3) do ctx.count[1] += 1;
+    ctx.count[1] += str_len >> 29;
 
     when ODIN_ENDIAN == "little" {
-        if rmd_len + data_len >= 128 {
+        if rmd_len + str_len >= 128 {
             // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
-            mem.copy(&ctx.block[rmd_len], &data[0], int(fill_len));
+            copy(slice_to_bytes(ctx.block[rmd_len:]), data[:fill_len]);
             haval_block(ctx, rounds);
-            for i = fill_len; i + 127 < data_len; i += 128 {
+            for i = fill_len; i + 127 < str_len; i += 128 {
                 // memcpy ((unsigned char *)state->block, str+i, 128);
-                mem.copy(&ctx.block[0], &data[i], 128);
+                copy(slice_to_bytes(ctx.block[:]), data[i:128]);
                 haval_block(ctx, rounds);
             }
             rmd_len = 0;
@@ -396,19 +410,19 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
             i = 0;
         }
         // memcpy (((unsigned char *)state->block)+rmd_len, str+i, str_len-i);
-        mem.copy(&ctx.block[rmd_len], &data[i], int(data_len - i));
+        copy(slice_to_bytes(ctx.block[rmd_len:]), data[i:str_len-i]);
         
     } else {
-        if rmd_len + data_len >= 128 {
+        if rmd_len + str_len >= 128 {
             // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
             // ch2uint(state->remainder, state->block, 128);
-            mem.copy(&ctx.block[rmd_len], &data, int(fill_len));
+            copy(ctx.remainder[rmd_len:], data[:fill_len]);
             HAVAL_CH2UINT(ctx.remainder[:], ctx.block[:]);
             haval_block(ctx, rounds);
-            for i = fill_len; i + 127 < data_len; i += 128 {
+            for i = fill_len; i + 127 < str_len; i += 128 {
                 // memcpy ((unsigned char *)state->block, str+i, 128);
                 // ch2uint(state->remainder, state->block, 128);
-                mem.copy(&ctx.block[0], &data[i], 128);
+                copy(ctx.remainder[:], data[i:128]);
                 HAVAL_CH2UINT(ctx.remainder[:], ctx.block[:]);
                 haval_block(ctx, rounds);
             }
@@ -417,7 +431,7 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
             i = 0;
         }
         // memcpy (&state->remainder[rmd_len], str+i, str_len-i);
-        mem.copy(&ctx.remainder[rmd_len], &data[i], int(data_len - i));
+        copy(ctx.remainder[rmd_len:], data[i:str_len-i]);
     }
 }
 
@@ -524,8 +538,8 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     } else {
         pad_len = 246 - rmd_len;
     }
-    haval_update(ctx, HAVAL_PADDING[:], rounds);
-    haval_update(ctx, tail[:], rounds);
+    haval_update(ctx, HAVAL_PADDING[:], pad_len);
+    haval_update(ctx, tail[:], 10);
     haval_tailor(ctx, size);
     // uint2ch (state->fingerprint, final_fpt, FPTLEN >> 5);
     HAVAL_UINT2CH(ctx.fingerprint[:], digest, size >> 5);
