@@ -8,7 +8,7 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [x] BLAKE
 - [x] BLAKE2
 - [ ] GOST
-- [ ] HAVAL
+- [x] HAVAL
 - [ ] KangarooTwelve
 - [x] MD2
 - [x] MD4

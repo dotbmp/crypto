@@ -85,8 +85,8 @@ HAVAL_FPHI_3 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
 
 HAVAL_FPHI_4 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
-        case 4: return HAVAL_F_5(x6, x4, x0, x5, x2, x1, x3);
-        case 5: return HAVAL_F_5(x1, x5, x3, x2, x0, x4, x6);
+        case 4: return HAVAL_F_4(x6, x4, x0, x5, x2, x1, x3);
+        case 5: return HAVAL_F_4(x1, x5, x3, x2, x0, x4, x6);
         case: assert(rounds < 4 || rounds > 5, "Rounds count not supported!");
     }
     return 0;
