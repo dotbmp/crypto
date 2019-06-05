@@ -11,22 +11,6 @@ import "core:fmt"
 
 HAVAL_VERSION :: 1;
 
-HAVAL_128_SIZE :: 16;
-HAVAL_160_SIZE :: 20;
-HAVAL_192_SIZE :: 24;
-HAVAL_224_SIZE :: 28;
-HAVAL_256_SIZE :: 32;
-
-HAVAL_128_BLOCK_SIZE :: 128;
-HAVAL_160_BLOCK_SIZE :: 160;
-HAVAL_192_BLOCK_SIZE :: 192;
-HAVAL_224_BLOCK_SIZE :: 224;
-HAVAL_256_BLOCK_SIZE :: 256;
-
-HAVAL_R3 : u32 = 3;
-HAVAL_R4 : u32 = 4;
-HAVAL_R5 : u32 = 5;
-
 HAVAL :: struct {
     count: [2]u32,
     fingerprint: [8]u32,
@@ -546,107 +530,107 @@ haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_boun
     return hash;
 }
 
-haval_3_128 :: proc "contextless" (data: []byte) -> [HAVAL_128_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_128_SIZE]byte;
-    tmp := haval(data, HAVAL_R3, HAVAL_128_BLOCK_SIZE);
+haval_3_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+    hash : [16]byte;
+    tmp := haval(data, 3, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_128 :: proc "contextless" (data: []byte) -> [HAVAL_128_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_128_SIZE]byte;
-    tmp := haval(data, HAVAL_R4, HAVAL_128_BLOCK_SIZE);
+haval_4_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+    hash : [16]byte;
+    tmp := haval(data, 4, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_128 :: proc "contextless" (data: []byte) -> [HAVAL_128_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_128_SIZE]byte;
-    tmp := haval(data, HAVAL_R5, HAVAL_128_BLOCK_SIZE);
+haval_5_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+    hash : [16]byte;
+    tmp := haval(data, 5, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_160 :: proc "contextless" (data: []byte) -> [HAVAL_160_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_160_SIZE]byte;
-    tmp := haval(data, HAVAL_R3, HAVAL_160_BLOCK_SIZE);
+haval_3_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+    hash : [20]byte;
+    tmp := haval(data, 3, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_160 :: proc "contextless" (data: []byte) -> [HAVAL_160_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_160_SIZE]byte;
-    tmp := haval(data, HAVAL_R4, HAVAL_160_BLOCK_SIZE);
+haval_4_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+    hash : [20]byte;
+    tmp := haval(data, 4, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_160 :: proc "contextless" (data: []byte) -> [HAVAL_160_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_160_SIZE]byte;
-    tmp := haval(data, HAVAL_R5, HAVAL_160_BLOCK_SIZE);
+haval_5_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+    hash : [20]byte;
+    tmp := haval(data, 5, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_192 :: proc "contextless" (data: []byte) -> [HAVAL_192_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_192_SIZE]byte;
-    tmp := haval(data, HAVAL_R3, HAVAL_192_BLOCK_SIZE);
+haval_3_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+    hash : [24]byte;
+    tmp := haval(data, 3, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_192 :: proc "contextless" (data: []byte) -> [HAVAL_192_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_192_SIZE]byte;
-    tmp := haval(data, HAVAL_R4, HAVAL_192_BLOCK_SIZE);
+haval_4_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+    hash : [24]byte;
+    tmp := haval(data, 4, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_192 :: proc "contextless" (data: []byte) -> [HAVAL_192_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_192_SIZE]byte;
-    tmp := haval(data, HAVAL_R5, HAVAL_192_BLOCK_SIZE);
+haval_5_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+    hash : [24]byte;
+    tmp := haval(data, 5, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_224 :: proc "contextless" (data: []byte) -> [HAVAL_224_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_224_SIZE]byte;
-    tmp := haval(data, HAVAL_R3, HAVAL_224_BLOCK_SIZE);
+haval_3_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+    hash : [28]byte;
+    tmp := haval(data, 3, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_224 :: proc "contextless" (data: []byte) -> [HAVAL_224_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_224_SIZE]byte;
-    tmp := haval(data, HAVAL_R4, HAVAL_224_BLOCK_SIZE);
+haval_4_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+    hash : [28]byte;
+    tmp := haval(data, 4, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_224 :: proc "contextless" (data: []byte) -> [HAVAL_224_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_224_SIZE]byte;
-    tmp := haval(data, HAVAL_R5, HAVAL_224_BLOCK_SIZE);
+haval_5_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+    hash : [28]byte;
+    tmp := haval(data, 5, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_256 :: proc "contextless" (data: []byte) -> [HAVAL_256_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_256_SIZE]byte;
-    tmp := haval(data, HAVAL_R3, HAVAL_256_BLOCK_SIZE);
+haval_3_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+    hash : [32]byte;
+    tmp := haval(data, 3, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_256 :: proc "contextless" (data: []byte) -> [HAVAL_256_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_256_SIZE]byte;
-    tmp := haval(data, HAVAL_R4, HAVAL_256_BLOCK_SIZE);
+haval_4_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+    hash : [32]byte;
+    tmp := haval(data, 4, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_256 :: proc "contextless" (data: []byte) -> [HAVAL_256_SIZE]byte #no_bounds_check {
-    hash : [HAVAL_256_SIZE]byte;
-    tmp := haval(data, HAVAL_R5, HAVAL_256_BLOCK_SIZE);
+haval_5_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+    hash : [32]byte;
+    tmp := haval(data, 5, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
