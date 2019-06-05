@@ -175,8 +175,6 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t1 = HAVAL_FF_1(t1, t0, t7, t6, t5, t4, t3, t2, w[ 6], rounds);
     t0 = HAVAL_FF_1(t0, t7, t6, t5, t4, t3, t2, t1, w[ 7], rounds);
 
-    //fmt.printf("t7: %d, t6: %d, t5: %d, t4: %d\nt3: %d, t2: %d, t1: %d, t0: %d\n\n", t7, t6, t5, t4, t3, t2, t1, t0);
-
     t7 = HAVAL_FF_1(t7, t6, t5, t4, t3, t2, t1, t0, w[ 8], rounds);
     t6 = HAVAL_FF_1(t6, t5, t4, t3, t2, t1, t0, t7, w[ 9], rounds);
     t5 = HAVAL_FF_1(t5, t4, t3, t2, t1, t0, t7, t6, w[10], rounds);
@@ -185,8 +183,6 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t2 = HAVAL_FF_1(t2, t1, t0, t7, t6, t5, t4, t3, w[13], rounds);
     t1 = HAVAL_FF_1(t1, t0, t7, t6, t5, t4, t3, t2, w[14], rounds);
     t0 = HAVAL_FF_1(t0, t7, t6, t5, t4, t3, t2, t1, w[15], rounds);
-
-    //fmt.printf("t7: %d, t6: %d, t5: %d, t4: %d\nt3: %d, t2: %d, t1: %d, t0: %d\n\n", t7, t6, t5, t4, t3, t2, t1, t0);
 
     t7 = HAVAL_FF_1(t7, t6, t5, t4, t3, t2, t1, t0, w[16], rounds);
     t6 = HAVAL_FF_1(t6, t5, t4, t3, t2, t1, t0, t7, w[17], rounds);
@@ -435,76 +431,76 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
     switch size {
         case 128:
             temp = (ctx.fingerprint[7] & 0x000000ff) | 
-                (ctx.fingerprint[6] & 0xff000000) | 
-                (ctx.fingerprint[5] & 0x00ff0000) | 
-                (ctx.fingerprint[4] & 0x0000ff00);
-            ctx.fingerprint[0] += HAVAL_ROTR32(temp,  8);
+                   (ctx.fingerprint[6] & 0xff000000) | 
+                   (ctx.fingerprint[5] & 0x00ff0000) | 
+                   (ctx.fingerprint[4] & 0x0000ff00);
+            ctx.fingerprint[0] += HAVAL_ROTR32(temp, 8);
 
             temp = (ctx.fingerprint[7] & 0x0000ff00) | 
-                (ctx.fingerprint[6] & 0x000000ff) | 
-                (ctx.fingerprint[5] & 0xff000000) | 
-                (ctx.fingerprint[4] & 0x00ff0000);
+                   (ctx.fingerprint[6] & 0x000000ff) | 
+                   (ctx.fingerprint[5] & 0xff000000) | 
+                   (ctx.fingerprint[4] & 0x00ff0000);
             ctx.fingerprint[1] += HAVAL_ROTR32(temp, 16);
 
-            temp  = (ctx.fingerprint[7] & 0x00ff0000) | 
-                (ctx.fingerprint[6] & 0x0000ff00) | 
-                (ctx.fingerprint[5] & 0x000000ff) | 
-                (ctx.fingerprint[4] & 0xff000000);
+            temp = (ctx.fingerprint[7] & 0x00ff0000) | 
+                   (ctx.fingerprint[6] & 0x0000ff00) | 
+                   (ctx.fingerprint[5] & 0x000000ff) | 
+                   (ctx.fingerprint[4] & 0xff000000);
             ctx.fingerprint[2] += HAVAL_ROTR32(temp, 24);
 
             temp = (ctx.fingerprint[7] & 0xff000000) | 
-                (ctx.fingerprint[6] & 0x00ff0000) | 
-                (ctx.fingerprint[5] & 0x0000ff00) | 
-                (ctx.fingerprint[4] & 0x000000ff);
+                   (ctx.fingerprint[6] & 0x00ff0000) | 
+                   (ctx.fingerprint[5] & 0x0000ff00) | 
+                   (ctx.fingerprint[4] & 0x000000ff);
             ctx.fingerprint[3] += temp;        
         case 160:
             temp = (ctx.fingerprint[7] & u32(0x3f)) | 
-                (ctx.fingerprint[6] & u32(0x7f << 25)) |  
-                (ctx.fingerprint[5] & u32(0x3f << 19));
+                   (ctx.fingerprint[6] & u32(0x7f << 25)) |  
+                   (ctx.fingerprint[5] & u32(0x3f << 19));
             ctx.fingerprint[0] += HAVAL_ROTR32(temp, 19);
 
             temp = (ctx.fingerprint[7] & u32(0x3f <<  6)) | 
-                (ctx.fingerprint[6] & u32(0x3f)) |  
-                (ctx.fingerprint[5] & u32(0x7f << 25));
+                   (ctx.fingerprint[6] & u32(0x3f)) |  
+                   (ctx.fingerprint[5] & u32(0x7f << 25));
             ctx.fingerprint[1] += HAVAL_ROTR32(temp, 25);
 
             temp = (ctx.fingerprint[7] & u32(0x7f << 12)) | 
-                (ctx.fingerprint[6] & u32(0x3f <<  6)) |  
-                (ctx.fingerprint[5] & u32(0x3f));
+                   (ctx.fingerprint[6] & u32(0x3f <<  6)) |  
+                   (ctx.fingerprint[5] & u32(0x3f));
             ctx.fingerprint[2] += temp;
 
             temp = (ctx.fingerprint[7] & u32(0x3f << 19)) | 
-                (ctx.fingerprint[6] & u32(0x7f << 12)) |  
-                (ctx.fingerprint[5] & u32(0x3f <<  6));
+                   (ctx.fingerprint[6] & u32(0x7f << 12)) |  
+                   (ctx.fingerprint[5] & u32(0x3f <<  6));
             ctx.fingerprint[3] += temp >> 6; 
 
             temp = (ctx.fingerprint[7] & u32(0x7f << 25)) | 
-                (ctx.fingerprint[6] & u32(0x3f << 19)) |  
-                (ctx.fingerprint[5] & u32(0x7f << 12));
+                   (ctx.fingerprint[6] & u32(0x3f << 19)) |  
+                   (ctx.fingerprint[5] & u32(0x7f << 12));
             ctx.fingerprint[4] += temp >> 12;
         case 192:
             temp = (ctx.fingerprint[7] & u32(0x1f)) | 
-                (ctx.fingerprint[6] & u32(0x3f << 26));
+                   (ctx.fingerprint[6] & u32(0x3f << 26));
             ctx.fingerprint[0] += HAVAL_ROTR32(temp, 26);
 
             temp = (ctx.fingerprint[7] & u32(0x1f <<  5)) | 
-                (ctx.fingerprint[6] & u32(0x1f));
+                   (ctx.fingerprint[6] & u32(0x1f));
             ctx.fingerprint[1] += temp;
 
             temp = (ctx.fingerprint[7] & u32(0x3f << 10)) | 
-                (ctx.fingerprint[6] & u32(0x1f <<  5));
+                   (ctx.fingerprint[6] & u32(0x1f <<  5));
             ctx.fingerprint[2] += temp >> 5;
 
             temp = (ctx.fingerprint[7] & u32(0x1f << 16)) | 
-                (ctx.fingerprint[6] & u32(0x3f << 10));
+                   (ctx.fingerprint[6] & u32(0x3f << 10));
             ctx.fingerprint[3] += temp >> 10;
 
             temp = (ctx.fingerprint[7] & u32(0x1f << 21)) | 
-                (ctx.fingerprint[6] & u32(0x1f << 16));
+                   (ctx.fingerprint[6] & u32(0x1f << 16));
             ctx.fingerprint[4] += temp >> 16;
 
             temp = (ctx.fingerprint[7] & u32(0x3f << 26)) | 
-                (ctx.fingerprint[6] & u32(0x1f << 21));
+                   (ctx.fingerprint[6] & u32(0x1f << 21));
             ctx.fingerprint[5] += temp >> 21;
         case 224:
             ctx.fingerprint[0] += (ctx.fingerprint[7] >> 27) & 0x1f;
@@ -541,7 +537,7 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
 }
 
 haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_bounds_check {
-	hash : []byte = ---;
+	hash := make([]byte, size);
     ctx : HAVAL;
     haval_init(&ctx);
     haval_update(&ctx, data, u32(len(data)), rounds);
