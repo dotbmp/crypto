@@ -240,7 +240,8 @@ main :: proc() {
     // =================== //
     // HAVAL Series       //
     // HAVAL-3-128        //
-    haval_3_128TestVectors := [6]TestHash {
+    haval_3_128TestVectors := [7]TestHash {
+        TestHash{"c68f39913f901f3ddf44c707357a7d70", ""},
 		TestHash{"0cd40739683e15f01ca5dbceef4059f1", "a"},
 		TestHash{"9e40ed883fb63e985d299b40cda2b8f2", "abc"},
 		TestHash{"3caf4a79e81adcd6d1716bcc1cef4573", "message digest"},

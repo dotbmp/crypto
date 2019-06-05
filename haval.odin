@@ -1,6 +1,7 @@
 package crypto
 
 import "core:mem"
+import "core:fmt"
 
 // @ref(bp): https://web.archive.org/web/20150111210116/http://labs.calyptix.com/haval.php
 // HAVAL stub
@@ -174,6 +175,8 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t1 = HAVAL_FF_1(t1, t0, t7, t6, t5, t4, t3, t2, w[ 6], rounds);
     t0 = HAVAL_FF_1(t0, t7, t6, t5, t4, t3, t2, t1, w[ 7], rounds);
 
+    //fmt.printf("t7: %d, t6: %d, t5: %d, t4: %d\nt3: %d, t2: %d, t1: %d, t0: %d\n\n", t7, t6, t5, t4, t3, t2, t1, t0);
+
     t7 = HAVAL_FF_1(t7, t6, t5, t4, t3, t2, t1, t0, w[ 8], rounds);
     t6 = HAVAL_FF_1(t6, t5, t4, t3, t2, t1, t0, t7, w[ 9], rounds);
     t5 = HAVAL_FF_1(t5, t4, t3, t2, t1, t0, t7, t6, w[10], rounds);
@@ -182,6 +185,8 @@ haval_block :: proc(ctx: ^HAVAL, rounds: u32) {
     t2 = HAVAL_FF_1(t2, t1, t0, t7, t6, t5, t4, t3, w[13], rounds);
     t1 = HAVAL_FF_1(t1, t0, t7, t6, t5, t4, t3, t2, w[14], rounds);
     t0 = HAVAL_FF_1(t0, t7, t6, t5, t4, t3, t2, t1, w[15], rounds);
+
+    //fmt.printf("t7: %d, t6: %d, t5: %d, t4: %d\nt3: %d, t2: %d, t1: %d, t0: %d\n\n", t7, t6, t5, t4, t3, t2, t1, t0);
 
     t7 = HAVAL_FF_1(t7, t6, t5, t4, t3, t2, t1, t0, w[16], rounds);
     t6 = HAVAL_FF_1(t6, t5, t4, t3, t2, t1, t0, t7, w[17], rounds);
@@ -385,9 +390,8 @@ slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
     return transmute([]byte)s;
 }
 
-haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
+haval_update :: proc(ctx: ^HAVAL, data: []byte, str_len, rounds: u32) {
     i : u32;
-    str_len := u32(len(data));
     rmd_len := u32((ctx.count[0] >> 3) & 0x7f);
     fill_len := 128 - rmd_len;
 
@@ -397,11 +401,9 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
 
     when ODIN_ENDIAN == "little" {
         if rmd_len + str_len >= 128 {
-            // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
-            copy(slice_to_bytes(ctx.block[rmd_len:]), data[:fill_len]);
+            copy(slice_to_bytes(ctx.block[:])[rmd_len:], data[:fill_len]);
             haval_block(ctx, rounds);
             for i = fill_len; i + 127 < str_len; i += 128 {
-                // memcpy ((unsigned char *)state->block, str+i, 128);
                 copy(slice_to_bytes(ctx.block[:]), data[i:128]);
                 haval_block(ctx, rounds);
             }
@@ -409,19 +411,13 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
         } else {
             i = 0;
         }
-        // memcpy (((unsigned char *)state->block)+rmd_len, str+i, str_len-i);
-        copy(slice_to_bytes(ctx.block[rmd_len:]), data[i:str_len-i]);
-        
+        copy(slice_to_bytes(ctx.block[:])[rmd_len:], data[i:]);   
     } else {
         if rmd_len + str_len >= 128 {
-            // memcpy (((unsigned char *)state->block)+rmd_len, str, fill_len);
-            // ch2uint(state->remainder, state->block, 128);
             copy(ctx.remainder[rmd_len:], data[:fill_len]);
             HAVAL_CH2UINT(ctx.remainder[:], ctx.block[:]);
             haval_block(ctx, rounds);
             for i = fill_len; i + 127 < str_len; i += 128 {
-                // memcpy ((unsigned char *)state->block, str+i, 128);
-                // ch2uint(state->remainder, state->block, 128);
                 copy(ctx.remainder[:], data[i:128]);
                 HAVAL_CH2UINT(ctx.remainder[:], ctx.block[:]);
                 haval_block(ctx, rounds);
@@ -430,8 +426,7 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, rounds: u32) {
         } else {
             i = 0;
         }
-        // memcpy (&state->remainder[rmd_len], str+i, str_len-i);
-        copy(ctx.remainder[rmd_len:], data[i:str_len-i]);
+        copy(ctx.remainder[rmd_len:], data[i:]);
     }
 }
 
@@ -524,34 +519,32 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
 
 haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     pad_len: u32;
-    tail : [10]u8; // TODO: Fix this - used to be u32
-    ssize := u8(size);
-    rrounds := u8(rounds);
+    tail : [10]u8;
 
-    tail[0] = (ssize & 0x3) << 6 | (rrounds & 0x7) << 3 | (HAVAL_VERSION & 0x7);
-    tail[1] = (ssize >> 2) & 0xff;
-    // uint2ch (state->count, &tail[2], 2);
-    HAVAL_UINT2CH(ctx.count[:], tail[:], 2);
+    tail[0] = u8(size & 0x3) << 6 | u8(rounds & 0x7) << 3 | (HAVAL_VERSION & 0x7);
+    tail[1] = u8(size >> 2) & 0xff;
+
+    HAVAL_UINT2CH(ctx.count[:], slice_to_bytes(tail[2:]), 2);
     rmd_len := (ctx.count[0] >> 3) & 0x7f;
     if rmd_len < 118 {
         pad_len = 118 - rmd_len;
     } else {
         pad_len = 246 - rmd_len;
     }
-    haval_update(ctx, HAVAL_PADDING[:], pad_len);
-    haval_update(ctx, tail[:], 10);
+
+    haval_update(ctx, HAVAL_PADDING[:], pad_len, rounds);    
+    haval_update(ctx, tail[:], 10, rounds);
     haval_tailor(ctx, size);
-    // uint2ch (state->fingerprint, final_fpt, FPTLEN >> 5);
     HAVAL_UINT2CH(ctx.fingerprint[:], digest, size >> 5);
+
     mem.set(&ctx, 0, size_of(ctx));
 }
 
 haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_bounds_check {
-
 	hash : []byte = ---;
     ctx : HAVAL;
     haval_init(&ctx);
-    haval_update(&ctx, data, rounds);
+    haval_update(&ctx, data, u32(len(data)), rounds);
     haval_final(&ctx, hash[:], rounds, size);
 
     return hash;
