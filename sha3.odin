@@ -171,10 +171,28 @@ sha3 :: proc "contextless" (input, md: []byte) -> []byte {
     return md;
 }
 
+sha3_224 :: proc "contextless" (input: []byte) -> [28]byte {
+    output: [28]byte = ---;
+    sha3: Sha3_Context = ---;
+    inline sha3_init(&sha3, 28);
+    inline sha3_update(&sha3, input);
+    inline sha3_final(&sha3, output[:]);
+    return output;
+}
+
 sha3_256 :: proc "contextless" (input: []byte) -> [32]byte {
     output: [32]byte = ---;
     sha3: Sha3_Context = ---;
     inline sha3_init(&sha3, 32);
+    inline sha3_update(&sha3, input);
+    inline sha3_final(&sha3, output[:]);
+    return output;
+}
+
+sha3_384 :: proc "contextless" (input: []byte) -> [48]byte {
+    output: [48]byte = ---;
+    sha3: Sha3_Context = ---;
+    inline sha3_init(&sha3, 48);
     inline sha3_update(&sha3, input);
     inline sha3_final(&sha3, output[:]);
     return output;
