@@ -45,6 +45,17 @@ test :: proc(testVectors: []TestHash, algo: string) {
             case "SHA1":
                 out:= crypto.sha1(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
+            
+            // SHA2
+            case "SHA-224":
+                out:= crypto.sha_224(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "SHA-256":
+                out:= crypto.sha_256(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "SHA-512":
+                out:= crypto.sha_512(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA3
             case "SHA3-224":
@@ -200,6 +211,21 @@ main :: proc() {
         TestHash{"c729c8996ee0a6f74f4f3248e8957edf704fb624", "01234567012345670123456701234567"},
     };
     test(sha1TestVectors[:], "SHA1");
+    // SHA-224              //
+    sha224TestVectors := [?]TestHash {
+        TestHash{"d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f", ""},
+    };
+    test(sha224TestVectors[:], "SHA-224");
+    // SHA-256              //
+    sha256TestVectors := [?]TestHash {
+        TestHash{"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", ""},
+    };
+    test(sha256TestVectors[:], "SHA-256");
+    // SHA-512              //
+    sha512TestVectors := [?]TestHash {
+        TestHash{"cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", ""},
+    };
+    test(sha512TestVectors[:], "SHA-512");
     // SHA3-224             //
     sha3224TestVectors := [?]TestHash {
         TestHash{"6b4e03423667dbb73b6e15454f0eb1abd4597f9a1b078e3f5b5a6bc7", ""},
