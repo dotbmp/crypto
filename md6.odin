@@ -3,7 +3,7 @@ package crypto
 import "core:fmt"
 import "core:mem"
 
-// Ported from: http://groups.csail.mit.edu/cis/md6/code/md6_c_code-2009-04-15.zip
+// @ref(zh): http://groups.csail.mit.edu/cis/md6/code/md6_c_code-2009-04-15.zip
 
 MD6_STATUS :: enum i32 {
     SUCCESS = 0,
@@ -668,7 +668,6 @@ md6_full_hash :: proc(data, key : []byte, L, r : i32, hash : []byte) -> MD6_STAT
 }
 
 md6_hash :: proc(data : []byte, hash : []byte) -> MD6_STATUS {
-
     return inline md6_full_hash(data, nil, md6_default_L, md6_default_r(i32(len(data))*8, 0), hash);
 }
 
