@@ -214,7 +214,7 @@ streebog_hash :: proc(data, IV: []byte) -> []byte {
     }
 
     m := make([]byte, 64 - length / 8);
-	//m = append(m, data...);
+	copy(m[:], data[:]); //m = append(m, data...);
 	m[63 - length / 8] |= (1 << uint(length & 0x7));
 	h = streebog_gN(N, h, m);
 	v512[63] = byte(length);
