@@ -162,6 +162,11 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= crypto.streebog_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
+            // WHIRLPOOL
+            case "WHIRLPOOL":
+                out:= crypto.whirlpool(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
@@ -488,4 +493,9 @@ main :: proc() {
     };
     test(streebog_512TestVectors[:], "STREEBOG-512");
     // =================== //
+    // WHIRLPOOL           //
+    whirlpoolTestVectors := [?]TestHash {
+        TestHash{"19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3", ""},
+    };
+    test(whirlpoolTestVectors[:], "WHIRLPOOL");
 }
