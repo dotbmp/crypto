@@ -157,6 +157,11 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= crypto.haval_5_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
+            // GOST
+            case "GOST":
+                out:= crypto.gost(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // STREEBOG
             case "STREEBOG-256":
                 out:= crypto.streebog_256(([]byte)(s.str));
@@ -506,4 +511,12 @@ main :: proc() {
         TestHash{"19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3", ""},
     };
     test(whirlpoolTestVectors[:], "WHIRLPOOL");
+    // =================== //
+    // GOST                //
+    gostTestVectors := [?]TestHash {
+        TestHash{"ce85b99cc46752fffee35cab9a7b0278abb4c2d2055cff685af4912c49490f8d", ""},
+        TestHash{"d42c539e367c66e9c88a801f6649349c21871b4344c6a573f849fdce62f314dd", "a"},
+        TestHash{"ad4434ecb18f2c99b60cbe59ec3d2469582b65273f48de72db2fde16a4889a4d", "message digest"},
+    };
+    test(gostTestVectors[:], "GOST");
 }
