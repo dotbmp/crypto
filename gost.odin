@@ -53,12 +53,12 @@ gost_bytes :: proc(ctx: ^GOST, buf: []byte, bits: u32) {
     m: [8]u32;
 
     for i, j := 0, 0; i < 8; i += 1 {
-      a = u32(buf[j]) | u32(buf[j + 1]) << 8 | u32(buf[j + 2]) << 16 | u32(buf[j + 3]) << 24;
-      j += 4;
-      m[i] = a;
-      c = a + c + ctx.sum[i];
-      ctx.sum[i] = c;
-      c = c < a ? 1 : 0;
+        a = u32(buf[j]) | u32(buf[j + 1]) << 8 | u32(buf[j + 2]) << 16 | u32(buf[j + 3]) << 24;
+        j += 4;
+        m[i] = a;
+        c = a + c + ctx.sum[i];
+        ctx.sum[i] = c;
+        c = c < a ? 1 : 0;
     }
 
     gost_compress(ctx.hash[:], m[:]);
@@ -249,8 +249,8 @@ gost_update :: proc(ctx: ^GOST, buf: []byte) {
     }
 
     if i < 32 {
-      ctx.partial_bytes = i;
-      return;
+        ctx.partial_bytes = i;
+        return;
     }
     gost_bytes(ctx, ctx.partial[:], 256);
 
