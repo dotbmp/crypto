@@ -255,7 +255,7 @@ gost_update :: proc(ctx: ^GOST, buf: []byte) {
     gost_bytes(ctx, ctx.partial[:], 256);
 
     for (j + 32) < length {
-        gost_bytes(ctx, buf[j:], 256)
+        gost_bytes(ctx, buf[j:], 256);
         j += 32;
     }
 
