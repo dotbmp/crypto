@@ -18,9 +18,9 @@ GOST_SBOX_3 : [256]u32;
 GOST_SBOX_4 : [256]u32;
 
 GOST_ENCRYPT_ROUND :: inline proc "contextless"(l, r, t, k1, k2: u32) -> (u32, u32, u32) {
-    t = (k1) + r; 
+    t  = (k1) + r; 
     l ~= GOST_SBOX_1[t & 0xff] ~ GOST_SBOX_2[(t >> 8) & 0xff] ~ GOST_SBOX_3[(t >> 16) & 0xff] ~ GOST_SBOX_4[t >> 24]; 
-    t = (k2) + l; 
+    t  = (k2) + l; 
     r ~= GOST_SBOX_1[t & 0xff] ~ GOST_SBOX_2[(t >> 8) & 0xff] ~ GOST_SBOX_3[(t >> 16) & 0xff] ~ GOST_SBOX_4[t >> 24];
     return l, r, t;
 }
@@ -82,14 +82,14 @@ gost_compress :: proc(h, m: []u32) {
         w[6] = u[6] ~ v[6];
         w[7] = u[7] ~ v[7];
 
-        key[0] = (w[0] & 0x000000ff)       | (w[2] & 0x000000ff) << 8  | (w[4] & 0x000000ff) << 16 | (w[6] & 0x000000ff) << 24;
-        key[1] = (w[0] & 0x0000ff00) >> 8  | (w[2] & 0x0000ff00)       | (w[4] & 0x0000ff00) << 8  | (w[6] & 0x0000ff00) << 16;
-        key[2] = (w[0] & 0x00ff0000) >> 16 | (w[2] & 0x00ff0000) >> 8  | (w[4] & 0x00ff0000)       | (w[6] & 0x00ff0000) << 8;
-        key[3] = (w[0] & 0xff000000) >> 24 | (w[2] & 0xff000000) >> 16 | (w[4] & 0xff000000) >> 8  | (w[6] & 0xff000000);
-        key[4] = (w[1] & 0x000000ff)       | (w[3] & 0x000000ff) << 8  | (w[5] & 0x000000ff) << 16 | (w[7] & 0x000000ff) << 24;
-        key[5] = (w[1] & 0x0000ff00) >> 8  | (w[3] & 0x0000ff00)       | (w[5] & 0x0000ff00) << 8  | (w[7] & 0x0000ff00) << 16;
-        key[6] = (w[1] & 0x00ff0000) >> 16 | (w[3] & 0x00ff0000) >> 8  | (w[5] & 0x00ff0000)       | (w[7] & 0x00ff0000) << 8;
-        key[7] = (w[1] & 0xff000000) >> 24 | (w[3] & 0xff000000) >> 16 | (w[5] & 0xff000000) >> 8  | (w[7] & 0xff000000);
+        key[0] = (w[0] & 0x000000ff)       | (w[2] & 0x000000ff) <<  8 | (w[4] & 0x000000ff) << 16 | (w[6] & 0x000000ff) << 24;
+        key[1] = (w[0] & 0x0000ff00) >>  8 | (w[2] & 0x0000ff00)       | (w[4] & 0x0000ff00) <<  8 | (w[6] & 0x0000ff00) << 16;
+        key[2] = (w[0] & 0x00ff0000) >> 16 | (w[2] & 0x00ff0000) >>  8 | (w[4] & 0x00ff0000)       | (w[6] & 0x00ff0000) <<  8;
+        key[3] = (w[0] & 0xff000000) >> 24 | (w[2] & 0xff000000) >> 16 | (w[4] & 0xff000000) >>  8 | (w[6] & 0xff000000);
+        key[4] = (w[1] & 0x000000ff)       | (w[3] & 0x000000ff) <<  8 | (w[5] & 0x000000ff) << 16 | (w[7] & 0x000000ff) << 24;
+        key[5] = (w[1] & 0x0000ff00) >>  8 | (w[3] & 0x0000ff00)       | (w[5] & 0x0000ff00) <<  8 | (w[7] & 0x0000ff00) << 16;
+        key[6] = (w[1] & 0x00ff0000) >> 16 | (w[3] & 0x00ff0000) >>  8 | (w[5] & 0x00ff0000)       | (w[7] & 0x00ff0000) <<  8;
+        key[7] = (w[1] & 0xff000000) >> 24 | (w[3] & 0xff000000) >> 16 | (w[5] & 0xff000000) >>  8 | (w[7] & 0xff000000);
 
         r := h[i];
         l := h[i + 1];
@@ -101,8 +101,8 @@ gost_compress :: proc(h, m: []u32) {
 
         if i == 6 do break;
 
-        l = u[0] ~ u[2];                 
-        r = u[1] ~ u[3];
+        l    = u[0] ~ u[2];                 
+        r    = u[1] ~ u[3];
         u[0] = u[2];
         u[1] = u[3];
         u[2] = u[4];
@@ -243,7 +243,6 @@ gost_update :: proc(ctx: ^GOST, buf: []byte) {
     j: u8;
 
     i := ctx.partial_bytes;
-    j = 0;
     for i < 32 && j < length {
         ctx.partial[i] = buf[j];
         i, j = i + 1, j + 1;
@@ -256,7 +255,7 @@ gost_update :: proc(ctx: ^GOST, buf: []byte) {
     gost_bytes(ctx, ctx.partial[:], 256);
 
     for (j + 32) < length {
-        gost_bytes(ctx, buf[j:], 256);
+        gost_bytes(ctx, buf[j:], 256)
         j += 32;
     }
 
