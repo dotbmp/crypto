@@ -240,7 +240,6 @@ streebog_GetKey :: proc(K: []byte, i: i32) {
 }
 
 streebog_E :: proc(K, m, state: []byte) {
-	copy(K, K); // @note(bp): what the...
 	streebog_X(m, K, state);
 	for i: i32 = 0; i < 12; i += 1 {
 		streebog_S(state);
@@ -320,8 +319,8 @@ streebog_Padding :: proc(ctx: ^STREEBOG) {
 
 streebog_Stage3 :: proc(ctx: ^STREEBOG) {
 	t: [64]u8;
-	t[1] = ((u8(ctx.buf_size) * 8) >> 8) & 0xff;
-	t[0] = (u8(ctx.buf_size) * 8) & 0xff;
+	t[1] = u8((ctx.buf_size * 8) >> 8) & 0xff;
+	t[0] = u8((ctx.buf_size) * 8) & 0xff;
 
 	streebog_Padding(ctx);
 
@@ -347,8 +346,7 @@ streebog_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
 	streebog_init(&ctx, 256);
 	streebog_update(&ctx, data);
 	streebog_final(&ctx);
-	tmp := ctx.hash;
-	copy(hash[:], tmp[:32]);
+	copy(hash[:], ctx.hash[32:]);
     return hash;
 }
 

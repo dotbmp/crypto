@@ -7,7 +7,7 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 
 - [x] BLAKE
 - [x] BLAKE2
-- [ ] GOST
+- [x] GOST
 - [x] HAVAL
 - [ ] KangarooTwelve
 - [x] MD2
@@ -18,7 +18,7 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [x] SHA-1
 - [ ] SHA-2
 - [x] SHA-3 (Keccak)
-- [ ] Streebog
+- [x] Streebog
 - [ ] Tiger
 - [ ] Whirlpool
 - [ ] Bcrypt
