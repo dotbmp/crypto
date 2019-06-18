@@ -86,3 +86,46 @@ compare_files_slice_out :: proc(file1, file2: string, fn: proc "contextless" (da
 
     return mem.compare(hash1, hash2) == 0, true;
 }
+
+
+// @note(bp): this can replace the other two
+cast_slice :: inline proc "contextless" ($D: typeid/[]$DE, src: $S/[]$SE) -> D {
+    dst := (^mem.Raw_Slice)(&src);
+
+    when size_of(DE) < size_of(SE) {
+        when size_of(DE) % size_of(SE) == 0 {
+            dst.len /= size_of(SE) / size_of(DE);
+        } else {
+            dst.len *= size_of(SE);
+            dst.len /= size_of(DE);
+        }
+    } else when size_of(DE) > size_of(SE) {
+        when size_of(DE) % size_of(SE) == 0 {
+            dst.len *= size_of(DE) / size_of(SE);
+        } else {
+            dst.len *= size_of(SE);
+            dst.len /= size_of(DE);
+        }
+    } else when size_of(DE) != size_of(SE) {
+        #assert(size_of(DE) % size_of(SE) == 0, "This error message sucks");
+        dst.len *= size_of(SE);
+        dst.len /= size_of(DE);
+    }
+
+    return (^D)(dst)^;
+}
+
+// @note(zh): This should be in core:mem
+bytes_to_slice :: inline proc "contextless" ($T: typeid, bytes: []byte) -> []T {
+    s := transmute(mem.Raw_Slice)bytes;
+    s.len /= size_of(T);
+    return transmute([]T)s;
+}
+
+// @note(zh): This should be in core:mem
+slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
+    s := transmute(mem.Raw_Slice)slice;
+    s.len *= size_of(T);
+    return transmute([]byte)s;
+}
+

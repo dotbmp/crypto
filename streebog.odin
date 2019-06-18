@@ -5,7 +5,7 @@ import "core:fmt"
 
 // @ref(zh): https://github.com/Polymorph1024/Streebog
 
-STREEBOG_SBOX := [256]byte {
+STREEBOG_PI := [256]byte {
 	252, 238, 221,  17, 207, 110,  49,  22, 251, 196, 250, 218,  35, 197,   4,  77,
 	233, 119, 240, 219, 147,  46, 153, 186,  23,  54, 241, 187,  20, 205,  95, 193,
 	249,  24, 101,  90, 226,  92, 239,	33, 129,  28,  60,  66, 139,   1, 142,  79,
@@ -190,10 +190,10 @@ STREEBOG :: struct {
 }
 
 streebog_AddMod512 :: proc(first_vector, second_vector, result_vector: []byte) {
-	t := u8(0);
-	for i := 0; i < 64; i += 1 {
-		t = first_vector[i] + second_vector[i] + (t >> 8);
-		result_vector[i] = t & 0xff;
+	t: i32 = 0;
+	for i: i32 = 0; i < 64; i += 1 {
+		t = i32(first_vector[i]) + i32(second_vector[i]) + (t >> 8);
+		result_vector[i] = byte(t & 0xff);
 	}
 }
 
@@ -205,35 +205,34 @@ streebog_X :: proc(a, k, out: []byte) {
 
 streebog_S :: proc(state: []byte) {
 	t: [64]u8;
-	for i := 63; i >= 0; i -= 1 {
-		t[i] = STREEBOG_SBOX[state[i]];
+	for i: i32 = 63; i >= 0; i -= 1 {
+		t[i] = STREEBOG_PI[state[i]];
 	}
-	mem.copy(&state, &t, 64);
+	copy(state, t[:]);
 }
 
 streebog_P :: proc(state: []byte) {
 	t: [64]u8;
-	for i := 63; i >= 0; i -= 1 {
-		t[i] = STREEBOG_TAU[state[i]];
+	for i: i32 = 63; i >= 0; i -= 1 {
+		t[i] = state[STREEBOG_TAU[i]];
 	}
-	mem.copy(&state, &t, 64);
+	copy(state, t[:]);
 }
 
 streebog_L :: proc(state: []byte) {
-	ins := state;
+	ins := cast_slice([]u64, state);
 	out: [8]u64;
-	mem.set(&out, 0x00, 64);
-	for i := 7; i >= 0; i -= 1 {
-		for j := 63; j >= 0; j -= 1 {
-			if (ins[i] >> uint(j)) & 1 != 0 {
+	for i: i32 = 7; i >= 0; i -= 1 {
+		for j: i32 = 63; j >= 0; j -= 1 {
+			if (ins[i] >> u32(j)) & 1 != 0 {
 				out[i] ~= STREEBOG_A[63 - j];
 			}	
 		}
 	}
-	mem.copy(&state, &out, 64);
+	copy(state, cast_slice([]byte, out[:]));
 }
 
-streebog_GetKey :: proc(K: []byte, i: int) {
+streebog_GetKey :: proc(K: []byte, i: i32) {
 	streebog_X(K, STREEBOG_C[i][:], K);
 	streebog_S(K);
 	streebog_P(K);
@@ -241,9 +240,9 @@ streebog_GetKey :: proc(K: []byte, i: int) {
 }
 
 streebog_E :: proc(K, m, state: []byte) {
-	mem.copy(&K, &K, 64);
+	copy(K, K); // @note(bp): what the...
 	streebog_X(m, K, state);
-	for i := 0; i < 12; i += 1 {
+	for i: i32 = 0; i < 12; i += 1 {
 		streebog_S(state);
 		streebog_P(state);
 		streebog_L(state);
@@ -270,9 +269,16 @@ streebog_stage2 :: proc(ctx: ^STREEBOG, m: []byte) {
 }
 
 streebog_init :: proc(ctx: ^STREEBOG, hash_size: int) {
-	mem.set(ctx, 0x00, size_of(STREEBOG));
-	if hash_size == 256 do mem.set(&ctx.h, 0x01, 64);
-	else do mem.set(&ctx.h, 0x00, 64);
+	ctx^ = {};
+	if hash_size == 256 {
+		for _, i in ctx.h {
+			ctx.h[i] = 0x01;
+		}
+	} else {
+		for _, i in ctx.h {
+			ctx.h[i] = 0x00;
+		}
+	}
 	ctx.hash_size = hash_size;
 	ctx.v_512[1] = 0x02;
 }
@@ -291,8 +297,7 @@ streebog_update :: proc(ctx: ^STREEBOG, m: []byte) {
 		chk_size = 64 - ctx.buf_size;
 		if chk_size > length do chk_size = length;
 
-		copy(ctx.buffer[ctx.buf_size:], m[chk_size:]);
-		mem.copy(&ctx.buffer[ctx.buf_size], &m, int(chk_size));
+		copy(ctx.buffer[ctx.buf_size:], m[:chk_size]);
 		ctx.buf_size += chk_size;
 		length -= chk_size;
 		m = m[chk_size:];
@@ -305,18 +310,16 @@ streebog_update :: proc(ctx: ^STREEBOG, m: []byte) {
 
 
 streebog_Padding :: proc(ctx: ^STREEBOG) {
-	t: [64]u8;
 	if ctx.buf_size < 64 {
-		mem.set(&t, 0x00, 64);
-		mem.copy(&t, &ctx.buffer, int(ctx.buf_size));
+		t: [64]byte;
+		copy(t[:], ctx.buffer[:int(ctx.buf_size)]);
 		t[ctx.buf_size] = 0x01;
-		mem.copy(&ctx.buffer, &t, 64);
+		copy(ctx.buffer[:], t[:]);
 	}
 }
 
 streebog_Stage3 :: proc(ctx: ^STREEBOG) {
 	t: [64]u8;
-	mem.set(&t, 0x00, 64);
 	t[1] = ((u8(ctx.buf_size) * 8) >> 8) & 0xff;
 	t[0] = (u8(ctx.buf_size) * 8) & 0xff;
 
@@ -330,7 +333,7 @@ streebog_Stage3 :: proc(ctx: ^STREEBOG) {
 	streebog_g(ctx.h[:], ctx.v_0[:], ctx.N[:]);
 	streebog_g(ctx.h[:], ctx.v_0[:], ctx.Sigma[:]);
 
-	mem.copy(&ctx.hash, &ctx.h, 64);
+	copy(ctx.hash[:], ctx.h[:]);
 }
 
 streebog_final :: proc(ctx: ^STREEBOG) {

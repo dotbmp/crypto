@@ -356,20 +356,6 @@ haval_init :: proc(ctx: ^HAVAL) {
     ctx.fingerprint[7] = 0xec4e6c89;
 }
 
-// @note(zh): This should be in core:mem
-bytes_to_slice :: inline proc "contextless" ($T: typeid, bytes: []byte) -> []T {
-    s := transmute(mem.Raw_Slice)bytes;
-    s.len /= size_of(T);
-    return transmute([]T)s;
-}
-
-// @note(zh): This should be in core:mem
-slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
-    s := transmute(mem.Raw_Slice)slice;
-    s.len *= size_of(T);
-    return transmute([]byte)s;
-}
-
 haval_update :: proc(ctx: ^HAVAL, data: []byte, str_len, rounds: u32) {
     i : u32;
     rmd_len := u32((ctx.count[0] >> 3) & 0x7f);
