@@ -19,7 +19,7 @@ and [here](https://en.wikipedia.org/wiki/Bcrypt)
 - [ ] SHA-2
 - [x] SHA-3 (Keccak)
 - [x] Streebog
-- [ ] Tiger
+- [x] Tiger / Tiger2
 - [ ] Whirlpool
 - [ ] Bcrypt
 
