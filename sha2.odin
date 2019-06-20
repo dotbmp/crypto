@@ -313,8 +313,10 @@ sha2_final :: proc(ctx: ^$T, hash: []byte, block_size: int) {
 			hash[i + 24] = u8(ctx.state[3] >> (24 - i * 8)) & 0x000000ff;
 			hash[i + 32] = u8(ctx.state[4] >> (24 - i * 8)) & 0x000000ff;
 			hash[i + 40] = u8(ctx.state[5] >> (24 - i * 8)) & 0x000000ff;
-			hash[i + 48] = u8(ctx.state[6] >> (24 - i * 8)) & 0x000000ff;
-			hash[i + 56] = u8(ctx.state[7] >> (24 - i * 8)) & 0x000000ff;
+			if !ctx.is384 {
+				hash[i + 48] = u8(ctx.state[6] >> (24 - i * 8)) & 0x000000ff;
+				hash[i + 56] = u8(ctx.state[7] >> (24 - i * 8)) & 0x000000ff;
+			}
 		}
 	}
 }
