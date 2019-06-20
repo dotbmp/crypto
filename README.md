@@ -20,7 +20,7 @@ A cryptographic hash function library for the Odin language
 - [ ] [Skein](https://en.wikipedia.org/wiki/Skein_(hash_function))
 - [x] [Streebog](https://en.wikipedia.org/wiki/Streebog)
 - [x] [Tiger / Tiger2](https://en.wikipedia.org/wiki/Tiger_(hash_function))
-- [ ] [Whirlpool](https://en.wikipedia.org/wiki/Whirlpool)
+- [x] [Whirlpool](https://en.wikipedia.org/wiki/Whirlpool)
 - [ ] [Bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
 
 Probably belong in a separate package:

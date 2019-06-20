@@ -539,7 +539,7 @@ main :: proc() {
         TestHash{"1f1a84d30612820243afe2022712f9dac6d07c4c8bb41b40eacab0184c8d82275da5bcadbb35c7ca1960ff21c90acbae8c14e48d9309e4819027900e882c7ad9", "abcdefgh"},
         TestHash{"11882bc9a31ac1cf1c41dcd9fd6fdd3ccdb9b017fc7f4582680134f314d7bb49af4c71f5a920bc0a6a3c1ff9a00021bf361d9867fe636b0bc1da1552e4237de4", "abcdefghi"},
         TestHash{"717163de24809ffcf7ff6d5aba72b8d67c2129721953c252a4ddfb107614be857cbd76a9d5927de14633d6bdc9ddf335160b919db5c6f12cb2e6549181912eef", "abcdefghij"},
-        TestHash{"317edc3c5172ea5987902aa9c4f1defedf4d5aa59209bdf7574cc6da0039852c24b8da70ecb07997ff83e86d32d2851215d3dcbd6bb9736bdef21c349d483e6d", "The quick brown fox jumps over the lazy dog"},
+        TestHash{"b97de512e91e3828b40d2b0fdce9ceb3c4a71f9bea8d88e75c4fa854df36725fd2b52eb6544edcacd6f8beddfea403cb55ae31f03ad62a5ef54e42ee82c3fb35", "The quick brown fox jumps over the lazy dog"},
         TestHash{"c27ba124205f72e6847f3e19834f925cc666d0974167af915bb462420ed40cc50900d85a1f923219d832357750492d5c143011a76988344c2635e69d06f2d38c", "The quick brown fox jumps over the lazy eog"},
     };
     test(whirlpoolTestVectors[:], "WHIRLPOOL");

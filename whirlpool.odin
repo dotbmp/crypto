@@ -608,16 +608,9 @@ whirlpool_transform :: inline proc "contextless"(ctx: ^WHIRLPOOL) {
 				WHIRLPOOL_C7[byte(state[(i + 1) % 8])] ~
 				K[i % 8];
 		}
-
 		for i := 0; i < 8; i += 1 do state[i] = L[i];
 	}
-
 	for i := 0; i < 8; i += 1 do ctx.hash[i] ~= state[i] ~ block[i];
-}
-
-whirlpool_init :: proc(ctx: ^WHIRLPOOL) {
-	ctx.bufferBits = 0;
-	ctx.bufferPos = 0;
 }
 
 whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
@@ -643,6 +636,7 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
 		ctx.bufferBits += int(8 - bufferRem);
 
 		if ctx.bufferBits == 512 {
+			fmt.println("1");
 			whirlpool_transform(ctx);
 			ctx.bufferBits = 0;
 			ctx.bufferPos = 0;
@@ -656,9 +650,7 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
 	if sourceBits > 0 {
 		b = u32((source[sourcePos] << sourceGap) & 0xff);
 		ctx.buffer[ctx.bufferPos] |= byte(b) >> bufferRem;
-	} else {
-		b = 0;
-	}
+	} else do b = 0;
 
 	if u64(bufferRem) + sourceBits < 8 {
 		ctx.bufferBits += int(sourceBits);
@@ -668,6 +660,7 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
 		sourceBits -= u64(8 - bufferRem);
 
 		if ctx.bufferBits == 512 {
+			fmt.println("2");
 			whirlpool_transform(ctx);
 			ctx.bufferBits = 0;
 			ctx.bufferPos = 0;
@@ -690,7 +683,7 @@ whirlpool_final :: proc(ctx: ^WHIRLPOOL) -> [64]byte {
 		n.bufferPos = 0;
 	}
 
-	if n.bufferPos > 64 - 32 {
+	if n.bufferPos < 64 - 32 {
 		for i := 0; i < (64 - 32) - n.bufferPos; i += 1 do n.buffer[n.bufferPos + i] = 0;
 	}
 	n.bufferPos = 64 - 32;
@@ -709,14 +702,12 @@ whirlpool_final :: proc(ctx: ^WHIRLPOOL) -> [64]byte {
 		digest[i * 8 + 6] = byte(n.hash[i] >> 8);
 		digest[i * 8 + 7] = byte(n.hash[i]);
 	}
-
 	return digest;
 }
 
 whirlpool :: proc "contextless" (input: []byte) -> [64]byte {
     hash: [64]byte;
     ctx: WHIRLPOOL;
-    whirlpool_init(&ctx);
     whirlpool_update(&ctx, input);
     hash = whirlpool_final(&ctx);
     return hash;
