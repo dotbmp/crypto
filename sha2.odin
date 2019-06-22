@@ -23,14 +23,6 @@ SHA_512 :: struct {
 	is384: bool,
 }
 
-SHA2_ROTR32 :: inline proc "contextless"(a, b : u32) -> u32 {
-    return ((a >> b) | (a << (32-b)));
-}
-
-SHA2_ROTR64 :: inline proc "contextless"(a, b : u64) -> u64 {
-    return ((a >> b) | (a << (64-b)));
-}
-
 SHA256_CH :: inline proc "contextless"(x, y, z: u32) -> u32 {
     return (((x) & (y)) ~ (~(x) & (z)));
 }
@@ -48,35 +40,35 @@ SHA512_MAJ :: inline proc "contextless"(x, y, z: u64) -> u64 {
 }
 
 SHA256_EP0 :: inline proc "contextless"(x: u32) -> u32 {
-    return (SHA2_ROTR32(x, 6) ~ SHA2_ROTR32(x, 11) ~ SHA2_ROTR32(x, 25));
+    return (ROTR32(x, 6) ~ ROTR32(x, 11) ~ ROTR32(x, 25));
 }
 
 SHA256_EP1 :: inline proc "contextless"(x: u32) -> u32 {
-    return (SHA2_ROTR32(x, 2) ~ SHA2_ROTR32(x, 13) ~ SHA2_ROTR32(x, 22));
+    return (ROTR32(x, 2) ~ ROTR32(x, 13) ~ ROTR32(x, 22));
 }
 
 SHA256_SIG0 :: inline proc "contextless"(x: u32) -> u32 {
-    return (SHA2_ROTR32(x, 7) ~ SHA2_ROTR32(x, 18) ~ ((x) >> 3));
+    return (ROTR32(x, 7) ~ ROTR32(x, 18) ~ ((x) >> 3));
 }
 
 SHA256_SIG1 :: inline proc "contextless"(x: u32) -> u32 {
-    return (SHA2_ROTR32(x, 17) ~ SHA2_ROTR32(x, 19) ~ ((x) >> 10));
+    return (ROTR32(x, 17) ~ ROTR32(x, 19) ~ ((x) >> 10));
 }
 
 SHA512_EP0 :: inline proc "contextless"(x: u64) -> u64 {
-    return (SHA2_ROTR64(x, 28) ~ SHA2_ROTR64(x, 34) ~ SHA2_ROTR64(x, 39));
+    return (ROTR64(x, 28) ~ ROTR64(x, 34) ~ ROTR64(x, 39));
 }
 
 SHA512_EP1 :: inline proc "contextless"(x: u64) -> u64 {
-    return (SHA2_ROTR64(x, 14) ~ SHA2_ROTR64(x, 18) ~ SHA2_ROTR64(x, 41));
+    return (ROTR64(x, 14) ~ ROTR64(x, 18) ~ ROTR64(x, 41));
 }
 
 SHA512_SIG0 :: inline proc "contextless"(x: u64) -> u64 {
-    return (SHA2_ROTR64(x, 1) ~ SHA2_ROTR64(x, 8) ~ ((x) >> 7));
+    return (ROTR64(x, 1) ~ ROTR64(x, 8) ~ ((x) >> 7));
 }
 
 SHA512_SIG1 :: inline proc "contextless"(x: u64) -> u64 {
-    return (SHA2_ROTR64(x, 19) ~ SHA2_ROTR64(x, 61) ~ ((x) >> 6));
+    return (ROTR64(x, 19) ~ ROTR64(x, 61) ~ ((x) >> 6));
 }
 
 SHA256_K := [64]u32 {

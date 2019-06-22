@@ -12,10 +12,6 @@ SHA1_CTX :: struct {
     k : [4]u32,
 }
 
-SHA1_ROTL32 :: inline proc "contextless" (a, b : u32) -> u32 {
-    return ((a << b) | (a >> (32-b)));
-}
-
 sha1_transform :: proc(ctx : ^SHA1_CTX, data : [64]byte) {
 
     a, b, c, d, e, i, j, t : u32;
@@ -38,36 +34,36 @@ sha1_transform :: proc(ctx : ^SHA1_CTX, data : [64]byte) {
 	e = ctx.state[4];
 
 	for i = 0; i < 20; i += 1 {
-		t = SHA1_ROTL32(a, 5) + ((b & c) ~ (~b & d)) + e + ctx.k[0] + m[i];
+		t = ROTL32(a, 5) + ((b & c) ~ (~b & d)) + e + ctx.k[0] + m[i];
 		e = d;
 		d = c;
-		c = SHA1_ROTL32(b, 30);
+		c = ROTL32(b, 30);
 		b = a;
 		a = t;
 	}
 	for i < 40 {
-		t = SHA1_ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[1] + m[i];
+		t = ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[1] + m[i];
 		e = d;
 		d = c;
-		c = SHA1_ROTL32(b, 30);
+		c = ROTL32(b, 30);
 		b = a;
 		a = t;
         i += 1;
 	}
 	for i < 60 {
-		t = SHA1_ROTL32(a, 5) + ((b & c) ~ (b & d) ~ (c & d)) + e + ctx.k[2] + m[i];
+		t = ROTL32(a, 5) + ((b & c) ~ (b & d) ~ (c & d)) + e + ctx.k[2] + m[i];
 		e = d;
 		d = c;
-		c = SHA1_ROTL32(b, 30);
+		c = ROTL32(b, 30);
 		b = a;
 		a = t;
         i += 1;
 	}
 	for i < 80 {
-		t = SHA1_ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[3] + m[i];
+		t = ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[3] + m[i];
 		e = d;
 		d = c;
-		c = SHA1_ROTL32(b, 30);
+		c = ROTL32(b, 30);
 		b = a;
 		a = t;
         i += 1;

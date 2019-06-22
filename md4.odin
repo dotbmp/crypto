@@ -11,10 +11,6 @@ MD4_CTX :: struct {
     datalen: u32,
 }
 
-MD4_ROTL32 :: inline proc "contextless" (a, b : u32) -> u32 {
-    return ((a << b) | (a >> (32-b)));
-}
-
 MD4_F :: inline proc "contextless" (x, y, z : u32) -> u32 {
     return ((x & y) | (~x & z));
 }
@@ -29,19 +25,19 @@ MD4_H :: inline proc "contextless" (x, y, z : u32) -> u32 {
 
 MD4_FF :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
     a += MD4_F(b,c,d) + x;
-    a = MD4_ROTL32(a,s); 
+    a = ROTL32(a,s); 
     return a;
 }
 
 MD4_GG :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
     a += MD4_G(b,c,d) + x + 0x5a827999;
-    a = MD4_ROTL32(a,s);
+    a = ROTL32(a,s);
     return a;
 }
 
 MD4_HH :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
     a += MD4_H(b,c,d) + x + 0x6ed9eba1;
-    a = MD4_ROTL32(a,s); 
+    a = ROTL32(a,s); 
     return a;
 }
 

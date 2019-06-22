@@ -18,10 +18,6 @@ HAVAL :: struct {
     remainder: [128]u8,
 };
 
-HAVAL_ROTR32 :: inline proc "contextless"(a, b : u32) -> u32 {
-    return ((a >> b) | (a << (32-b)));
-}
-
 HAVAL_PADDING := [128]u8 {
 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -102,31 +98,31 @@ HAVAL_FPHI_5 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
 
 HAVAL_FF_1 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_1(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = HAVAL_ROTR32(tmp, 7) + HAVAL_ROTR32(x7, 11) + w;
+    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w;
     return x7;
 }
 
 HAVAL_FF_2 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_2(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = HAVAL_ROTR32(tmp, 7) + HAVAL_ROTR32(x7, 11) + w + c;
+    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_3 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_3(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = HAVAL_ROTR32(tmp, 7) + HAVAL_ROTR32(x7, 11) + w + c;
+    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_4 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_4(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = HAVAL_ROTR32(tmp, 7) + HAVAL_ROTR32(x7, 11) + w + c;
+    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_5 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_5(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = HAVAL_ROTR32(tmp, 7) + HAVAL_ROTR32(x7, 11) + w + c;
+    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
@@ -404,19 +400,19 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
                    (ctx.fingerprint[6] & 0xff000000) | 
                    (ctx.fingerprint[5] & 0x00ff0000) | 
                    (ctx.fingerprint[4] & 0x0000ff00);
-            ctx.fingerprint[0] += HAVAL_ROTR32(temp, 8);
+            ctx.fingerprint[0] += ROTR32(temp, 8);
 
             temp = (ctx.fingerprint[7] & 0x0000ff00) | 
                    (ctx.fingerprint[6] & 0x000000ff) | 
                    (ctx.fingerprint[5] & 0xff000000) | 
                    (ctx.fingerprint[4] & 0x00ff0000);
-            ctx.fingerprint[1] += HAVAL_ROTR32(temp, 16);
+            ctx.fingerprint[1] += ROTR32(temp, 16);
 
             temp = (ctx.fingerprint[7] & 0x00ff0000) | 
                    (ctx.fingerprint[6] & 0x0000ff00) | 
                    (ctx.fingerprint[5] & 0x000000ff) | 
                    (ctx.fingerprint[4] & 0xff000000);
-            ctx.fingerprint[2] += HAVAL_ROTR32(temp, 24);
+            ctx.fingerprint[2] += ROTR32(temp, 24);
 
             temp = (ctx.fingerprint[7] & 0xff000000) | 
                    (ctx.fingerprint[6] & 0x00ff0000) | 
@@ -427,12 +423,12 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
             temp = (ctx.fingerprint[7] & u32(0x3f)) | 
                    (ctx.fingerprint[6] & u32(0x7f << 25)) |  
                    (ctx.fingerprint[5] & u32(0x3f << 19));
-            ctx.fingerprint[0] += HAVAL_ROTR32(temp, 19);
+            ctx.fingerprint[0] += ROTR32(temp, 19);
 
             temp = (ctx.fingerprint[7] & u32(0x3f <<  6)) | 
                    (ctx.fingerprint[6] & u32(0x3f)) |  
                    (ctx.fingerprint[5] & u32(0x7f << 25));
-            ctx.fingerprint[1] += HAVAL_ROTR32(temp, 25);
+            ctx.fingerprint[1] += ROTR32(temp, 25);
 
             temp = (ctx.fingerprint[7] & u32(0x7f << 12)) | 
                    (ctx.fingerprint[6] & u32(0x3f <<  6)) |  
@@ -451,7 +447,7 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
         case 192:
             temp = (ctx.fingerprint[7] & u32(0x1f)) | 
                    (ctx.fingerprint[6] & u32(0x3f << 26));
-            ctx.fingerprint[0] += HAVAL_ROTR32(temp, 26);
+            ctx.fingerprint[0] += ROTR32(temp, 26);
 
             temp = (ctx.fingerprint[7] & u32(0x1f <<  5)) | 
                    (ctx.fingerprint[6] & u32(0x1f));

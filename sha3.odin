@@ -5,10 +5,6 @@ package crypto
 
 KECCAKF_ROUNDS :: 24;
 
-ROTL64 :: inline proc "contextless" (x, y: u64) -> u64 {
-    return ((x << y) | (x >> (64 - y)));
-}
-
 Sha3_Context :: struct {
     st: struct #raw_union {
         b: [200]u8,

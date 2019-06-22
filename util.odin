@@ -129,3 +129,23 @@ slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
     return transmute([]byte)s;
 }
 
+// @note(zh): Just shared stuff that various implementations use
+@(private)
+ROTL32 :: inline proc "contextless" (a, b: u32) -> u32 {
+    return ((a << b) | (a >> (32 - b)));
+}
+
+@(private)
+ROTR32 :: inline proc "contextless" (a, b: u32) -> u32 {
+    return ((a >> b) | (a << (32 - b)));
+}
+
+@(private)
+ROTL64 :: inline proc "contextless" (a, b: u64) -> u64 {
+    return ((a << b) | (a >> (64 - b)));
+}
+
+@(private)
+ROTR64 :: inline proc "contextless" (a, b: u64) -> u64 {
+    return ((a >> b) | (a << (64 - b)));
+}
