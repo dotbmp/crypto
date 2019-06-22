@@ -69,11 +69,11 @@ jh_update_roundconstant :: proc(ctx: ^JH) {
         tem[i+2] = tem[i+3];
         tem[i+3] = t;
     }
-    for i := 0; i < 32; i += 4 {
+    for i := 0; i < 32; i += 1 {
         ctx.roundconstant[i]    = tem[i<<1];
         ctx.roundconstant[i+32] = tem[(i<<1)+1];
     }
-    for i := 0; i < 64; i += 2 {
+    for i := 32; i < 64; i += 2 {
         t = ctx.roundconstant[i];
         ctx.roundconstant[i] = ctx.roundconstant[i+1];
         ctx.roundconstant[i+1] = t;
@@ -93,7 +93,7 @@ JH_R8 :: proc(ctx: ^JH) {
         tem[i+3] = t;
     }
 
-    for i := 0; i < 128; i += 4 {
+    for i := 0; i < 128; i += 1 {
         ctx.A[i] = tem[i<<1];
         ctx.A[i+128] = tem[(i<<1)+1];
     }
