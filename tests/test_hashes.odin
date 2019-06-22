@@ -40,8 +40,14 @@ test :: proc(testVectors: []TestHash, algo: string) {
             case "MD5":
                 out:= crypto.md5(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "MD6-128":
+                out:= crypto.md6_128(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-256":
                 out:= crypto.md6_256(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "MD6-512":
+                out:= crypto.md6_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA
@@ -198,6 +204,20 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= crypto.tiger2_192(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
+            // JH
+            case "JH-224":
+                out:= crypto.jh_224(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "JH-256":
+                out:= crypto.jh_256(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "JH-384":
+                out:= crypto.jh_384(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "JH-512":
+                out:= crypto.jh_512(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
@@ -246,6 +266,7 @@ main :: proc() {
     // MD6-256             //
     md6_256TestVectors := [?]TestHash {
         TestHash{"bca38b24a804aa37d821d31af00f5598230122c5bbfc4c4ad5ed40e4258f04ca", ""},
+        TestHash{"2b0a697a081c21269514640aab4d74ffafeb3c0212df68ce92922087c69b0a77", "a"},
     };
     test(md6_256TestVectors[:], "MD6-256");
     // =================== //
@@ -622,4 +643,26 @@ main :: proc() {
         TestHash{"09c11330283a27efb51930aa7dc1ec624ff738a8d9bdd3df", "The quick brown fox jumps over the lazy cog"},
     };
     test(tiger2192TestVectors[:], "TIGER2-192");
+    // =================== //
+    // JH                  //
+    // JH-224              //
+    jh224TestVectors := [?]TestHash {
+        TestHash{"2c99df889b019309051c60fecc2bd285a774940e43175b76b2626630", ""},
+    };
+    test(jh224TestVectors[:], "JH-224");
+    // JH-256              //
+    jh256TestVectors := [?]TestHash {
+        TestHash{"46e64619c18bb0a92a5e87185a47eef83ca747b8fcc8e1412921357e326df434", ""},
+    };
+    test(jh256TestVectors[:], "JH-256");
+    // JH-384              //
+    jh384TestVectors := [?]TestHash {
+        TestHash{"2fe5f71b1b3290d3c017fb3c1a4d02a5cbeb03a0476481e25082434a881994b0ff99e078d2c16b105ad069b569315328", ""},
+    };
+    test(jh384TestVectors[:], "JH-384");
+    // JH-512              //
+    jh512TestVectors := [?]TestHash {
+        TestHash{"90ecf2f76f9d2c8017d979ad5ab96b87d58fc8fc4b83060f3f900774faa2c8fabe69c5f4ff1ec2b61d6b316941cedee117fb04b1f4c5bc1b919ae841c50eec4f", ""},
+    };
+    test(jh512TestVectors[:], "JH-512");
 }
