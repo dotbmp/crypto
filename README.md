@@ -12,7 +12,7 @@ A cryptographic hash function library for the Odin language
 - [x] [MD4](https://en.wikipedia.org/wiki/MD4)
 - [x] [MD5](https://en.wikipedia.org/wiki/MD4)
 - [ ] [MD6](https://en.wikipedia.org/wiki/MD4)
-- [ ] [JH](https://en.wikipedia.org/wiki/JH_(hash_function))
+- [x] [JH](https://en.wikipedia.org/wiki/JH_(hash_function))
 - [x] [RIPEMD](https://en.wikipedia.org/wiki/RIPEMD)
 - [x] [SHA-1](https://en.wikipedia.org/wiki/SHA-1)
 - [ ] [SHA-2](https://en.wikipedia.org/wiki/SHA-2)

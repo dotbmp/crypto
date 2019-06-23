@@ -1,6 +1,7 @@
 package crypto
 
 import "core:fmt"
+import "core:strings"
 
 // @ref(zh): http://www3.ntu.edu.sg/home/wuhj/research/jh/jh_ref.h
 
@@ -31,8 +32,8 @@ JH :: struct {
 }
 
 JH_L :: inline proc "contextless"(a, b: byte) -> (byte, byte) {
-    b ~= ((a << 1) ~ (a >> 3) ~ ((a >> 2) & 2)) & 0xf;
-    a ~= ((b << 1) ~ (b >> 3) ~ ((b >> 2) & 2)) & 0xf;
+    (b) ~= ( ( (a) << 1) ~ ( (a) >> 3) ~ (( (a) >> 2) & 2) ) & 0xf;
+    (a) ~= ( ( (b) << 1) ~ ( (b) >> 3) ~ (( (b) >> 2) & 2) ) & 0xf;
     return a, b;
 }
 
@@ -44,17 +45,18 @@ JH_E8_finaldegroup :: proc(ctx: ^JH) {
         tem[i] = ctx.A[i << 1];
         tem[i+128] = ctx.A[(i << 1)+1];
     }
+
     for i := 0; i < 128; i += 1 do ctx.H[i] = 0;
-    for i := u32(0); i < 256; i += 1 {
+    for i := 0; i < 256; i += 1 {
         t0 = (tem[i] >> 3) & 1;
         t1 = (tem[i] >> 2) & 1;
         t2 = (tem[i] >> 1) & 1;
         t3 = (tem[i] >> 0) & 1;
 
-        ctx.H[i>>3] |= t0 << (7 - (i & 7));
-        ctx.H[(i + 256)>>3] |= t1 << (7 - (i & 7));
-        ctx.H[(i + 512)>>3] |= t2 << (7 - (i & 7));
-        ctx.H[(i + 768)>>3] |= t3 << (7 - (i & 7));
+        ctx.H[uint(i)>>3] |= t0 << (7 - (uint(i) & 7));
+        ctx.H[(uint(i) + 256)>>3] |= t1 << (7 - (uint(i) & 7));
+        ctx.H[(uint(i) + 512)>>3] |= t2 << (7 - (uint(i) & 7));
+        ctx.H[(uint(i) + 768)>>3] |= t3 << (7 - (uint(i) & 7));
     }
 }
 
@@ -92,12 +94,11 @@ JH_R8 :: proc(ctx: ^JH) {
         tem[i+2] = tem[i+3];
         tem[i+3] = t;
     }
-
     for i := 0; i < 128; i += 1 {
         ctx.A[i] = tem[i<<1];
         ctx.A[i+128] = tem[(i<<1)+1];
     }
-    for i := 0; i < 256; i += 2 {
+    for i := 128; i < 256; i += 2 {
         t = ctx.A[i];
         ctx.A[i] = ctx.A[i+1];
         ctx.A[i+1] = t;
@@ -128,7 +129,6 @@ JH_E8 :: proc(ctx: ^JH) {
 
     for i := 0; i < 64; i += 1 do ctx.roundconstant[i] = JH_ROUNDCONSTANT_ZERO[i];
     JH_E8_initialgroup(ctx);
-
     for i := 0; i < 42; i += 1 {
         JH_R8(ctx);
         jh_update_roundconstant(ctx);
@@ -154,42 +154,42 @@ jh_init :: proc(ctx: ^JH, hashbitlen: int) {
 }
 
 jh_update :: proc(ctx: ^JH, data: []byte) {
-    length := len(data);
-    ctx.databitlen += u64(length);
+    databitlen := u64(len(data)) * 8;
+    ctx.databitlen += databitlen;
     index := u64(0);
 
-    if (ctx.datasize_in_buffer > 0) && ((ctx.datasize_in_buffer + u64(length)) < 512) {
-        if (length & 7) == 0 {
+    if (ctx.datasize_in_buffer > 0) && ((ctx.datasize_in_buffer + databitlen) < 512) {
+        if (databitlen & 7) == 0 {
             copy(ctx.buffer[ctx.datasize_in_buffer >> 3:], data[:64-(ctx.datasize_in_buffer >> 3)]);
 		} else {
             copy(ctx.buffer[ctx.datasize_in_buffer >> 3:], data[:64-(ctx.datasize_in_buffer >> 3) + 1]);
         } 
-        ctx.datasize_in_buffer += u64(length);
-        length = 0;
+        ctx.datasize_in_buffer += databitlen;
+        databitlen = 0;
     }
 
-    if (ctx.datasize_in_buffer > 0 ) && ((ctx.datasize_in_buffer + u64(length)) >= 512) {
+    if (ctx.datasize_in_buffer > 0 ) && ((ctx.datasize_in_buffer + databitlen) >= 512) {
         copy(ctx.buffer[ctx.datasize_in_buffer >> 3:], data[:64-(ctx.datasize_in_buffer >> 3)]);
 	    index = 64-(ctx.datasize_in_buffer >> 3);
-	    length = length - (512 - int(ctx.datasize_in_buffer));
+	    databitlen = databitlen - (512 - ctx.datasize_in_buffer);
 	    JH_F8(ctx);
 	    ctx.datasize_in_buffer = 0;
     }
 
-    for length >= 512 {
+    for databitlen >= 512 {
         copy(ctx.buffer[:], data[index:index+64]);
         JH_F8(ctx);
         index += 64;
-        length -= 512;
+        databitlen -= 512;
     }
 
-    if length > 0 {
-        if (length & 7) == 0 {
-            copy(ctx.buffer[:], data[index:int(index) + ((length & 0x1ff) >> 3)]);
+    if databitlen > 0 {
+        if (databitlen & 7) == 0 {
+            copy(ctx.buffer[:], data[index:index + ((databitlen & 0x1ff) >> 3)]);
         } else {
-            copy(ctx.buffer[:], data[index:int(index) + ((length & 0x1ff) >> 3) + 1]);
+            copy(ctx.buffer[:], data[index:index + ((databitlen & 0x1ff) >> 3) + 1]);
         }
-        ctx.datasize_in_buffer = u64(length);
+        ctx.datasize_in_buffer = databitlen;
     }
 }
 
