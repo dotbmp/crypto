@@ -5,7 +5,7 @@ A cryptographic hash function library for the Odin language
 
 - [x] [BLAKE / BLAKE2](https://en.wikipedia.org/wiki/BLAKE_(hash_function))
 - [x] [GOST](https://en.wikipedia.org/wiki/GOST_(hash_function)) 
-- [ ] [Grøstl](https://en.wikipedia.org/wiki/Gr%C3%B8stl)
+- [x] [Grøstl](https://en.wikipedia.org/wiki/Gr%C3%B8stl)
 - [x] [HAVAL](https://en.wikipedia.org/wiki/HAVAL)
 - [ ] [KangarooTwelve](https://en.wikipedia.org/wiki/SHA-3#KangarooTwelve)
 - [x] [MD2](https://en.wikipedia.org/wiki/MD2_(hash_function))

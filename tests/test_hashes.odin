@@ -218,6 +218,20 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= crypto.jh_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
+            // GROESTL
+            case "GROESTL-224":
+                out:= crypto.groestl_224(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "GROESTL-256":
+                out:= crypto.groestl_256(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "GROESTL-384":
+                out:= crypto.groestl_384(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "GROESTL-512":
+                out:= crypto.groestl_512(([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
@@ -673,4 +687,34 @@ main :: proc() {
         TestHash{"bafb8e710b35eabeb1a48220c4b0987c2c985b6e73b7b31d164bfb9d67c94d99d7bc43b474a25e647cd6cc36334b6a00a5f2a85fae74907fd2885c6168132fe7", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
     test(jh512TestVectors[:], "JH-512");
+    // =================== //
+    // GROESTL                  //
+    // GROESTL-224              //
+    groestl224TestVectors := [?]TestHash {
+        TestHash{"f2e180fb5947be964cd584e22e496242c6a329c577fc4ce8c36d34c3", ""},
+        TestHash{"2dfa5bd326c23c451b1202d99e6cee98a98c45927e1a31077f538712", "a"},
+        TestHash{"c8a3e7274d599900ae673419683c3626a2e49ed57308ed2687508bef", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
+    };
+    test(groestl224TestVectors[:], "GROESTL-224");
+    // GROESTL-256              //
+    groestl256TestVectors := [?]TestHash {
+        TestHash{"1a52d11d550039be16107f9c58db9ebcc417f16f736adb2502567119f0083467", ""},
+        TestHash{"3645c245bb31223ad93c80885b719aa40b4bed0a9d9d6e7c11fe99e59ca350b5", "a"},
+        TestHash{"2679d98913bee62e57fdbdde97ddb328373548c6b24fc587cc3d08f2a02a529c", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
+    };
+    test(groestl256TestVectors[:], "GROESTL-256");
+    // GROESTL-384              //
+    groestl384TestVectors := [?]TestHash {
+        TestHash{"ac353c1095ace21439251007862d6c62f829ddbe6de4f78e68d310a9205a736d8b11d99bffe448f57a1cfa2934f044a5", ""},
+        TestHash{"13fce7bd9fc69b67cc12c77e765a0a97794c585f89df39fbff32408e060d7d9225c7e80fd87da647686888bda896c342", "a"},
+        TestHash{"1c446cd70a6de52c9db386f5305aae029fe5a4120bc6230b7cd3a5e1ef1949cc8e6d2548c24cd7347b5ba512628a62f6", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
+    };
+    test(groestl384TestVectors[:], "GROESTL-384");
+    // GROESTL-512              //
+    groestl512TestVectors := [?]TestHash {
+        TestHash{"6d3ad29d279110eef3adbd66de2a0345a77baede1557f5d099fce0c03d6dc2ba8e6d4a6633dfbd66053c20faa87d1a11f39a7fbe4a6c2f009801370308fc4ad8", ""},
+        TestHash{"9ef345a835ee35d6d0d462ce45f722d84b5ca41fde9c81a98a22cfb4f7425720511b03a258cdc055bf8e9179dc9bdb5d88bed906c71125d4cf0cd39d3d7bebc7", "a"},
+        TestHash{"862849fd911852cd54beefa88759db4cead0ef8e36aaf15398303c5c4cbc016d9b4c42b32081cbdcba710d2693e7663d244fae116ec29ffb40168baf44f944e7", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
+    };
+    test(groestl512TestVectors[:], "GROESTL-512");
 }
