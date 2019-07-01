@@ -257,7 +257,8 @@ skein_process_block :: inline proc "contextless"(ctx: ^$T, blkPtr: []u8, blkCnt,
 
         for i := u64(0); i < WCNT; i += 1 do ctx.X[i] = X[i] ~ w[i];
 
-        ctx.h.T[1] &= ~(u64(1) << 62);
+        SKEIN_CLEAR_FIRST_FLAG(ctx);
+       
         blkPtr = blkPtr[SKEIN_256_BLOCK_BYTES:];
 
         blkCnt -= 1;
@@ -288,6 +289,37 @@ SKEIN_1024 :: struct {
     b: [SKEIN_1024_STATE_BYTES]u8,
 }
 
+SKEIN_CLEAR_FIRST_FLAG :: inline proc "contextless"(ctx: ^$T) {
+    sk1: u64 = u64(1) << (126 - 64);
+    ctx.h.T[1] &= ~u64(i32(sk1));
+}
+
+SKEIN_START_NEW_TYPE_CFG_FINAL :: inline proc "contextless"(ctx: ^$T) {
+    ctx.h.T[0] = 0;
+    sk1 : u64 = u64(1) << (126 - 64);
+    sk2 : u64 = u64(4) << (120 - 64);
+    sk3 : u64 = u64(1) << (127 - 64);
+    ctx.h.T[1] = u64(i32(sk1)) | u64(i32(sk2)) | u64(i32(sk3));
+    ctx.h.bCnt = 0;
+}
+
+SKEIN_START_NEW_TYPE_MSG :: inline proc "contextless"(ctx: ^$T) {
+    ctx.h.T[0] = 0;
+    sk1 : u64 = u64( 1) << (126 - 64);
+    sk2 : u64 = u64(48) << (120 - 64);
+    ctx.h.T[1] = u64(i32(sk1)) | u64(i32(sk2));
+    ctx.h.bCnt = 0;
+}
+
+SKEIN_START_NEW_TYPE_OUT_FINAL :: inline proc "contextless"(ctx: ^$T) {
+    ctx.h.T[0] = 0;
+    sk1 : u64 = u64(1) << (126 - 64);
+    sk2 : u64 = u64(63) << (120 - 64);
+    sk3 : u64 = u64(1) << (127 - 64);
+    ctx.h.T[1] = u64(i32(sk1)) | u64(i32(sk2)) | u64(i32(sk3));
+    ctx.h.bCnt = 0;
+}
+
 skein_put64_lsb_first :: inline proc "contextless"(dst: []byte src: []u64, bCnt: u64) {
     for i := u64(0); i < bCnt; i += 1 do dst[i] = u8(src[i >> 3] >> (8 * (i & 7)));
 }
@@ -307,42 +339,43 @@ skein_swap64 :: inline proc "contextless"(w64: u64) -> u64 {
     }
 }
 
-skein_init :: proc(ctx: ^$T, input: []byte) {
-    hashBitLen := u64(len(input) * 8);
+skein_init :: proc(ctx: ^$T, input: []byte, hashBitLen: u64) {
     when T == SKEIN_256 {
-        b: [SKEIN_256_STATE_BYTES]u8;
-        w: [SKEIN_256_STATE_WORDS]u64;
+        cfg: struct #raw_union {
+            b: [SKEIN_256_STATE_BYTES]u8,
+            w: [SKEIN_256_STATE_WORDS]u64,
+        };
     } else when T == SKEIN_512 {
-        b: [SKEIN_512_STATE_BYTES]u8;
-        w: [SKEIN_512_STATE_WORDS]u64;
+        cfg: struct #raw_union {
+            b: [SKEIN_512_STATE_BYTES]u8,
+            w: [SKEIN_512_STATE_WORDS]u64,
+        };
     } else when T == SKEIN_1024 {
-        b: [SKEIN_1024_STATE_BYTES]u8;
-        w: [SKEIN_1024_STATE_WORDS]u64;
+        cfg: struct #raw_union {
+            b: [SKEIN_1024_STATE_BYTES]u8,
+            w: [SKEIN_1024_STATE_WORDS]u64,
+        };
     }
 
     ctx.h.hashBitLen = hashBitLen;
-    SKEIN_START_NEW_TYPE(ctx, (4 << 56) | (u64(1) << 63)); // CFG_FINAL
+    SKEIN_START_NEW_TYPE_CFG_FINAL(ctx);
 
-    w[0] = skein_swap64(0x33414853 + (u64(1) << 32));
-    w[1] = skein_swap64(hashBitLen);
-    w[2] = skein_swap64(0);
+    mem.set(&cfg.w, 0, size_of(cfg.w));  
+    sk1 : u64 = u64(1) << 32;
+    cfg.w[0] = skein_swap64(0x33414853 + u64(i32(sk1)));
+    cfg.w[1] = skein_swap64(hashBitLen);
+    cfg.w[2] = skein_swap64(0);
 
-    skein_process_block(ctx, b[:], 1, 32);
-    SKEIN_START_NEW_TYPE(ctx, 48); // MSG
-}
-
-SKEIN_START_NEW_TYPE :: inline proc "contextless"(ctx: ^$T, blk_type: u64) {
-    ctx.h.T[0] = 0;
-    ctx.h.T[1] = (u64(1) << 62) | blk_type;
-    ctx.h.bCnt = 0;
+    skein_process_block(ctx, cfg.b[:], 1, 32);
+    SKEIN_START_NEW_TYPE_MSG(ctx);
 }
 
 skein_update :: proc(ctx: ^$T, input: []byte) {
     msgByteCnt := u64(len(input));
     n: u64;
 
-    when T == SKEIN_256 do block_bytes := u64(32);
-    else when T == SKEIN_512 do block_bytes := u64(64);
+    when      T == SKEIN_256  do block_bytes := u64(32);
+    else when T == SKEIN_512  do block_bytes := u64(64);
     else when T == SKEIN_1024 do block_bytes := u64(128);
 
     if msgByteCnt + ctx.h.bCnt > block_bytes {
@@ -359,7 +392,7 @@ skein_update :: proc(ctx: ^$T, input: []byte) {
         }
 
         if msgByteCnt > block_bytes {
-            n = (msgByteCnt-1) / block_bytes;
+            n = (msgByteCnt - 1) / block_bytes;
             skein_process_block(ctx, input, n, block_bytes);
             msgByteCnt -= n * block_bytes;
             input = input[n * block_bytes:];
@@ -386,21 +419,21 @@ skein_final :: proc(ctx: ^$T, hashVal: []byte) {
         X: [SKEIN_1024_STATE_WORDS]u64;
     }
 
-    ctx.h.T[1] |= 1 << 63;
+    sk1: u64 = u64(1) << (127 - 64);
+    ctx.h.T[1] |= u64(i32(sk1));
     if ctx.h.bCnt < block_bytes do mem.set(&ctx.b[ctx.h.bCnt], 0, int(block_bytes - ctx.h.bCnt));
     skein_process_block(ctx, ctx.b[:], 1, ctx.h.bCnt);
-
     byteCnt = (ctx.h.hashBitLen + 7) >> 3;
     
     mem.set(&ctx.b, 0, size_of(ctx.b));
     copy(X[:], ctx.X[:]);
 
     for i := u64(0); i * block_bytes < byteCnt; i += 1 {
-        ctx.b[0] = u8(skein_swap64(u64(i))); //((u64 *)ctx->b)[0]= skein_swap64(u64(i));
-        SKEIN_START_NEW_TYPE(ctx, (63 << 56) | (u64(1) << 63)); // OUT_FINAL
+        (^u64)(&ctx.b[0])^ = skein_swap64(u64(i));
+        SKEIN_START_NEW_TYPE_OUT_FINAL(ctx);
         skein_process_block(ctx, ctx.b[:], 1, size_of(u64));
         n = byteCnt - i * block_bytes;
-        if n >= block_bytes do n  = block_bytes;
+        if n >= block_bytes do n = block_bytes;
         skein_put64_lsb_first(hashVal[i * block_bytes:], ctx.X[:], n);
         copy(ctx.X[:], X[:]);
     }
@@ -409,7 +442,7 @@ skein_final :: proc(ctx: ^$T, hashVal: []byte) {
 skein_256 :: proc "contextless" (data: []byte) -> [SKEIN_256_BLOCK_BYTES]byte #no_bounds_check {
     hash: [SKEIN_256_BLOCK_BYTES]byte;
 	ctx: SKEIN_256;
-    skein_init(&ctx, data);
+    skein_init(&ctx, data, 256);
     skein_update(&ctx, data);
     skein_final(&ctx, hash[:]);
     return hash;
@@ -418,7 +451,7 @@ skein_256 :: proc "contextless" (data: []byte) -> [SKEIN_256_BLOCK_BYTES]byte #n
 skein_512 :: proc "contextless" (data: []byte) -> [SKEIN_512_BLOCK_BYTES]byte #no_bounds_check {
     hash: [SKEIN_512_BLOCK_BYTES]byte;
 	ctx: SKEIN_512;
-    skein_init(&ctx, data);
+    skein_init(&ctx, data, 512);
     skein_update(&ctx, data);
     skein_final(&ctx, hash[:]);
     return hash;
@@ -427,7 +460,7 @@ skein_512 :: proc "contextless" (data: []byte) -> [SKEIN_512_BLOCK_BYTES]byte #n
 skein_1024 :: proc "contextless" (data: []byte) -> [SKEIN_1024_BLOCK_BYTES]byte #no_bounds_check {
     hash: [SKEIN_1024_BLOCK_BYTES]byte;
 	ctx: SKEIN_1024;
-    skein_init(&ctx, data);
+    skein_init(&ctx, data, 1024);
     skein_update(&ctx, data);
     skein_final(&ctx, hash[:]);
     return hash;
