@@ -461,7 +461,7 @@ blake_writeAdditionalData_512 :: proc "contextless" (ctx: ^BLAKE_512, p: []byte)
 	blake512_write(ctx, p);
 }
 
-blake224 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds_check {
+hash_224 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds_check {
 	hash : [BLAKE_SIZE_224]byte = ---;
     ctx : BLAKE_256;
     ctx.is224 = true;
@@ -473,7 +473,7 @@ blake224 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds
     return hash;
 }
 
-blake256 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds_check {
+hash_256 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds_check {
 
 	hash : [BLAKE_SIZE_256]byte = ---;
     ctx : BLAKE_256;
@@ -484,7 +484,7 @@ blake256 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds
     return hash;
 }
 
-blake384 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds_check {
+hash_384 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds_check {
 
 	hash : [BLAKE_SIZE_384]byte = ---;
     ctx : BLAKE_512;
@@ -497,7 +497,7 @@ blake384 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds
     return hash;
 }
 
-blake512 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_512]byte #no_bounds_check {
+hash_512 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_512]byte #no_bounds_check {
 
 	hash : [BLAKE_SIZE_512]byte = ---;
     ctx : BLAKE_512;

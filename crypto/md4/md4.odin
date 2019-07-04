@@ -186,7 +186,7 @@ md4_final :: proc(ctx: ^MD4_CTX, hash: ^[MD4_BLOCK_SIZE]u8){
     }
 }
 
-md4 :: proc(data: []byte) -> [MD4_BLOCK_SIZE]byte {
+hash :: proc(data: []byte) -> [MD4_BLOCK_SIZE]byte {
 
     hash : [MD4_BLOCK_SIZE]byte;
     ctx : MD4_CTX;

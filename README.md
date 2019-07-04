@@ -40,8 +40,8 @@ import "shared:crypto/md4"
 import "shared:crypto/haval"
 
 main :: proc() {
-    md4_hash := md4.hash(); // MD4 only has a single output size
-    haval_hash := haval.hash_3_256(); // 3 rounds with output size of 256 bits
+    md4_hash := md4.hash(([]byte)("foo")); // MD4 only has a single output size
+    haval_hash := haval.hash_3_256(([]byte)("bar")); // 3 rounds with output size of 256 bits
 }
 ```
 #

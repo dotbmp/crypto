@@ -306,7 +306,7 @@ groestl_final :: proc(ctx: ^GROESTL, output: []byte) {
     for i := 0; i < ctx.statesize; i += 1 do ctx.buffer[i] = 0;
 }
 
-groestl_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 224);
@@ -315,7 +315,7 @@ groestl_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     return hash;
 }
 
-groestl_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 256);
@@ -324,7 +324,7 @@ groestl_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     return hash;
 }
 
-groestl_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
+hash_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
     hash : [48]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 384);
@@ -333,7 +333,7 @@ groestl_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
     return hash;
 }
 
-groestl_512 :: proc "contextless" (data: []byte) -> [64]byte #no_bounds_check {
+hash_512 :: proc "contextless" (data: []byte) -> [64]byte #no_bounds_check {
     hash : [64]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 512);

@@ -284,7 +284,7 @@ gost_final :: proc(ctx: ^GOST, digest: []byte) {
     }
 }
 
-gost :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     ctx: GOST;
     gost_init();
@@ -292,15 +292,4 @@ gost :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     gost_update(&ctx, data);
     gost_final(&ctx, hash[:]);
     return hash;
-}
-
-
-
-foo :: proc () {
-    
-    a := len("aaaaa");
-
-    strlen := 5;
-
-    lenny := false;
 }

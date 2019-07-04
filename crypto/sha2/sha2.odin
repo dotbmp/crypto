@@ -313,7 +313,7 @@ sha2_final :: proc(ctx: ^$T, hash: []byte, block_size: int) {
 	}
 }
 
-sha_224 :: proc "contextless" (data: []byte) -> [SHA224_BLOCK_SIZE]byte #no_bounds_check {
+hash_224 :: proc "contextless" (data: []byte) -> [SHA224_BLOCK_SIZE]byte #no_bounds_check {
     hash : [SHA224_BLOCK_SIZE]byte;
     ctx : SHA_256;
 	ctx.is224 = true;
@@ -324,7 +324,7 @@ sha_224 :: proc "contextless" (data: []byte) -> [SHA224_BLOCK_SIZE]byte #no_boun
     return hash;
 }
 
-sha_256 :: proc "contextless" (data: []byte) -> [SHA256_BLOCK_SIZE]byte #no_bounds_check {
+hash_256 :: proc "contextless" (data: []byte) -> [SHA256_BLOCK_SIZE]byte #no_bounds_check {
     hash : [SHA256_BLOCK_SIZE]byte;
     ctx : SHA_256;
 
@@ -335,7 +335,7 @@ sha_256 :: proc "contextless" (data: []byte) -> [SHA256_BLOCK_SIZE]byte #no_boun
     return hash;
 }
 
-sha_384 :: proc "contextless" (data: []byte) -> [SHA384_BLOCK_SIZE]byte #no_bounds_check {
+hash_384 :: proc "contextless" (data: []byte) -> [SHA384_BLOCK_SIZE]byte #no_bounds_check {
     hash : [SHA384_BLOCK_SIZE]byte;
     ctx : SHA_512;
 	ctx.is384 = true;
@@ -346,7 +346,7 @@ sha_384 :: proc "contextless" (data: []byte) -> [SHA384_BLOCK_SIZE]byte #no_boun
     return hash;
 }
 
-sha_512 :: proc "contextless" (data: []byte) -> [SHA512_BLOCK_SIZE]byte #no_bounds_check {
+hash_512 :: proc "contextless" (data: []byte) -> [SHA512_BLOCK_SIZE]byte #no_bounds_check {
     hash : [SHA512_BLOCK_SIZE]byte;
     ctx : SHA_512;
 

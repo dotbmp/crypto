@@ -440,7 +440,7 @@ skein_final :: proc(ctx: ^$T, hashVal: []byte) {
     }
 }
 
-skein_256 :: proc "contextless" (data: []byte) -> [SKEIN_256_BLOCK_BYTES]byte #no_bounds_check {
+hash_256 :: proc "contextless" (data: []byte) -> [SKEIN_256_BLOCK_BYTES]byte #no_bounds_check {
     hash: [SKEIN_256_BLOCK_BYTES]byte;
 	ctx: SKEIN_256;
     skein_init(&ctx, data, 256);
@@ -449,7 +449,7 @@ skein_256 :: proc "contextless" (data: []byte) -> [SKEIN_256_BLOCK_BYTES]byte #n
     return hash;
 }
 
-skein_512 :: proc "contextless" (data: []byte) -> [SKEIN_512_BLOCK_BYTES]byte #no_bounds_check {
+hash_512 :: proc "contextless" (data: []byte) -> [SKEIN_512_BLOCK_BYTES]byte #no_bounds_check {
     hash: [SKEIN_512_BLOCK_BYTES]byte;
 	ctx: SKEIN_512;
     skein_init(&ctx, data, 512);
@@ -458,7 +458,7 @@ skein_512 :: proc "contextless" (data: []byte) -> [SKEIN_512_BLOCK_BYTES]byte #n
     return hash;
 }
 
-skein_1024 :: proc "contextless" (data: []byte) -> [SKEIN_1024_BLOCK_BYTES]byte #no_bounds_check {
+hash_1024 :: proc "contextless" (data: []byte) -> [SKEIN_1024_BLOCK_BYTES]byte #no_bounds_check {
     hash: [SKEIN_1024_BLOCK_BYTES]byte;
 	ctx: SKEIN_1024;
     skein_init(&ctx, data, 1024);

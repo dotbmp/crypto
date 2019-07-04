@@ -705,7 +705,7 @@ whirlpool_final :: proc(ctx: ^WHIRLPOOL) -> [64]byte {
 	return digest;
 }
 
-whirlpool :: proc "contextless" (input: []byte) -> [64]byte {
+hash :: proc "contextless" (input: []byte) -> [64]byte {
     hash: [64]byte;
     ctx: WHIRLPOOL;
     whirlpool_update(&ctx, input);

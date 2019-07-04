@@ -1,4 +1,4 @@
-package blake2
+package _blake2
 
 import "core:runtime"
 import "core:mem"
@@ -260,34 +260,6 @@ blake2b_final :: proc(ctx: $T) ->[BLAKE2B_SIZE]byte {
 		j += 8;
 	}
 	return out;
-}
-
-blake2s_256 :: proc "contextless" (data: []byte) -> [BLAKE2S_SIZE]byte #no_bounds_check {
-
-	hash : [BLAKE2S_SIZE]byte = ---;
-    ctx : BLAKE2S;
-	cfg : BLAKE2_CONFIG;
-	cfg.size = BLAKE2S_SIZE;
-	blake2_initialize(&ctx, &cfg, true);
-    blake2_reset(&ctx, true);
-	blake2_write(&ctx, data, true);
-	hash = blake2s_final(&ctx);
-
-    return hash;
-}
-
-blake2b_512 :: proc "contextless" (data: []byte) -> [BLAKE2B_SIZE]byte #no_bounds_check {;
-
-	hash : [BLAKE2B_SIZE]byte = ---;
-    ctx : BLAKE2B;
-	cfg : BLAKE2_CONFIG;
-	cfg.size = BLAKE2B_SIZE;
-	blake2_initialize(&ctx, &cfg, false);
-    blake2_reset(&ctx, false);
-	blake2_write(&ctx, data, false);
-	hash = blake2b_final(&ctx);
-
-    return hash;
 }
 
 blake2_blocks :: proc(ctx: ^$T, p: []u8) {

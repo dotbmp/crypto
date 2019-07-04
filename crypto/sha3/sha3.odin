@@ -158,7 +158,7 @@ shake_out :: proc "contextless" (c: ^Sha3_Context, out: []byte) {
 
 
 // @todo(bp): use shake for arbitrary bit length
-sha3 :: proc "contextless" (input, md: []byte) -> []byte {
+hash :: proc "contextless" (input, md: []byte) -> []byte {
     sha3: Sha3_Context;
     inline sha3_init(&sha3, i32(len(md)));
     inline sha3_update(&sha3, input);
@@ -166,7 +166,7 @@ sha3 :: proc "contextless" (input, md: []byte) -> []byte {
     return md;
 }
 
-sha3_224 :: proc "contextless" (input: []byte) -> [28]byte {
+hash_224 :: proc "contextless" (input: []byte) -> [28]byte {
     output: [28]byte = ---;
     sha3: Sha3_Context = ---;
     inline sha3_init(&sha3, 28);
@@ -175,7 +175,7 @@ sha3_224 :: proc "contextless" (input: []byte) -> [28]byte {
     return output;
 }
 
-sha3_256 :: proc "contextless" (input: []byte) -> [32]byte {
+hash_256 :: proc "contextless" (input: []byte) -> [32]byte {
     output: [32]byte = ---;
     sha3: Sha3_Context = ---;
     inline sha3_init(&sha3, 32);
@@ -184,7 +184,7 @@ sha3_256 :: proc "contextless" (input: []byte) -> [32]byte {
     return output;
 }
 
-sha3_384 :: proc "contextless" (input: []byte) -> [48]byte {
+hash_384 :: proc "contextless" (input: []byte) -> [48]byte {
     output: [48]byte = ---;
     sha3: Sha3_Context = ---;
     inline sha3_init(&sha3, 48);
@@ -193,7 +193,7 @@ sha3_384 :: proc "contextless" (input: []byte) -> [48]byte {
     return output;
 }
 
-sha3_512 :: proc "contextless" (input: []byte) -> [64]byte {
+hash_512 :: proc "contextless" (input: []byte) -> [64]byte {
     output: [64]byte = ---;
     sha3: Sha3_Context = ---;
     inline sha3_init(&sha3, 64);

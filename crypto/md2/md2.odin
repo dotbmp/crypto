@@ -105,7 +105,7 @@ md2_final :: proc(ctx: ^MD2_CTX, hash: ^[MD2_BLOCK_SIZE]u8){
     }
 }
 
-md2 :: proc(data: []byte) -> [MD2_BLOCK_SIZE]byte {
+hash :: proc(data: []byte) -> [MD2_BLOCK_SIZE]byte {
 
     hash : [MD2_BLOCK_SIZE]byte;
     ctx : MD2_CTX;

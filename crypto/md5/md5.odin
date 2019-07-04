@@ -213,7 +213,7 @@ md5_final :: proc(ctx: ^MD5_CTX, hash: ^[MD5_BLOCK_SIZE]u8){
     }
 }
 
-md5 :: proc(data: []byte) -> [MD5_BLOCK_SIZE]byte {
+hash :: proc(data: []byte) -> [MD5_BLOCK_SIZE]byte {
 
     hash : [MD5_BLOCK_SIZE]byte;
     ctx : MD5_CTX;

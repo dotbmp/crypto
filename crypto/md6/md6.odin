@@ -673,7 +673,7 @@ md6_hash :: proc(data : []byte, hash : []byte) -> MD6_STATUS {
     return inline md6_full_hash(data, nil, md6_default_L, md6_default_r(i32(len(data))*8, 0), hash);
 }
 
-md6_128 :: proc(data: []byte) -> [16]byte {
+hash_128 :: proc(data: []byte) -> [16]byte {
 
     hash : [16]byte;
     md6_hash(data, hash[:]);
@@ -681,7 +681,7 @@ md6_128 :: proc(data: []byte) -> [16]byte {
     return hash;
 }
 
-md6_256 :: proc(data: []byte) -> [32]byte {
+hash_256 :: proc(data: []byte) -> [32]byte {
 
     hash : [32]byte;
     md6_hash(data, hash[:]);
@@ -689,7 +689,7 @@ md6_256 :: proc(data: []byte) -> [32]byte {
     return hash;
 }
 
-md6_512 :: proc(data: []byte) -> [64]byte {
+hash_512 :: proc(data: []byte) -> [64]byte {
 
     hash : [64]byte;
     md6_hash(data, hash[:]);

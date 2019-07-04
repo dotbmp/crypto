@@ -145,7 +145,7 @@ sha1_final :: proc(ctx : ^SHA1_CTX, hash : ^[SHA1_BLOCK_SIZE]byte) {
 	}
 }
 
-sha1 :: proc(data: []byte) -> [SHA1_BLOCK_SIZE]byte {
+hash :: proc(data: []byte) -> [SHA1_BLOCK_SIZE]byte {
 
     hash : [SHA1_BLOCK_SIZE]byte;
     ctx : SHA1_CTX;

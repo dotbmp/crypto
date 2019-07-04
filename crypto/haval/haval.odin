@@ -512,105 +512,105 @@ haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_boun
     return hash;
 }
 
-haval_3_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+hash_3_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
     hash : [16]byte;
     tmp := haval(data, 3, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+hash_4_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
     hash : [16]byte;
     tmp := haval(data, 4, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+hash_5_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
     hash : [16]byte;
     tmp := haval(data, 5, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+hash_3_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
     hash : [20]byte;
     tmp := haval(data, 3, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+hash_4_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
     hash : [20]byte;
     tmp := haval(data, 4, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+hash_5_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
     hash : [20]byte;
     tmp := haval(data, 5, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+hash_3_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
     hash : [24]byte;
     tmp := haval(data, 3, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+hash_4_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
     hash : [24]byte;
     tmp := haval(data, 4, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+hash_5_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
     hash : [24]byte;
     tmp := haval(data, 5, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_3_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     tmp := haval(data, 3, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_4_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     tmp := haval(data, 4, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_5_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     tmp := haval(data, 5, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_3_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_3_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     tmp := haval(data, 3, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_4_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_4_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     tmp := haval(data, 4, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-haval_5_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_5_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     tmp := haval(data, 5, 256);
     copy(hash[:], tmp[:]);
