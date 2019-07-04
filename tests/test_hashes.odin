@@ -1,4 +1,4 @@
-package main
+package test_hashes
 
 import "core:fmt"
 import "../crypto/md2"
