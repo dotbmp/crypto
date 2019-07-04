@@ -1,6 +1,5 @@
 package jh
 
-import "core:fmt"
 import "core:strings"
 
 // @ref(zh): http://www3.ntu.edu.sg/home/wuhj/research/jh/jh_ref.h

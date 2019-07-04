@@ -1,6 +1,7 @@
 package sha2
 
 import "core:mem"
+using import ".."
 
 SHA224_BLOCK_SIZE :: 28;
 SHA256_BLOCK_SIZE :: 32;

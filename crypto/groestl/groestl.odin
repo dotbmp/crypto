@@ -1,7 +1,5 @@
 package groestl
 
-import "core:fmt"
-
 // @ref(zh): Reference implementation taken from http://www.groestl.info/Groestl.zip
 
 GROESTL_S := [256]u8 {

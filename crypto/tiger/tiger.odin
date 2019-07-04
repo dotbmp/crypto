@@ -1,6 +1,7 @@
 package tiger
 
-using import "_tiger"
+using import "../_tiger"
+using import ".."
 
 hash_128 :: proc "contextless" (input: []byte) -> [16]byte {
     hash: [16]byte;

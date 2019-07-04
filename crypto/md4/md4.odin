@@ -1,6 +1,7 @@
 package md4
 
 import "core:mem"
+using import ".."
 
 MD4_BLOCK_SIZE :: 16;
 

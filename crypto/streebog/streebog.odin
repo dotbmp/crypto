@@ -1,7 +1,7 @@
 package streebog
 
 import "core:mem"
-import "core:fmt"
+using import ".."
 
 // @ref(zh): https://github.com/Polymorph1024/Streebog
 

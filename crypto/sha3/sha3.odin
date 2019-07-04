@@ -1,5 +1,7 @@
 package sha3
 
+using import ".."
+
 // @ref(bp): https://github.com/mjosaarinen/tiny_sha3
 
 KECCAKF_ROUNDS :: 24;

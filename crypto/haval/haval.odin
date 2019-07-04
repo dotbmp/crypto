@@ -1,7 +1,7 @@
 package haval
 
 import "core:mem"
-import "core:fmt"
+using import ".."
 
 // @ref(bp): https://web.archive.org/web/20150111210116/http://labs.calyptix.com/haval.php
 // HAVAL stub

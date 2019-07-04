@@ -1,7 +1,6 @@
 package whirlpool
 
 import "core:mem"
-import "core:fmt"
 
 // @ref(bp): https://github.com/jzelinskie/whirlpool
 // whirlpool stub
@@ -636,7 +635,6 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
 		ctx.bufferBits += int(8 - bufferRem);
 
 		if ctx.bufferBits == 512 {
-			fmt.println("1");
 			whirlpool_transform(ctx);
 			ctx.bufferBits = 0;
 			ctx.bufferPos = 0;
@@ -660,7 +658,6 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
 		sourceBits -= u64(8 - bufferRem);
 
 		if ctx.bufferBits == 512 {
-			fmt.println("2");
 			whirlpool_transform(ctx);
 			ctx.bufferBits = 0;
 			ctx.bufferPos = 0;

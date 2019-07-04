@@ -2,7 +2,6 @@ package blake
 
 import "core:runtime"
 import "core:mem"
-import "core:fmt"
 
 // @ref(zh): https://github.com/ouzklcn/blake
 

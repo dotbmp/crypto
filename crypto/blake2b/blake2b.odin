@@ -1,6 +1,6 @@
 package blake2b
 
-using import "_blake2"
+using import "../_blake2"
 
 hash :: proc "contextless" (data: []byte) -> [BLAKE2B_SIZE]byte #no_bounds_check {;
 

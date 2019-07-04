@@ -1,7 +1,7 @@
 package _tiger
 
 import "core:mem"
-import "core:fmt"
+using import ".."
 
 // @ref(zh): https://github.com/cxmcc/tiger
 

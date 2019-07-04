@@ -3,7 +3,7 @@ package skein
 // @ref(zh): http://www.skein-hash.info/sites/default/files/skein_NIST_CD_121508.zip
 
 import "core:mem"
-import "core:fmt"
+using import ".."
 
 SKEIN_MODIFIER_WORDS :: 2;
 

@@ -2,7 +2,6 @@ package _blake2
 
 import "core:runtime"
 import "core:mem"
-import "core:fmt"
 
 // @ref(zh): https://github.com/dchest/blake2s
 // @ref(zh): https://github.com/dchest/blake2b

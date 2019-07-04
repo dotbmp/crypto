@@ -1,6 +1,7 @@
 package md5
 
 import "core:mem"
+using import ".."
 
 MD5_BLOCK_SIZE :: 16;
 

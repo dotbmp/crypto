@@ -1,6 +1,7 @@
 package sha1
 
 import "core:mem"
+using import ".."
 
 SHA1_BLOCK_SIZE :: 20;
 

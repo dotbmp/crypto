@@ -1,7 +1,7 @@
 package ripemd
 
-import "core:fmt"
 import "core:mem"
+using import ".."
 
 // @ref(zh): https://github.com/maoxs2/go-ripemd <- Has a lot of errors and mixups with 256 and 320
 // Fixed them using info from https://homes.esat.kuleuven.be/~bosselae/ripemd160.html#Outline
