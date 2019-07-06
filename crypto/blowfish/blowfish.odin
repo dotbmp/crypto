@@ -1,10 +1,14 @@
 package blowfish
 
-// @ref(zh): https://www.schneier.com/code/bfsh-koc.zip
+import "core:fmt"
+using import ".."
+
+// @ref(zh): https://www.schneier.com/code/bfsh-koc.zip // For standard Blowfish
+// @ref(zh): https://github.com/tombonner/blowfish-api  // For various modes of operation (ECB, CBC etc.)
 
 BLOWFISH_N :: 16;
 
-BLOWFISH_ORIG_P :=[18]u64 {
+BLOWFISH_ORIG_P := [18]u32 {
         0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344,
         0xa4093822, 0x299f31d0, 0x082efa98, 0xec4e6c89,
         0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
@@ -12,7 +16,7 @@ BLOWFISH_ORIG_P :=[18]u64 {
         0x9216d5d9, 0x8979fb1b
 };
 
-BLOWFISH_ORIG_S := [4][256]u64 {
+BLOWFISH_ORIG_S := [4][256]u32 {
     {   0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7,
         0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
         0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16,
@@ -271,116 +275,136 @@ BLOWFISH_ORIG_S := [4][256]u64 {
         0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6  }
 };
 
-BLOWFISH :: struct {
-    P: [18]u64,
-    S: [4][256]u64,
+Ctx :: struct {
+    P: [18]u32,
+    S: [4][256]u32,
+    OrigIVLow: u32,
+    OrigIVHigh: u32,
+    IVLow: u32,
+    IVHigh: u32,
+    mode: Mode,
 }
 
-BLOWFISH_F :: inline proc "contextless"(ctx: ^BLOWFISH, x: u64) -> u64 {
-    a, b, c, d: u16;
-    y: u64;
-
-    d = u16(x & 0xff);
-    x >>= 8;
-    c = u16(x & 0xff);
-    x >>= 8;
-    b = u16(x & 0xff);
-    x >>= 8;
-    a = u16(x & 0xff);
-    y = ctx.S[0][a] + ctx.S[1][b];
-    y = y ~ ctx.S[2][c];
-    y = y + ctx.S[3][d];
-
-    return y;
+BLOWFISH_CIPHER :: inline proc "contextless"(xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32, round: i32) -> (u32, u32) {
+	xl ~= P[round];
+	xr ~= (((S0[xl >> 24] + S1[(xl >> 16) & 0xff]) ~ S2[(xl >> 8) & 0xff]) + S3[xl & 0xff]);
+    return xl, xr;
 }
 
-blowfish_init :: proc(ctx: ^BLOWFISH, key: []byte) {
+BLOWFISH_ENCIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 0);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 1);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 2);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 3);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 4);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 5);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 6);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 7);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 8);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 9);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 10);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 11);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 12);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 13);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 14);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 15);
+	bufLow^ = xl ~ P[16];
+	bufHigh^ = xr ~ P[17];
+}
+
+BLOWFISH_DECIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 17);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 16);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 15);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 14);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 13);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 12);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 11);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 10);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 9);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 8);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 7);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 6);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 5);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 4);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 3);
+    xl, xr = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 2);
+	bufLow^ = xr ~ P[0];
+	bufHigh^ = xl ~ P[1];
+}
+
+blowfish_setkey :: proc(ctx: ^Ctx, key: []byte) {
     keylen := len(key);
-    data, datal, datar: u64;
+    data, xl, xr, i, j, k: u32;
 
-    for i := 0; i < 4; i += 1 {
-        for j := 0; j < 256; j += 1 do ctx.S[i][j] = BLOWFISH_ORIG_S[i][j];
+    assert(keylen > 4 && keylen < 56); // Min and max allowed key length
+
+    for i = 0; i < 4; i += 1 {
+        for j = 0; j < 256; j += 1 do ctx.S[i][j] = BLOWFISH_ORIG_S[i][j];
     }
 
-    j := 0;
-    for i := 0; i < BLOWFISH_N + 2; i += 1 {
-        data = 0x00000000;
-        for k := 0; k < 4; k += 1 {
-            data = (data << 8) | u64(key[j]);
+    j = 0;
+    for i = 0; i < BLOWFISH_N + 2; i += 1 {
+        for k = 0; k < 4; k += 1 {
+            data = (data << 8) | u32(key[j]);
             j += 1;
-            if j >= keylen do j = 0;
+            if j >= u32(keylen) do j = 0;
         }
         ctx.P[i] = BLOWFISH_ORIG_P[i] ~ data;
     }
 
-    datal = 0x00000000;
-    datar = 0x00000000;
-
-    for i := 0; i < BLOWFISH_N + 2; i += 2 {
-        blowfish_encrypt(ctx, &datal, &datar);
-        ctx.P[i] = datal;
-        ctx.P[i + 1] = datar;
-    }
-
-    for i := 0; i < 4; i += 1 {
-        for j := 0; j < 256; j += 2 {
-            blowfish_encrypt(ctx, &datal, &datar);
-            ctx.S[i][j] = datal;
-            ctx.S[i][j + 1] = datar;
-        }
+    for i := 0; i < 4; i += 2 {
+        blowfish_encrypt(ctx, &xl, &xr);
+        ctx.P[i] = xl;
+        ctx.P[i + 1] = xr;
     }
 }
 
-blowfish_encrypt :: proc(ctx: ^BLOWFISH, xl, xr: ^u64) {
-    Xl, Xr, temp: u64;
-    i: u16;
-
-    Xl = xl^;
-    Xr = xr^;
-
-    for i := 0; i < BLOWFISH_N; i += 1 {
-        Xl ~= ctx.P[i];
-        Xr ~= BLOWFISH_F(ctx, Xl);
-
-        temp = Xl;
-        Xl = Xr;
-        Xr = temp;
-    }
-
-    temp = Xl;
-    Xl = Xr;
-    Xr = temp;
-
-    Xr ~= ctx.P[BLOWFISH_N];
-    Xl ~= ctx.P[BLOWFISH_N + 1];
-
-    xl^ = Xl;
-    xr^ = Xr;
+blowfish_split :: proc(src: []byte) -> (u32, u32) {
+    xl := u32(src[0]) << 24 | u32(src[1]) << 16 | u32(src[2]) << 8 | u32(src[3]);
+    xr := u32(src[4]) << 24 | u32(src[5]) << 16 | u32(src[6]) << 8 | u32(src[7]);
+    return xl, xr;
 }
 
-blowfish_decrypt :: proc(ctx: ^BLOWFISH, xl, xr: ^u64) {
-    Xl, Xr, temp: u64;
-    i: u16;
+blowfish_combine :: proc(dst: []byte, xl, xr: u32) {
+	dst[0], dst[1], dst[2], dst[3] = byte(xl >> 24), byte(xl >> 16), byte(xl >> 8), byte(xl);
+    dst[4], dst[5], dst[6], dst[7] = byte(xr >> 24), byte(xr >> 16), byte(xr >> 8), byte(xr);
+}
 
-    Xl = xl^;
-    Xr = xr^;
+blowfish_encrypt :: proc(ctx: ^Ctx, xl, xr: ^u32) {
+    Xl := xl^;
+    Xr := xr^;
+    P  := &ctx.P;
+    S0 := &ctx.S[0];
+    S1 := &ctx.S[1];
+    S2 := &ctx.S[2];
+    S3 := &ctx.S[3];
+    BLOWFISH_ENCIPHER(xl, xr, Xl, Xr, P, S0, S1, S2, S3);
+}
 
-    for i := BLOWFISH_N + 1; i > 1; i -= 1 {
-        Xl ~= ctx.P[i];
-        Xr ~= BLOWFISH_F(ctx, Xl);
+blowfish_decrypt :: proc(ctx: ^Ctx, xl, xr: ^u32) {
+    Xl := xl^;
+    Xr := xr^;
+    P  := &ctx.P;
+    S0 := &ctx.S[0];
+    S1 := &ctx.S[1];
+    S2 := &ctx.S[2];
+    S3 := &ctx.S[3];
+    BLOWFISH_DECIPHER(xl, xr, Xl, Xr, P, S0, S1, S2, S3);
+}
 
-        temp = Xl;
-        Xl = Xr;
-        Xr = temp;
-    }
+encrypt_ecb :: proc(ctx: ^Ctx, src, key: []byte) -> [8]byte {
+    ctx.mode, ctx.IVHigh, ctx.IVLow = Mode.ECB, 0, 0;
+    xl, xr := blowfish_split(src);
+    blowfish_setkey(ctx, key);
+    blowfish_encrypt(ctx, &xl, &xr);
+    cipher: [8]byte;
+    blowfish_combine(cipher[:], xl, xr);
+    return cipher;
+}
 
-    temp = Xl;
-    Xl = Xr;
-    Xr = temp;
-
-    Xr ~= ctx.P[1];
-    Xl ~= ctx.P[0];
-
-    xl^ = Xl;
-    xr^ = Xr;
+decrypt_ecb :: proc(ctx: ^Ctx, dst, src: []byte) {
+    xl, xr := blowfish_split(src);
+    blowfish_decrypt(ctx, &xl, &xr);
+    blowfish_combine(dst, xl, xr);
 }

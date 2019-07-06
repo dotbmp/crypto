@@ -3,7 +3,6 @@ package crypto
 import "core:mem"
 import "core:os"
 
-
 hash_file :: proc{hash_file_array, hash_file_slice_in, hash_file_slice_out};
 
 hash_file_array :: proc(file_name: string, fn: proc "contextless" (data: []byte) -> [$N]byte) -> ([N]byte, bool) {
@@ -145,3 +144,11 @@ ROTL64 :: inline proc "contextless" (a, b: u64) -> u64 {
 ROTR64 :: inline proc "contextless" (a, b: u64) -> u64 {
     return ((a >> b) | (a << (64 - b)));
 }
+
+Mode :: enum {
+    ECB,
+    CBC,
+    CFB,
+    OFB,
+    CTR,
+};

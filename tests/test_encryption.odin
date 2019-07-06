@@ -14,24 +14,15 @@ hex_string :: proc(bytes: []byte, allocator := context.temp_allocator) -> string
 }
 
 main :: proc() {
-    L := u64(1);
-    R := u64(2);
+    test_blowfish_ecb();
+}
 
-    ctx: BLOWFISH;
-
-    blowfish_init(&ctx, ([]byte)("TESTKEY"));
-    blowfish_encrypt(&ctx, &L, &R);
-    fmt.printf("%08x %08x\n", L, R);
-    if L == 0xdf333fd2 && R == 0x30a71bb4 {
-        fmt.println("Yeaa");
-    } else {
-        fmt.println("fuck");
-    }
-
-    blowfish_decrypt(&ctx, &L, &R);
-    if L == 1 && R == 2 {
-        fmt.println("Yeaa");
-    } else {
-        fmt.println("fuck");
-    }
+test_blowfish_ecb :: proc() {
+    ctx: blowfish.Ctx;
+    input: [8]byte = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    key: [8]byte = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    cipher := blowfish.encrypt_ecb(&ctx, input[:], key[:]);
+    clear: [8]byte;
+    blowfish.decrypt_ecb(&ctx, clear[:], cipher[:]);
+    fmt.println(hex_string(clear[:]));
 }
