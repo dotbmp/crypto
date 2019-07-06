@@ -1,5 +1,5 @@
 # crypto
-A cryptographic hash function library for the Odin language
+A crypto library for the Odin language
 
 ## Implemented cryptographic hash algorithms:
 
@@ -22,7 +22,31 @@ A cryptographic hash function library for the Odin language
 - [x] [Tiger / Tiger2](https://en.wikipedia.org/wiki/Tiger_(hash_function))
 - [x] [Whirlpool](https://en.wikipedia.org/wiki/Whirlpool)
 - [ ] [Bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
+#
+## Implemented cryptographic encryption algorithms:
 
-Probably belong in a separate package:
+- [ ] [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
+- [ ] [Twofish](https://en.wikipedia.org/wiki/Twofish)
+- [ ] [Threefish](https://en.wikipedia.org/wiki/Threefish)
 - [ ] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
 - [ ] [AES / Rijndael ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+#
+## Example useage
+
+```go
+package main
+
+import "shared:crypto/md4"
+import "shared:crypto/haval"
+
+main :: proc() {
+    md4_hash := md4.hash(([]byte)("foo")); // MD4 only has a single output size
+    haval_hash := haval.hash_3_256(([]byte)("bar")); // 3 rounds with output size of 256 bits
+}
+```
+#
+## API documentation
+
+
+#
+## Disclaimer

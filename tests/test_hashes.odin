@@ -1,7 +1,26 @@
-package main
+package test_hashes
 
 import "core:fmt"
-import ".."
+import "../crypto/md2"
+import "../crypto/md4"
+import "../crypto/md5"
+import "../crypto/md6"
+import "../crypto/sha1"
+import "../crypto/sha2"
+import "../crypto/sha3"
+import "../crypto/blake"
+import "../crypto/blake2s"
+import "../crypto/blake2b"
+import "../crypto/ripemd"
+import "../crypto/haval"
+import "../crypto/gost"
+import "../crypto/streebog"
+import "../crypto/whirlpool"
+import "../crypto/tiger"
+import "../crypto/tiger2"
+import "../crypto/jh"
+import "../crypto/groestl"
+import "../crypto/skein"
 
 TestHash :: struct {
     hash: string,
@@ -32,215 +51,215 @@ test :: proc(testVectors: []TestHash, algo: string) {
         switch algo {
             // MD
             case "MD2": 
-                out:= crypto.md2(([]byte)(s.str));
+                out:= md2.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD4":
-                out:= crypto.md4(([]byte)(s.str));
+                out:= md4.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD5":
-                out:= crypto.md5(([]byte)(s.str));
+                out:= md5.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-128":
-                out:= crypto.md6_128(([]byte)(s.str));
+                out:= md6.hash_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-256":
-                out:= crypto.md6_256(([]byte)(s.str));
+                out:= md6.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-512":
-                out:= crypto.md6_512(([]byte)(s.str));
+                out:= md6.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA
             case "SHA1":
-                out:= crypto.sha1(([]byte)(s.str));
+                out:= sha1.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // SHA2
             case "SHA-224":
-                out:= crypto.sha_224(([]byte)(s.str));
+                out:= sha2.hash_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-256":
-                out:= crypto.sha_256(([]byte)(s.str));
+                out:= sha2.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-384":
-                out:= crypto.sha_384(([]byte)(s.str));
+                out:= sha2.hash_384(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-512":
-                out:= crypto.sha_512(([]byte)(s.str));
+                out:= sha2.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA3
             case "SHA3-224":
-                out := crypto.sha3_224(([]byte)(s.str));
+                out := sha3.hash_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA3-256":
-                out := crypto.sha3_256(([]byte)(s.str));
+                out := sha3.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA3-384":
-                out := crypto.sha3_384(([]byte)(s.str));
+                out := sha3.hash_384(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA3-512":
-                out := crypto.sha3_512(([]byte)(s.str));
+                out := sha3.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // BLAKE
             case "BLAKE-224":
-                out:= crypto.blake224(([]byte)(s.str));
+                out:= blake.hash_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE-256":
-                out:= crypto.blake256(([]byte)(s.str));
+                out:= blake.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE-384":
-                out:= crypto.blake384(([]byte)(s.str));
+                out:= blake.hash_384(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE-512":
-                out:= crypto.blake512(([]byte)(s.str));
+                out:= blake.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // BLAKE2
             case "BLAKE2S-256":
-                out:= crypto.blake2s_256(([]byte)(s.str));
+                out:= blake2s.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE2B-512":
-                out:= crypto.blake2b_512(([]byte)(s.str));
+                out:= blake2b.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // RIPEMD
             case "RIPEMD-128":
-                out:= crypto.ripemd_128(([]byte)(s.str));
+                out:= ripemd.hash_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "RIPEMD-160":
-                out:= crypto.ripemd_160(([]byte)(s.str));
+                out:= ripemd.hash_160(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "RIPEMD-256":
-                out:= crypto.ripemd_256(([]byte)(s.str));
+                out:= ripemd.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "RIPEMD-320":
-                out:= crypto.ripemd_320(([]byte)(s.str));
+                out:= ripemd.hash_320(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // HAVAL
             case "HAVAL-3-128":
-                out:= crypto.haval_3_128(([]byte)(s.str));
+                out:= haval.hash_3_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-160":
-                out:= crypto.haval_3_160(([]byte)(s.str));
+                out:= haval.hash_3_160(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-192":
-                out:= crypto.haval_3_192(([]byte)(s.str));
+                out:= haval.hash_3_192(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-224":
-                out:= crypto.haval_3_224(([]byte)(s.str));
+                out:= haval.hash_3_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-256":
-                out:= crypto.haval_3_256(([]byte)(s.str));
+                out:= haval.hash_3_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-128":
-                out:= crypto.haval_4_128(([]byte)(s.str));
+                out:= haval.hash_4_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-160":
-                out:= crypto.haval_4_160(([]byte)(s.str));
+                out:= haval.hash_4_160(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-192":
-                out:= crypto.haval_4_192(([]byte)(s.str));
+                out:= haval.hash_4_192(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-224":
-                out:= crypto.haval_4_224(([]byte)(s.str));
+                out:= haval.hash_4_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-256":
-                out:= crypto.haval_4_256(([]byte)(s.str));
+                out:= haval.hash_4_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-128":
-                out:= crypto.haval_5_128(([]byte)(s.str));
+                out:= haval.hash_5_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-160":
-                out:= crypto.haval_5_160(([]byte)(s.str));
+                out:= haval.hash_5_160(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-192":
-                out:= crypto.haval_5_192(([]byte)(s.str));
+                out:= haval.hash_5_192(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-224":
-                out:= crypto.haval_5_224(([]byte)(s.str));
+                out:= haval.hash_5_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-256":
-                out:= crypto.haval_5_256(([]byte)(s.str));
+                out:= haval.hash_5_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // GOST
             case "GOST":
-                out:= crypto.gost(([]byte)(s.str));
+                out:= gost.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // STREEBOG
             case "STREEBOG-256":
-                out:= crypto.streebog_256(([]byte)(s.str));
+                out:= streebog.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "STREEBOG-512":
-                out:= crypto.streebog_512(([]byte)(s.str));
+                out:= streebog.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // WHIRLPOOL
             case "WHIRLPOOL":
-                out:= crypto.whirlpool(([]byte)(s.str));
+                out:= whirlpool.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // Tiger
             case "TIGER-128":
-                out:= crypto.tiger_128(([]byte)(s.str));
+                out:= tiger.hash_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "TIGER-160":
-                out:= crypto.tiger_160(([]byte)(s.str));
+                out:= tiger.hash_160(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return; 
             case "TIGER-192":
-                out:= crypto.tiger_192(([]byte)(s.str));
+                out:= tiger.hash_192(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "TIGER2-128":
-                out:= crypto.tiger2_128(([]byte)(s.str));
+                out:= tiger2.hash_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "TIGER2-160":
-                out:= crypto.tiger2_160(([]byte)(s.str));
+                out:= tiger2.hash_160(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return; 
             case "TIGER2-192":
-                out:= crypto.tiger2_192(([]byte)(s.str));
+                out:= tiger2.hash_192(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // JH
             case "JH-224":
-                out:= crypto.jh_224(([]byte)(s.str));
+                out:= jh.hash_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "JH-256":
-                out:= crypto.jh_256(([]byte)(s.str));
+                out:= jh.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "JH-384":
-                out:= crypto.jh_384(([]byte)(s.str));
+                out:= jh.hash_384(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "JH-512":
-                out:= crypto.jh_512(([]byte)(s.str));
+                out:= jh.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // GROESTL
             case "GROESTL-224":
-                out:= crypto.groestl_224(([]byte)(s.str));
+                out:= groestl.hash_224(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-256":
-                out:= crypto.groestl_256(([]byte)(s.str));
+                out:= groestl.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-384":
-                out:= crypto.groestl_384(([]byte)(s.str));
+                out:= groestl.hash_384(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-512":
-                out:= crypto.groestl_512(([]byte)(s.str));
+                out:= groestl.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // Skein
             case "Skein-256":
-                out:= crypto.skein_256(([]byte)(s.str));
+                out:= skein.hash_256(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "Skein-512":
-                out:= crypto.skein_512(([]byte)(s.str));
+                out:= skein.hash_512(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "Skein-1024":
-                out:= crypto.skein_1024(([]byte)(s.str));
+                out:= skein.hash_1024(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // Unsupported
