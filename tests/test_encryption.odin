@@ -24,5 +24,10 @@ test_blowfish_ecb :: proc() {
     cipher := blowfish.encrypt_ecb(&ctx, input[:], key[:]);
     clear: [8]byte;
     blowfish.decrypt_ecb(&ctx, clear[:], cipher[:]);
-    fmt.println(hex_string(clear[:]));
+    if hex_string(cipher[:]) == "4ef997456198dd78" && hex_string(clear[:]) == "0000000000000000" {
+        fmt.println("Blowfish test for ECB passed");
+    } 
+    else {
+        fmt.println("Blowfish test for ECB failed");
+    }
 }
