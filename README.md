@@ -25,11 +25,12 @@ A crypto library for the Odin language
 #
 ## Implemented cryptographic encryption algorithms:
 
-- [ ] [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
+- [x] [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
 - [ ] [Twofish](https://en.wikipedia.org/wiki/Twofish)
 - [ ] [Threefish](https://en.wikipedia.org/wiki/Threefish)
 - [ ] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
 - [ ] [AES / Rijndael ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+- [x] [RC4](https://en.wikipedia.org/wiki/RC4)
 #
 ## Example useage
 

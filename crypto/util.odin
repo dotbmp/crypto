@@ -115,10 +115,10 @@ cast_slice :: inline proc "contextless" ($D: typeid/[]$DE, src: $S/[]$SE) -> D {
 }
 
 // @note(zh): This should be in core:mem
-bytes_to_slice :: inline proc "contextless" ($T: typeid, bytes: []byte) -> []T {
+bytes_to_slice :: inline proc "contextless" ($T: typeid/[]$E, bytes: []byte) -> T {
     s := transmute(mem.Raw_Slice)bytes;
-    s.len /= size_of(T);
-    return transmute([]T)s;
+    s.len /= size_of(E);
+    return transmute(T)s;
 }
 
 // @note(zh): This should be in core:mem

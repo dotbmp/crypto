@@ -1,6 +1,7 @@
 package blowfish
 
 using import ".."
+import "core:fmt"
 
 // @ref(zh): https://www.schneier.com/code/bfsh-koc.zip // For standard Blowfish
 // @ref(zh): https://github.com/tombonner/blowfish-api  // For various modes of operation (ECB, CBC etc.)
@@ -311,6 +312,27 @@ BLOWFISH_ENCIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u3
 	bufHigh^ = xr ~ P[17];
 }
 
+BLOWFISH_ENCIPHER1 :: inline proc "contextless"(bufHigh, bufLow: ^byte, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  0);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  1);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  2);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  3);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  4);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  5);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  6);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  7);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  8);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  9);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 10);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 11);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 12);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 13);
+    xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 14);
+    xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 15);
+	bufLow^ = byte(xl ~ P[16]);
+	bufHigh^ = byte(xr ~ P[17]);
+}
+
 BLOWFISH_DECIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 17);
     xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 16);
@@ -414,4 +436,44 @@ decrypt_ecb :: proc(ctx: ^Ctx, dst, src: []byte) {
     xl, xr := blowfish_split(src);
     blowfish_decrypt(ctx, &xl, &xr);
     blowfish_combine(dst, xl, xr);
+}
+
+encrypt_cbc :: proc(ctx: ^Ctx, src, key, IV: []byte) -> []byte {
+    size := u32(len(src)) >> 2;
+    cipher := make([]byte, size);
+    IVHigh, IVLow := blowfish_split(IV);
+    ctx.mode, ctx.OrigIVHigh, ctx.OrigIVLow = Mode.CBC, IVHigh, IVLow;
+    blowfish_setkey(ctx, key);
+
+    fmt.println("IV byte: ", IV);
+    for i := 0; i < 8; i += 1 {
+        fmt.printf("0x%x, ", IV[i]);
+    }
+    fmt.println("");
+    fmt.println("IV: ", ctx.OrigIVHigh,"::" , ctx.OrigIVLow);
+
+    src_stream := bytes_to_slice([]u32, src[:]);
+
+    ctx.IVHigh, ctx.IVLow = ctx.OrigIVHigh, ctx.OrigIVLow;
+
+    xl := src_stream[0] ~ ctx.IVHigh;
+    xr := src_stream[1] ~ ctx.IVLow;
+    P  := &ctx.P;
+    S0 := &ctx.S[0];
+    S1 := &ctx.S[1];
+    S2 := &ctx.S[2];
+    S3 := &ctx.S[3];
+    BLOWFISH_ENCIPHER1(&cipher[0], &cipher[1], xl, xr, P, S0, S1, S2, S3);
+
+    i: u32;
+    for i = 2; i < size; i += 2 {
+        xl = u32(src[i] ~ cipher[i - 2]);
+        xr = u32(src[i + 1] ~ cipher[i - 1]);
+        BLOWFISH_ENCIPHER1(&cipher[i], &cipher[i + 1], xl, xr, P, S0, S1, S2, S3);
+    }
+
+    ctx.IVHigh = u32(cipher[i - 2]);
+    ctx.IVLow = u32(cipher[i - 1]);
+
+    return cipher;
 }
