@@ -30,7 +30,11 @@ A crypto library for the Odin language
 - [ ] [Threefish](https://en.wikipedia.org/wiki/Threefish)
 - [ ] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
 - [ ] [AES / Rijndael ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+- [x] [RC2](https://en.wikipedia.org/wiki/RC2)
 - [x] [RC4](https://en.wikipedia.org/wiki/RC4)
+- [ ] [RC5](https://en.wikipedia.org/wiki/RC5)
+- [ ] [RC6](https://en.wikipedia.org/wiki/RC6)
+
 #
 ## Example useage
 

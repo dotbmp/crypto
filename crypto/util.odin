@@ -129,6 +129,14 @@ slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
 }
 
 // @note(zh): Just shared stuff that various implementations use
+ROTL16 :: inline proc "contextless" (a, b: u16) -> u16 {
+    return ((a << b) | (a >> (16 - b)));
+}
+
+ROTR16 :: inline proc "contextless" (a, b: u16) -> u16 {
+    return ((a >> b) | (a << (16 - b)));
+}
+
 ROTL32 :: inline proc "contextless" (a, b: u32) -> u32 {
     return ((a << b) | (a >> (32 - b)));
 }
