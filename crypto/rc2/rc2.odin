@@ -23,12 +23,13 @@ PI_TABLE := [256]byte {
 	0xc5, 0xf3, 0xdb, 0x47, 0xe5, 0xa5, 0x9c, 0x77, 0x0a, 0xa6, 0x20, 0x68, 0xfe, 0x7f, 0xc1, 0xad,
 };
 
-expand_key :: proc(key: []byte, t1: int) -> [64]u16 {
+expand_key :: proc(key: []byte) -> [64]u16 {
     l := make([]byte, 128);
     defer delete(l);
     copy(l[:], key[:]);
 
     t := len(key);
+	t1 := t * 8;
     t8 := (t1 + 7) / 8;
     tm := byte(255 % uint(1 << (8 + uint(t1) - 8 * uint(t8))));
 
@@ -46,7 +47,7 @@ expand_key :: proc(key: []byte, t1: int) -> [64]u16 {
 }
 
 uint16 :: inline proc "contextless"(b: []byte) -> u16 {
-	return u16(b[0]) | u16(b[1])<<8;
+	return u16(b[0]) | u16(b[1]) << 8;
 }
 
 putuint16 :: inline proc "contextless"(b: []byte, v: u16) {
@@ -54,8 +55,8 @@ putuint16 :: inline proc "contextless"(b: []byte, v: u16) {
 	b[1] = byte(v >> 8);
 }
 
-encrypt :: proc(key, plaintext: []byte) -> ([8]byte, [64]u16) {
-	expanded_key := expand_key(key, 63);
+encrypt :: proc(key, plaintext: []byte) -> [8]byte {
+	expanded_key := expand_key(key);
 
 	r0 := uint16(plaintext[0:]);
 	r1 := uint16(plaintext[2:]);
@@ -134,10 +135,12 @@ encrypt :: proc(key, plaintext: []byte) -> ([8]byte, [64]u16) {
 	putuint16(cipher[4:], r2);
 	putuint16(cipher[6:], r3);
 
-	return cipher, expanded_key;
+	return cipher;
 }
 
-decrypt :: proc(key: []u16, ciphertext: []byte) -> [8]byte {
+decrypt :: proc(key, ciphertext: []byte) -> [8]byte {
+	expanded_key := expand_key(key);
+
 	r0 := uint16(ciphertext[0:]);
 	r1 := uint16(ciphertext[2:]);
 	r2 := uint16(ciphertext[4:]);
@@ -147,65 +150,65 @@ decrypt :: proc(key: []u16, ciphertext: []byte) -> [8]byte {
 
 	for j >= 44 {
 		r3 = ROTL16(r3, 16 - 5);
-		r3 = r3 - key[j] - (r2 & r1) - ((~r2) & r0);
+		r3 = r3 - expanded_key[j] - (r2 & r1) - ((~r2) & r0);
 		j -= 1;
 
 		r2 = ROTL16(r2, 16 - 3);
-		r2 = r2 - key[j] - (r1 & r0) - ((~r1) & r3);
+		r2 = r2 - expanded_key[j] - (r1 & r0) - ((~r1) & r3);
 		j -= 1;
 
 		r1 = ROTL16(r1, 16 - 2);
-		r1 = r1 - key[j] - (r0 & r3) - ((~r0) & r2);
+		r1 = r1 - expanded_key[j] - (r0 & r3) - ((~r0) & r2);
 		j -= 1;
 
 		r0 = ROTL16(r0, 16 - 1);
-		r0 = r0 - key[j] - (r3 & r2) - ((~r3) & r1);
+		r0 = r0 - expanded_key[j] - (r3 & r2) - ((~r3) & r1);
 		j -= 1;
 	}
 
-	r3 = r3 - key[r2 & 63];
-	r2 = r2 - key[r1 & 63];
-	r1 = r1 - key[r0 & 63];
-	r0 = r0 - key[r3 & 63];
+	r3 = r3 - expanded_key[r2 & 63];
+	r2 = r2 - expanded_key[r1 & 63];
+	r1 = r1 - expanded_key[r0 & 63];
+	r0 = r0 - expanded_key[r3 & 63];
 
 	for j >= 20 {
 		r3 = ROTL16(r3, 16 - 5);
-		r3 = r3 - key[j] - (r2 & r1) - ((~r2) & r0);
+		r3 = r3 - expanded_key[j] - (r2 & r1) - ((~r2) & r0);
 		j -= 1;
 
 		r2 = ROTL16(r2, 16 - 3);
-		r2 = r2 - key[j] - (r1 & r0) - ((~r1) & r3);
+		r2 = r2 - expanded_key[j] - (r1 & r0) - ((~r1) & r3);
 		j -= 1;
 
 		r1 = ROTL16(r1, 16 - 2);
-		r1 = r1 - key[j] - (r0 & r3) - ((~r0) & r2);
+		r1 = r1 - expanded_key[j] - (r0 & r3) - ((~r0) & r2);
 		j -= 1;
 
 		r0 = ROTL16(r0, 16 - 1);
-		r0 = r0 - key[j] - (r3 & r2) - ((~r3) & r1);
+		r0 = r0 - expanded_key[j] - (r3 & r2) - ((~r3) & r1);
 		j -= 1;
 	}
 
-	r3 = r3 - key[r2 & 63];
-	r2 = r2 - key[r1 & 63];
-	r1 = r1 - key[r0 & 63];
-	r0 = r0 - key[r3 & 63];
+	r3 = r3 - expanded_key[r2 & 63];
+	r2 = r2 - expanded_key[r1 & 63];
+	r1 = r1 - expanded_key[r0 & 63];
+	r0 = r0 - expanded_key[r3 & 63];
 	
 	for j >= 0 {
 		r3 = ROTL16(r3, 16 - 5);
-		r3 = r3 - key[j] - (r2 & r1) - ((~r2) & r0);
+		r3 = r3 - expanded_key[j] - (r2 & r1) - ((~r2) & r0);
 		j -= 1;
 
 		r2 = ROTL16(r2, 16 - 3);
-		r2 = r2 - key[j] - (r1 & r0) - ((~r1) & r3);
+		r2 = r2 - expanded_key[j] - (r1 & r0) - ((~r1) & r3);
 		j -= 1;
 
 		r1 = ROTL16(r1, 16 - 2);
-		r1 = r1 - key[j] - (r0 & r3) - ((~r0) & r2);
+		r1 = r1 - expanded_key[j] - (r0 & r3) - ((~r0) & r2);
 		j -= 1;
 
 		r0 = ROTL16(r0, 16 - 1);
-		r0 = r0 - key[j] - (r3 & r2) - ((~r3) & r1);
+		r0 = r0 - expanded_key[j] - (r3 & r2) - ((~r3) & r1);
 		j -= 1;
 	}
 

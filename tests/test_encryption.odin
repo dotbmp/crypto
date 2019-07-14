@@ -71,11 +71,11 @@ test_blowfish_cbc :: proc() {
 }
 
 test_rc2 :: proc() {
-    key := hex_bytes("0000000000000000");
+    key := hex_bytes("88bca90e90875a7f0f79c384627bafb2");
     plaintext := hex_bytes("0000000000000000");
-    expected_cipher := "ebb773f993278eff";
+    expected_cipher := "2269552ab0f85ca6";
 
-    cipherbytes, expanded_key := rc2.encrypt(key, plaintext);
+    cipherbytes := rc2.encrypt(key, plaintext);
     ciphertext := hex_string(cipherbytes[:]);
 
     if !(expected_cipher == ciphertext) {
@@ -83,7 +83,7 @@ test_rc2 :: proc() {
         return;
     }
 
-    plain := rc2.decrypt(expanded_key[:], hex_bytes(ciphertext));
+    plain := rc2.decrypt(key, hex_bytes(ciphertext));
 
     if hex_string(plain[:]) != hex_string(plaintext) {
         fmt.println("RC2 decryption test failed");
