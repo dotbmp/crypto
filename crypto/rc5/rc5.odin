@@ -1,7 +1,8 @@
 package rc5
 
 using import ".."
-import "core:fmt"
+
+// @ref(zh): https://github.com/dgryski/go-rc5/blob/master/rc5.go
 
 SKEY_TABLE := [?]u32 {
 	0xb7e15163, 0x5618cb1c, 0xf45044d5, 0x9287be8e, 0x30bf3847, 0xcef6b200, 0x6d2e2bb9, 0x0b65a572,

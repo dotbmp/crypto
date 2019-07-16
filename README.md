@@ -33,7 +33,7 @@ A crypto library for the Odin language
 - [x] [RC2](https://en.wikipedia.org/wiki/RC2)
 - [x] [RC4](https://en.wikipedia.org/wiki/RC4)
 - [x] [RC5](https://en.wikipedia.org/wiki/RC5)
-- [ ] [RC6](https://en.wikipedia.org/wiki/RC6)
+- [x] [RC6](https://en.wikipedia.org/wiki/RC6)
 
 #
 ## Example useage
