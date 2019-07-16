@@ -2,6 +2,7 @@ package crypto
 
 import "core:mem"
 import "core:os"
+import "core:fmt"
 
 hash_file :: proc{hash_file_array, hash_file_slice_in, hash_file_slice_out};
 
@@ -137,8 +138,9 @@ ROTR16 :: inline proc "contextless" (a, b: u16) -> u16 {
     return ((a >> b) | (a << (16 - b)));
 }
 
-ROTL32 :: inline proc "contextless" (a, b: u32) -> u32 {
-    return ((a << b) | (a >> (32 - b)));
+ROTL32 :: proc(x: u32, k: int) -> u32 {
+    s := uint(k) & 31;
+    return x << s | x >> (32-s);
 }
 
 ROTR32 :: inline proc "contextless" (a, b: u32) -> u32 {

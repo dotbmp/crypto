@@ -3,8 +3,10 @@ package test_encryption
 import "core:fmt"
 using import "../crypto"
 import "../crypto/blowfish"
-import "../crypto/rc4"
 import "../crypto/rc2"
+import "../crypto/rc4"
+import "../crypto/rc5"
+
 
 
 hex_string :: proc(bytes: []byte, allocator := context.temp_allocator) -> string {
@@ -42,6 +44,7 @@ main :: proc() {
     //test_blowfish_cbc();
     test_rc2();
     test_rc4();
+    test_rc5();
 }
 
 test_blowfish_ecb :: proc() {
@@ -115,4 +118,30 @@ test_rc4 :: proc() {
     }
 
     fmt.println("RC4 test passed");
+}
+
+test_rc5 :: proc() {
+    key: [16]byte = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+    plaintext: [8]byte = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77};
+    expected_cipher: [8]byte = {0x2D, 0xDC, 0x14, 0x9B, 0xCF, 0x08, 0x8B, 0x9E};
+
+    ciphertext := rc5.encrypt(key[:], plaintext[:]);
+
+    for i := 0; i < len(plaintext); i += 1 {
+        if !(expected_cipher[i] == ciphertext[i]) {
+            fmt.println("RC5 encryption test failed");
+            return;
+        }
+    }
+
+    plain := rc5.decrypt(key[:], ciphertext);
+
+    for i := 0; i < len(ciphertext); i += 1 {
+        if !(plaintext[i] == plain[i]) {
+            fmt.println("RC5 decryption test failed");
+            return;
+        }
+    }
+
+    fmt.println("RC5 test passed");
 }

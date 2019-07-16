@@ -32,7 +32,7 @@ A crypto library for the Odin language
 - [ ] [AES / Rijndael ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 - [x] [RC2](https://en.wikipedia.org/wiki/RC2)
 - [x] [RC4](https://en.wikipedia.org/wiki/RC4)
-- [ ] [RC5](https://en.wikipedia.org/wiki/RC5)
+- [x] [RC5](https://en.wikipedia.org/wiki/RC5)
 - [ ] [RC6](https://en.wikipedia.org/wiki/RC6)
 
 #
