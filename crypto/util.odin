@@ -138,13 +138,14 @@ ROTR16 :: inline proc "contextless" (a, b: u16) -> u16 {
     return ((a >> b) | (a << (16 - b)));
 }
 
-ROTL32 :: proc(x: u32, k: int) -> u32 {
-    s := uint(k) & 31;
-    return x << s | x >> (32-s);
+ROTL32 :: inline proc "contextless"(a: u32, b: int) -> u32 {
+    s := uint(b) & 31;
+    return a << s | a >> (32 - s);
 }
 
-ROTR32 :: inline proc "contextless" (a, b: u32) -> u32 {
-    return ((a >> b) | (a << (32 - b)));
+ROTR32 :: inline proc "contextless" (a: u32, b: int) -> u32 {
+    s := uint(b) & 31;
+    return ((a >> s) | (a << (32 - s)));
 }
 
 ROTL64 :: inline proc "contextless" (a, b: u64) -> u64 {
