@@ -308,8 +308,6 @@ sb7_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 key_schedule :: proc(key: []byte) -> [132]u32 {
     s: [132]u32;
 
-    if k := len(key); k != 16 && k != 24 && k != 32 do assert("Invalid key size");
-
     k: [16]u32;
     j := 0;
     for i := 0; i + 4 <= len(key); i += 4 {
@@ -372,8 +370,6 @@ key_schedule :: proc(key: []byte) -> [132]u32 {
 }
 
 encrypt :: proc(key, plaintext: []byte) -> []byte {
-    if len(key) < BLOCK_SIZE || plaintext < BLOCK_SIZE do assert("Buffer to small");
-
     sk := key_schedule(key);
 
 	r0 := u32(plaintext[0])  | u32(plaintext[1]) << 8  | u32(plaintext[2]) << 16  | u32(plaintext[3]) << 24;
@@ -508,14 +504,12 @@ encrypt :: proc(key, plaintext: []byte) -> []byte {
 }
 
 decrypt :: proc(key, ciphertext: []byte) -> []byte {
-    if len(key) < BLOCK_SIZE || ciphertext < BLOCK_SIZE do assert("Buffer to small");
-
     sk := key_schedule(key);
 
-    r0 := u32(src[0])  | u32(src[1])<<8  | u32(src[2])<<16  | u32(src[3])<<24;
-	r1 := u32(src[4])  | u32(src[5])<<8  | u32(src[6])<<16  | u32(src[7])<<24;
-	r2 := u32(src[8])  | u32(src[9])<<8  | u32(src[10])<<16 | u32(src[11])<<24;
-	r3 := u32(src[12]) | u32(src[13])<<8 | u32(src[14])<<16 | u32(src[15])<<24;
+    r0 := u32(ciphertext[0])  | u32(ciphertext[1])<<8  | u32(ciphertext[2])<<16  | u32(ciphertext[3])<<24;
+	r1 := u32(ciphertext[4])  | u32(ciphertext[5])<<8  | u32(ciphertext[6])<<16  | u32(ciphertext[7])<<24;
+	r2 := u32(ciphertext[8])  | u32(ciphertext[9])<<8  | u32(ciphertext[10])<<16 | u32(ciphertext[11])<<24;
+	r3 := u32(ciphertext[12]) | u32(ciphertext[13])<<8 | u32(ciphertext[14])<<16 | u32(ciphertext[15])<<24;
 
 	r0 ~= sk[128];
 	r1 ~= sk[129];

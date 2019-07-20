@@ -7,6 +7,7 @@ import "../crypto/rc2"
 import "../crypto/rc4"
 import "../crypto/rc5"
 import "../crypto/rc6"
+import "../crypto/serpent"
 
 
 
@@ -47,6 +48,7 @@ main :: proc() {
     test_rc4();
     test_rc5();
     test_rc6();
+    test_serpent();
 }
 
 test_blowfish_ecb :: proc() {
@@ -172,4 +174,26 @@ test_rc6 :: proc() {
     }
 
     fmt.println("RC6 test passed");
+}
+
+test_serpent :: proc() {
+    key := "80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    plaintext := "0000000000000000000000000000000000000000000000000000000000000000";
+    expected_cipher := "a223aa1288463c0e2be38ebd825616c0";
+
+    ciphertext := serpent.encrypt(hex_bytes(key), hex_bytes(plaintext));
+
+    if expected_cipher != hex_string(ciphertext) {
+        fmt.println("Serpent encryption test failed");
+        return;
+    }
+
+    plain := serpent.decrypt(hex_bytes(key), ciphertext);
+
+    if plaintext != hex_string(plain) {
+        fmt.println("Serpent decryption test failed");
+        return;
+    }
+
+    fmt.println("Serpent test passed");
 }
