@@ -149,7 +149,7 @@ blake512_g :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int)
 blake_block256 :: proc "contextless" (using ctx : ^BLAKE_256, p : []u8) #no_bounds_check {
 	i, j : int = ---, ---;
 	v, m : [16]u32 = ---, ---;
-	
+	p := p;
 	for len(p) >= BLAKE_BLOCKSIZE_256 {
 		v[0]  = h[0];
 		v[1]  = h[1];
@@ -194,14 +194,14 @@ blake_block256 :: proc "contextless" (using ctx : ^BLAKE_256, p : []u8) #no_boun
 		for i = 0; i < 8; i += 1 {
 			h[i] ~= s[i % 4] ~ v[i] ~ v[i + 8];
 		}
-		p := p[BLAKE_BLOCKSIZE_256:];
+		p = p[BLAKE_BLOCKSIZE_256:];
 	}
 }
 
 blake512_compress :: proc "contextless" (using ctx : ^BLAKE_512, p : []u8) #no_bounds_check {
 	i, j : int = ---, ---;
 	v, m : [16]u64 = ---, ---;
-
+	p := p;
 	for len(p) >= BLAKE_BLOCKSIZE_512 {
 		v[0]  = h[0];
 		v[1]  = h[1];
@@ -246,7 +246,6 @@ blake512_compress :: proc "contextless" (using ctx : ^BLAKE_512, p : []u8) #no_b
 		for i = 0; i < 8; i += 1 {
 			h[i] ~= s[i % 4] ~ v[i] ~ v[i + 8];
 		}
-		p := p;
 		p = p[BLAKE_BLOCKSIZE_512:];
 	}
 }
