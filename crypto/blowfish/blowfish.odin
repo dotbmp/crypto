@@ -286,12 +286,14 @@ Ctx :: struct {
 }
 
 BLOWFISH_CIPHER :: inline proc "contextless"(xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32, round: i32) -> (u32, u32) {
+    xl, xr := xl, xr;
 	xl ~= P[round];
 	xr ~= (((S0[xl >> 24] + S1[(xl >> 16) & 0xff]) ~ S2[(xl >> 8) & 0xff]) + S3[xl & 0xff]);
     return xl, xr;
 }
 
 BLOWFISH_ENCIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
+    xl, xr := xl, xr;
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  0);
     xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  1);
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  2);
@@ -313,6 +315,7 @@ BLOWFISH_ENCIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u3
 }
 
 BLOWFISH_ENCIPHER1 :: inline proc "contextless"(bufHigh, bufLow: ^byte, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
+    xl, xr := xl, xr;
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  0);
     xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3,  1);
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3,  2);
@@ -334,6 +337,7 @@ BLOWFISH_ENCIPHER1 :: inline proc "contextless"(bufHigh, bufLow: ^byte, xl, xr: 
 }
 
 BLOWFISH_DECIPHER :: inline proc "contextless"(bufHigh, bufLow: ^u32, xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32) {
+    xl, xr := xl, xr;
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 17);
     xr, xl = BLOWFISH_CIPHER(xr, xl, P, S0, S1, S2, S3, 16);
     xl, xr = BLOWFISH_CIPHER(xl, xr, P, S0, S1, S2, S3, 15);

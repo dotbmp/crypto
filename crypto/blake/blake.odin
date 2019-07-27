@@ -109,6 +109,7 @@ BLAKE_U512 := [16]u64 {
 };
 
 blake256_g :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int) -> (u32, u32, u32, u32) #no_bounds_check {
+	a, b, c, d := a, b, c, d;
 	a += m[BLAKE_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE_U256[BLAKE_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;
 	d ~= a;
@@ -127,6 +128,7 @@ blake256_g :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int)
 }
 
 blake512_g :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int) -> (u64, u64, u64, u64) #no_bounds_check {
+	a, b, c, d := a, b, c, d;
 	a += m[BLAKE_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE_U512[BLAKE_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;
 	d ~= a;
@@ -192,7 +194,7 @@ blake_block256 :: proc "contextless" (using ctx : ^BLAKE_256, p : []u8) #no_boun
 		for i = 0; i < 8; i += 1 {
 			h[i] ~= s[i % 4] ~ v[i] ~ v[i + 8];
 		}
-		p = p[BLAKE_BLOCKSIZE_256:];
+		p := p[BLAKE_BLOCKSIZE_256:];
 	}
 }
 
@@ -244,6 +246,7 @@ blake512_compress :: proc "contextless" (using ctx : ^BLAKE_512, p : []u8) #no_b
 		for i = 0; i < 8; i += 1 {
 			h[i] ~= s[i % 4] ~ v[i] ~ v[i + 8];
 		}
+		p := p;
 		p = p[BLAKE_BLOCKSIZE_512:];
 	}
 }
@@ -299,6 +302,7 @@ blake512_reset :: proc "contextless" (ctx : ^BLAKE_512) #no_bounds_check {
 }
 
 blake_write_256 :: proc "contextless" (ctx : ^BLAKE_256, p: []byte) #no_bounds_check {
+	p := p;
 	if ctx.nx > 0 {
 		n := copy(ctx.x[ctx.nx:], p);
 		ctx.nx += n;
@@ -319,6 +323,7 @@ blake_write_256 :: proc "contextless" (ctx : ^BLAKE_256, p: []byte) #no_bounds_c
 }
 
 blake512_write :: proc "contextless" (ctx : ^BLAKE_512, p: []byte) #no_bounds_check {
+	p := p;
 	if ctx.nx > 0 {
 		n := copy(ctx.x[ctx.nx:], p);
 		ctx.nx += n;
@@ -339,7 +344,6 @@ blake512_write :: proc "contextless" (ctx : ^BLAKE_512, p: []byte) #no_bounds_ch
 }
 
 blake_checksum_256 :: proc "contextless" (ctx: ^BLAKE_256) -> [BLAKE_SIZE_256]byte #no_bounds_check {
-	
 	nx := u64(ctx.nx);
 
 	tmp : [65]byte;

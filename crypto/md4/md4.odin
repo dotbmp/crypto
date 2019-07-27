@@ -25,25 +25,27 @@ MD4_H :: inline proc "contextless" (x, y, z : u32) -> u32 {
 }
 
 MD4_FF :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
+    a := a;
     a += MD4_F(b,c,d) + x;
     a = ROTL32(a,int(s)); 
     return a;
 }
 
 MD4_GG :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
+    a := a;
     a += MD4_G(b,c,d) + x + 0x5a827999;
     a = ROTL32(a,int(s));
     return a;
 }
 
 MD4_HH :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
+    a := a;
     a += MD4_H(b,c,d) + x + 0x6ed9eba1;
     a = ROTL32(a,int(s)); 
     return a;
 }
 
 md4_transform :: proc(ctx: ^MD4_CTX, data: [64]byte) {
-
 	a, b, c, d,  i, j : u32;
     m : [MD4_BLOCK_SIZE]u32;
 

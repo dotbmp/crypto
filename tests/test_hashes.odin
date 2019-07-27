@@ -4,7 +4,7 @@ import "core:fmt"
 import "../crypto/md2"
 import "../crypto/md4"
 import "../crypto/md5"
-import "../crypto/md6"
+//import "../crypto/md6"
 import "../crypto/sha1"
 import "../crypto/sha2"
 import "../crypto/sha3"
@@ -59,7 +59,7 @@ test :: proc(testVectors: []TestHash, algo: string) {
             case "MD5":
                 out:= md5.hash(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
-            case "MD6-128":
+           /* case "MD6-128":
                 out:= md6.hash_128(([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-256":
@@ -67,7 +67,7 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-512":
                 out:= md6.hash_512(([]byte)(s.str));
-                if !check_hash(out[:], s.hash, s.str, algo) do return;
+                if !check_hash(out[:], s.hash, s.str, algo) do return;*/
 
             // SHA
             case "SHA1":
@@ -307,12 +307,12 @@ main :: proc() {
         TestHash{"57edf4a22be3c955ac49da2e2107b67a", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"}
     };
     test(md5TestVectors[:], "MD5");
-    // MD6-256             //
+   /* // MD6-256             //
     md6_256TestVectors := [?]TestHash {
         TestHash{"bca38b24a804aa37d821d31af00f5598230122c5bbfc4c4ad5ed40e4258f04ca", ""},
         TestHash{"2b0a697a081c21269514640aab4d74ffafeb3c0212df68ce92922087c69b0a77", "a"},
     };
-    test(md6_256TestVectors[:], "MD6-256");
+    test(md6_256TestVectors[:], "MD6-256");*/
     // =================== //
     // SHA Series          //
     // SHA1                //

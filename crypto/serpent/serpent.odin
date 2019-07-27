@@ -6,6 +6,7 @@ BLOCK_SIZE :: 16;
 PHI :: 0x9e3779b9;
 
 linear :: inline proc "contextless"(v0, v1, v2, v3: u32) -> (u32, u32, u32, u32) {
+	v0, v1, v2, v3 := v0, v1, v2, v3;
     t0 := ((v0 << 13) | (v0 >> (32 - 13)));
 	t2 := ((v2 << 3) | (v2 >> (32 - 3)));
 	t1 := v1 ~ t0 ~ t2;
@@ -20,6 +21,7 @@ linear :: inline proc "contextless"(v0, v1, v2, v3: u32) -> (u32, u32, u32, u32)
 }
 
 linear_inv :: inline proc "contextless"(v0, v1, v2, v3: u32) -> (u32, u32, u32, u32) {
+	v0, v1, v2, v3 := v0, v1, v2, v3;
 	t2 := (v2 >> 22) | (v2 << (32 - 22));
 	t0 := (v0 >> 5) | (v0 << (32 - 5));
 	t2 ~= v3 ~ (v1 << 7);
@@ -34,6 +36,7 @@ linear_inv :: inline proc "contextless"(v0, v1, v2, v3: u32) -> (u32, u32, u32, 
 }
 
 sb0 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := r0 ~ r3;
 	t1 := r2 ~ t0;
 	t2 := r1 ~ t1;
@@ -47,6 +50,7 @@ sb0 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb0_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := ~(r0);
 	t1 := r0 ~ r1;
 	t2 := r3 ~ (t0 | t1);
@@ -60,6 +64,7 @@ sb0_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb1 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := r1 ~ (~(r0));
 	t1 := r2 ~ (r0 | t0);
 	r2 = r3 ~ t1;
@@ -73,6 +78,7 @@ sb1 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb1_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := r1 ~ r3;
 	t1 := r0 ~ (r1 & t0);
 	t2 := t0 ~ t1;
@@ -88,6 +94,7 @@ sb1_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb2 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v0 := r0;
 	v3 := r3;
 	t0 := ~v0;
@@ -104,6 +111,7 @@ sb2 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb2_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v0 := r0;
 	v3 := r3;
 	t0 := r1 ~ v3;
@@ -124,6 +132,7 @@ sb2_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb3 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v1 := r1 ;
 	v3 := r3 ;
 	t0 := r0 ~ r1;
@@ -144,6 +153,7 @@ sb3 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb3_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := r0 | r1;
 	t1 := r1 ~ r2;
 	t2 := r1 & t1;
@@ -162,6 +172,7 @@ sb3_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb4 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v0 := r0;
 	t0 := v0 ~ r3;
 	t1 := r3 & t0;
@@ -180,6 +191,7 @@ sb4 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb4_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v3 := r3 ;
 	t0 := r2 | v3;
 	t1 := r0 & t0;
@@ -198,6 +210,7 @@ sb4_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb5 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v1 := r1 ;
 	t0 := ~(r0);
 	t1 := r0 ~ v1;
@@ -217,6 +230,7 @@ sb5 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb5_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v0 := r0 ;
 	v1 := r1 ;
 	v3 := r3 ;
@@ -237,6 +251,7 @@ sb5_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb6 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := ~(r0);
 	t1 := r0 ~ r3;
 	t2 := r1 ~ t1;
@@ -254,6 +269,7 @@ sb6 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb6_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v1 := r1;
 	v3 := r3;
 	t0 := ~(r0);
@@ -273,6 +289,7 @@ sb6_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32
 }
 
 sb7 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	t0 := r1 ~ r2;
 	t1 := r2 & t0;
 	t2 := r3 ~ t1;
@@ -291,6 +308,7 @@ sb7 :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
 }
 
 sb7_inv :: inline proc "contextless"(r0, r1, r2, r3: u32) -> (u32, u32, u32, u32) {
+	r0, r1, r2, r3 := r0, r1, r2, r3;
 	v0 := r0;
 	v3 := r3;
 	t0 := r2 | (v0 & r1);

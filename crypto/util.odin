@@ -90,6 +90,7 @@ compare_files_slice_out :: proc(file1, file2: string, fn: proc "contextless" (da
 
 // @note(bp): this can replace the other two
 cast_slice :: inline proc "contextless" ($D: typeid/[]$DE, src: $S/[]$SE) -> D {
+    src := src;
     dst := (^mem.Raw_Slice)(&src);
 
     when size_of(DE) < size_of(SE) {

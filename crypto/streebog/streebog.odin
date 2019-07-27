@@ -285,7 +285,7 @@ streebog_init :: proc(ctx: ^STREEBOG, hash_size: int) {
 streebog_update :: proc(ctx: ^STREEBOG, m: []byte) {
 	length := u64(len(m));
 	chk_size: u64;
-
+	m := m;
 	for (length > 63) && (ctx.buf_size == 0) {
 		streebog_stage2(ctx, m);
 		m = m[64:];

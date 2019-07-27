@@ -73,7 +73,7 @@ skein_get64_lsb_first :: inline proc "contextless"(dst: []u64 src: []byte, wCnt:
 
 skein_process_block :: inline proc "contextless"(ctx: ^$T, blkPtr: []u8, blkCnt, byteCntAdd: u64) {
     WCNT: u64;
-
+    blkPtr, blkCnt := blkPtr, blkCnt;
     when T == SKEIN_256 do WCNT = u64(SKEIN_256_STATE_WORDS);
     else when T == SKEIN_512 do WCNT = u64(SKEIN_512_STATE_WORDS);
     else when T == SKEIN_1024 do WCNT = u64(SKEIN_1024_STATE_WORDS);
@@ -374,7 +374,7 @@ skein_init :: proc(ctx: ^$T, input: []byte, hashBitLen: u64) {
 skein_update :: proc(ctx: ^$T, input: []byte) {
     msgByteCnt := u64(len(input));
     n: u64;
-
+    input := input;
     when      T == SKEIN_256  do block_bytes := u64(32);
     else when T == SKEIN_512  do block_bytes := u64(64);
     else when T == SKEIN_1024 do block_bytes := u64(128);

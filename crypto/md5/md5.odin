@@ -29,31 +29,34 @@ MD5_I :: inline proc "contextless" (x, y, z : u32) -> u32 {
 }
 
 MD5_FF :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+    a := a;
     a += MD5_F(b,c,d) + m + t;
     a = b + ROTL32(a,int(s)); 
     return a;
 }
 
 MD5_GG :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+    a := a;
     a += MD5_G(b,c,d) + m + t;
     a = b + ROTL32(a,int(s));
     return a;
 }
 
 MD5_HH :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+    a := a;
     a += MD5_H(b,c,d) + m + t;
     a = b + ROTL32(a,int(s)); 
     return a;
 }
 
 MD5_II :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+    a := a;
     a += MD5_I(b,c,d) + m + t;
     a = b + ROTL32(a,int(s)); 
     return a;
 }
 
 md5_transform :: proc(ctx: ^MD5_CTX, data: [64]byte) {
-
     a, b, c, d,  i, j : u32;
     m : [MD5_BLOCK_SIZE]u32;
 

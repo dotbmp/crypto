@@ -141,6 +141,7 @@ groestl_q :: inline proc "contextless"(ctx: ^GROESTL, x: [][16]byte) {
 
 groestl_transform :: proc(ctx: ^GROESTL, input: []byte, msglen: u32) {
     temp1, temp2: [8][16]u8;
+    input, msglen := input, msglen;
 
     for msglen >= u32(ctx.statesize) {
         for i := 0; i < 8; i += 1 {

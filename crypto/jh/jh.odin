@@ -31,6 +31,7 @@ JH :: struct {
 }
 
 JH_L :: inline proc "contextless"(a, b: byte) -> (byte, byte) {
+    a, b := a, b;
     (b) ~= ( ( (a) << 1) ~ ( (a) >> 3) ~ (( (a) >> 2) & 2) ) & 0xf;
     (a) ~= ( ( (b) << 1) ~ ( (b) >> 3) ~ (( (b) >> 2) & 2) ) & 0xf;
     return a, b;

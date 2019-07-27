@@ -135,6 +135,7 @@ ripemd_128_block :: proc(ctx: ^$T, p: []byte) -> int {
 	n := 0;
 	x : [16]u32 = ---;
 	alpha : u32 = ---;
+	p := p;
 	for len(p) >= RIPEMD_128_BLOCK_SIZE {
 		a, b, c, d := ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3];
 		aa, bb, cc, dd := a, b, c, d;
@@ -201,6 +202,7 @@ ripemd_160_block :: proc(ctx: ^$T, p: []byte) -> int {
     n := 0;
 	x : [16]u32 = ---;
 	alpha, beta : u32 = ---, ---;
+	p := p;
 	for len(p) >= RIPEMD_160_BLOCK_SIZE {
 		a, b, c, d, e := ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3], ctx.s[4];
 		aa, bb, cc, dd, ee := a, b, c, d, e;
@@ -289,6 +291,7 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 	n := 0;
 	x : [16]u32 = ---;
 	alpha : u32 = ---;
+	p := p;
 	for len(p) >= RIPEMD_256_BLOCK_SIZE {
 		a, b, c, d := ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3];
 		aa, bb, cc, dd := ctx.s[4], ctx.s[5], ctx.s[6], ctx.s[7];
@@ -370,6 +373,7 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
     n := 0;
 	x : [16]u32 = ---;
 	alpha, beta : u32 = ---, ---;
+	p := p;
 	for len(p) >= RIPEMD_320_BLOCK_SIZE {
 		a, b, c, d, e := ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3], ctx.s[4];
 		aa, bb, cc, dd, ee := ctx.s[5], ctx.s[6], ctx.s[7], ctx.s[8], ctx.s[9];
@@ -475,6 +479,7 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 
 ripemd_write :: proc(ctx: ^$T, p: []byte) {
     ctx.tc += u64(len(p));
+	p := p;
 	if ctx.nx > 0 {
 		n := len(p);
 

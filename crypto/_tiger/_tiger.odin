@@ -284,6 +284,7 @@ TIGER :: struct {
 }
 
 tiger_round :: inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64) {
+	a, b, c := a, b, c;
 	c ~= x;
 	a -= TIGER_T1[c & 0xff] ~ TIGER_T2[(c >> 16) & 0xff] ~ TIGER_T3[(c >> 32) & 0xff] ~ TIGER_T4[(c >> 48) & 0xff];
 	b += TIGER_T4[(c >> 8) & 0xff] ~ TIGER_T3[(c >> 24) & 0xff] ~ TIGER_T2[(c >> 40) & 0xff] ~ TIGER_T1[(c >> 56) & 0xff];
@@ -292,6 +293,7 @@ tiger_round :: inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64
 }
 
 tiger_pass :: inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u64, u64, u64) {
+	a, b, c := a, b, c;
 	a, b, c = tiger_round(a, b, c, x[0], mul);
 	b, c, a = tiger_round(b, c, a, x[1], mul);
 	c, a, b = tiger_round(c, a, b, x[2], mul);
@@ -304,6 +306,7 @@ tiger_pass :: inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u6
 }
 
 tiger_keyschedule :: inline proc "contextless"(x: []u64) {
+	x := x;
 	x[0] -= x[7] ~ 0xa5a5a5a5a5a5a5a5;
 	x[1] ~= x[0];
 	x[2] += x[1];
@@ -351,6 +354,7 @@ tiger_init :: proc(ctx: ^TIGER) {
 tiger_update :: proc(ctx: ^TIGER, p: []byte) {
 	length := len(p);
 	ctx.length += u64(length);
+	p := p;
 	if ctx.nx > 0 {
 		n := len(p);
 		if n > 64 - ctx.nx {

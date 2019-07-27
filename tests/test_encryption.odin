@@ -8,8 +8,7 @@ import "../crypto/rc4"
 import "../crypto/rc5"
 import "../crypto/rc6"
 import "../crypto/serpent"
-
-
+import "../crypto/bcrypt"
 
 hex_string :: proc(bytes: []byte, allocator := context.temp_allocator) -> string {
     lut: [16]byte = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -42,13 +41,14 @@ hex_bytes :: proc(str: string, allocator := context.temp_allocator) -> []byte {
 }
 
 main :: proc() {
-    test_blowfish_ecb();
+   /* test_blowfish_ecb();
     //test_blowfish_cbc();
     test_rc2();
     test_rc4();
     test_rc5();
     test_rc6();
-    test_serpent();
+    test_serpent();*/
+    test_bcrypt();
 }
 
 test_blowfish_ecb :: proc() {
@@ -196,4 +196,8 @@ test_serpent :: proc() {
     }
 
     fmt.println("Serpent test passed");
+}
+
+test_bcrypt :: proc() {
+    bcrypt.hash_pw("123", bcrypt.generate_salt(12));
 }

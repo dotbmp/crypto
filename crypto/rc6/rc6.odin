@@ -30,6 +30,7 @@ put_u32_le :: inline proc "contextless"(b: []byte, v: u32) {
 }
 
 expand_key :: proc(key: []byte) -> [ROUNDKEYS]u32 {
+    key := key;
     key_len := len(key);
     assert(key_len == 16);
 

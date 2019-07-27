@@ -98,31 +98,31 @@ HAVAL_FPHI_5 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
 
 HAVAL_FF_1 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_1(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w;
+    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w;
     return x7;
 }
 
 HAVAL_FF_2 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_2(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_3 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_3(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_4 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_4(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_5 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_5(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 = ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
     return x7;
 }
 
@@ -499,7 +499,7 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     haval_tailor(ctx, size);
     HAVAL_UINT2CH(ctx.fingerprint[:], digest, size >> 5);
 
-    mem.set(&ctx, 0, size_of(ctx));
+    mem.set(ctx, 0, size_of(ctx));
 }
 
 haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_bounds_check {

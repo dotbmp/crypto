@@ -118,7 +118,6 @@ blake2_reset :: proc(ctx : $T, is_blake2s: bool) {
 }
 
 blake2_initialize :: proc(ctx: ^$T, c: ^BLAKE2_CONFIG, is_blake2s: bool) {
-
 	block_size := BLAKE2S_BLOCK_SIZE;
 	if is_blake2s do block_size = BLAKE2B_BLOCK_SIZE;
 
@@ -185,6 +184,7 @@ blake2_initialize :: proc(ctx: ^$T, c: ^BLAKE2_CONFIG, is_blake2s: bool) {
 blake2_write :: proc(ctx: $T, p: []byte, is_blake2s: bool) {
 	nn := len(p);
 	block_size := BLAKE2S_BLOCK_SIZE;
+	p := p;
 	if !is_blake2s do block_size = BLAKE2B_BLOCK_SIZE;
 
 	left := block_size - ctx.nx;
@@ -204,7 +204,6 @@ blake2_write :: proc(ctx: $T, p: []byte, is_blake2s: bool) {
 }
 
 blake2s_final :: proc(ctx: $T) ->[BLAKE2S_SIZE]byte {
-
 	if ctx.isKeyed {
 		for i := 0; i < len(ctx.paddedKey); i += 1 do ctx.paddedKey[i] = 0;
 	}
@@ -272,6 +271,7 @@ blake2_blocks :: proc(ctx: ^$T, p: []u8) {
 
 blake2s_blocks :: inline proc "contextless"(ctx: ^BLAKE2S, p: []u8) {
 	h0, h1, h2, h3, h4, h5, h6, h7 := ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7];
+	p := p;
 	for len(p) >= BLAKE2S_BLOCK_SIZE {
 		ctx.t[0] += BLAKE2S_BLOCK_SIZE;
 		if ctx.t[0] < BLAKE2S_BLOCK_SIZE do ctx.t[1]+=1;
@@ -1425,6 +1425,7 @@ blake2s_blocks :: inline proc "contextless"(ctx: ^BLAKE2S, p: []u8) {
 
 blake2b_blocks :: inline proc "contextless"(ctx: ^BLAKE2B, p: []u8) {
 	h0, h1, h2, h3, h4, h5, h6, h7 := ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7];
+	p := p;
 	for len(p) >= BLAKE2B_BLOCK_SIZE {
 		ctx.t[0] += BLAKE2B_BLOCK_SIZE;
 		if ctx.t[0] < BLAKE2B_BLOCK_SIZE do ctx.t[1]+=1;
