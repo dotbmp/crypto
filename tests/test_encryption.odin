@@ -199,5 +199,5 @@ test_serpent :: proc() {
 }
 
 test_bcrypt :: proc() {
-    bcrypt.hash_pw("123", bcrypt.generate_salt(12));
+    fmt.println(bcrypt.hash_pw("123456789", bcrypt.generate_salt(12)));
 }

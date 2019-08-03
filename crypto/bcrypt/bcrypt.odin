@@ -4,10 +4,12 @@ import "core:math/rand"
 import "core:strings"
 import "core:strconv"
 import "core:fmt"
+
 using import ".."
 
+import "shared:base64"
+
 // @ref(zh): https://github.com/kruton/jbcrypt
-// @ref(zh) base64: https://gist.github.com/Tetralux/e4a2900691e61a4b821867ae41470c65
 
 P_ORIG := [18]int {
 	0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344,
@@ -290,114 +292,40 @@ DEFAULT_LOG2_ROUNDS :: 10;
 SALT_LEN :: 16;
 BLOWFISH_ROUNDS :: 16;
 
-BASE64_DIGITS := [64]byte {
-    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
-    'W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r',
-    's','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
-};
-
 Ctx :: struct {
     P: [18]int,
     S: [1024]int,
 }
 
-is_valid_digit :: inline proc "contextless"(auto_cast ch: rune) -> bool {
-    if ch >= 'a' && ch <= 'z' do return true;
-    if ch >= 'A' && ch <= 'Z' do return true;
-    if ch >= '0' && ch <= '9' do return true;
-    if ch == '=' || ch == '+' || ch == '/' do return true;
-    return false;
-}
+ENC_TABLE_BASE64 := [64]byte {
+    '.', '/', 'A', 'B', 'C', 'D', 'E', 'F', 
+    'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 
+    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 
+    'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 
+    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 
+    'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 
+    'u', 'v', 'w', 'x', 'y', 'z', '0', '1', 
+    '2', '3', '4', '5', '6', '7', '8', '9'
+};
 
-encode_base64 :: proc(auto_cast data: []byte, dst_: []byte = nil) -> string {
-    dst := dst_;
-    if dst == nil {
-        n := 0; // @Speed
-        for i := 0; i < len(data); i += 3 do n += 4;
-        dst = make([]byte, max(4, n));
-    }
-
-    n := 0;
-    cs: [4]byte;
-    // Every three bytes corresponds to four ASCII Base64 letters.
-    for i := 0; i < len(data); i+=3 {
-        remaining := len(data)-i;
-        
-        cs[0] = BASE64_DIGITS[ (data[i] & 0xFC) >> 2 ];
-        switch {
-          case remaining >= 3:
-            cs[1] = BASE64_DIGITS[ ((data[i]   & 0x03) << 4) | ((data[i+1] & 0xF0) >> 4) ];
-            cs[2] = BASE64_DIGITS[ ((data[i+1] & 0x0F) << 2) | ((data[i+2] & 0xC0) >> 6) ];
-            cs[3] = BASE64_DIGITS[  (data[i+2] & 0x3F) ];
-          case remaining >= 2:
-            cs[1] = BASE64_DIGITS[ ((data[i]   & 0x03) << 4) | ((data[i+1] & 0xF0) >> 4) ];
-            cs[2] = BASE64_DIGITS[ ((data[i+1] & 0x0F) << 2) ];
-            cs[3] = '=';
-          case remaining == 1:
-            cs[1] = BASE64_DIGITS[ ((data[i] & 0x03) << 4) ];
-            cs[2] = '=';
-            cs[3] = '=';
-        }
-
-        // @Speed: Maybe use utf8.encode instead?
-        n += len(fmt.bprintf(dst[n:], "%r%r%r%r", cs[0], cs[1], cs[2], cs[3]));
-        if n < 4 do return "";
-    }
-
-    return cast(string) dst[:n];
-}
-
-decode_base64 :: proc(auto_cast input: string, dst_: []byte = nil, validate := true) -> (result: []byte, bad_data_index: int) {
-    dst := dst_;
-    if dst == nil do dst = make([]byte,len(input)/4*3);
-    assert(len(dst) >= len(input)/4*3, "unbase64: not enough space in destination buffer; must be at least N/4*3 bytes.");
-
-    if len(input)%4 != 0 do return nil, 0; // @Note: malformed
-
-    find_digit_index :: inline proc "contextless"(digit: byte) -> (data_value: byte, ok: bool) {
-        if digit == '=' do return 0, true;
-
-        // @Speed: Scan for the correct byte. This could more than likely be done faster.
-        for e, i in BASE64_DIGITS {
-            if e == digit {
-                // printf("e:%v, i:%v\n", e, i);
-                assert(i <= 255);
-                return cast(byte)i, true;
-            }
-        }
-        return 0, false;
-    }
-
-    // Every four ASCII letters corresponds to 3 bytes.
-    byte_idx := 0;
-    for b64_idx := 0; b64_idx < len(input); b64_idx+=4 {
-        if validate {
-            if !is_valid_digit(input[b64_idx+0]) do return nil, b64_idx+0;
-            if !is_valid_digit(input[b64_idx+1]) do return nil, b64_idx+1;
-            if !is_valid_digit(input[b64_idx+2]) do return nil, b64_idx+2;
-            if !is_valid_digit(input[b64_idx+3]) do return nil, b64_idx+3;
-        }
-
-        ok: bool;
-        d1, d2, d3, d4: byte;
-        if d1, ok = find_digit_index(input[b64_idx]);   !ok do return nil, b64_idx+0;
-        if d2, ok = find_digit_index(input[b64_idx+1]); !ok do return nil, b64_idx+1;
-        if d3, ok = find_digit_index(input[b64_idx+2]); !ok do return nil, b64_idx+2;
-        if d4, ok = find_digit_index(input[b64_idx+3]); !ok do return nil, b64_idx+3;
-
-        dst[byte_idx+0] = (d1 << 2) | (d2 >> 4);
-        dst[byte_idx+1] = (d2 << 4) | (d3 >> 2);
-        dst[byte_idx+2] = (d3 << 6) | (d4);
-
-        byte_idx += 3;
-    }
-
-    end := len(dst);
-    for dst[end-1] == 0 {
-        end -= 1;
-    }
-    return dst[:end], -1;
-}
+DEC_TABLE_BASE64 := [128]int {
+    -1, -1, -1, -1, -1, -1, -1, -1, 
+    -1, -1, -1, -1, -1, -1, -1, -1, 
+    -1, -1, -1, -1, -1, -1, -1, -1, 
+    -1, -1, -1, -1, -1, -1, -1, -1, 
+    -1, -1, -1, -1, -1, -1, -1, -1, 
+    -1, -1, -1, -1, -1, -1, -1,  1, 
+    54, 55, 56, 57, 58, 59, 60, 61, 
+    62, 63, -1, -1, -1, -1, -1, -1, 
+    -1,  2,  3,  4,  5,  6,  7,  8, 
+     9, 10, 11, 12, 13, 14, 15, 16, 
+    17, 18, 19, 20, 21, 22, 23, 24, 
+    25, 26, 27, -1, -1, -1, -1, -1, 
+    -1, 28, 29, 30, 31, 32, 33, 34, 
+    35, 36, 37, 38, 39, 40, 41, 42, 
+    43, 44, 45, 46, 47, 48, 49, 50, 
+    51, 52, 53, -1, -1, -1, -1, -1
+};
 
 key :: inline proc "contextless"(ctx: ^Ctx, key: []byte) {
     koffp: []int = {0};
@@ -530,7 +458,8 @@ generate_salt :: proc(log_rounds: int) -> string {
 	if log_rounds < 10 do strings.write_string(&b, "0");
 	strings.write_int(&b, log_rounds);
 	strings.write_string(&b, "$");
-	strings.write_string(&b, encode_base64(rnd[:]));
+    encoded, _ := strings.replace_all(base64.encode(rnd[:], ENC_TABLE_BASE64), "=", "");
+	strings.write_string(&b, encoded);
 
 	return strings.to_string(b);
 }
@@ -549,17 +478,16 @@ hash_pw :: proc(password, salt: string) -> string {
 		offset = 4;
 	}
 
-	//assert(salt[offset + 2] > '$', "Missing salt rounds");
+	assert(salt[offset + 2] == '$', "Missing salt rounds");
 
 	rounds := strconv.parse_int(salt[offset: offset + 2]);
     assert(rounds < 30, "Maximum rounds allowed are 30");
 
 	real_salt := salt[offset + 3: offset + 25];
-
     passwordb := make([]byte, len(password) + 1);
     passwordb = ([]byte)(password);
     passwordb[len(password) - 1] = minor >= 'a' ? "\000" : "";
-    saltb, _ := decode_base64(real_salt);
+    saltb := base64.decode(real_salt, DEC_TABLE_BASE64);
 
     strings.write_string(&b, "$2");
     if minor >= 'a' do strings.write_byte(&b, minor);
@@ -570,8 +498,8 @@ hash_pw :: proc(password, salt: string) -> string {
     if rounds < 10 do strings.write_string(&b, "0");
     
     strings.write_string(&b, "$");
-    strings.write_string(&b, encode_base64(saltb));
-    strings.write_string(&b, encode_base64(hashed));
+    strings.write_string(&b, string(base64.decode(string(saltb), DEC_TABLE_BASE64)));
+    strings.write_string(&b, string(base64.decode(string(hashed), DEC_TABLE_BASE64)));
 
     return strings.to_string(b);
 }
