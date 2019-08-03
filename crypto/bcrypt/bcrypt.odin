@@ -498,8 +498,10 @@ hash_pw :: proc(password, salt: string) -> string {
     if rounds < 10 do strings.write_string(&b, "0");
     
     strings.write_string(&b, "$");
-    strings.write_string(&b, string(base64.decode(string(saltb), DEC_TABLE_BASE64)));
-    strings.write_string(&b, string(base64.decode(string(hashed), DEC_TABLE_BASE64)));
+    saltb_str, _ := strings.replace_all(base64.encode(saltb, ENC_TABLE_BASE64), "=", "");
+    hashed_str, _ := strings.replace_all(base64.encode(hashed, ENC_TABLE_BASE64), "=", "");
+    strings.write_string(&b, saltb_str);
+    strings.write_string(&b, hashed_str);
 
     return strings.to_string(b);
 }
