@@ -7,11 +7,11 @@ import "core:fmt"
 
 using import ".."
 
-import "shared:base64"
+import "shared:encoding/base64"
 
 // @ref(zh): https://github.com/kruton/jbcrypt
 
-P_ORIG := [18]int {
+P_ORIG := [18]uint {
 	0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344,
 	0xa4093822, 0x299f31d0, 0x082efa98, 0xec4e6c89,
 	0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
@@ -19,7 +19,7 @@ P_ORIG := [18]int {
 	0x9216d5d9, 0x8979fb1b
 };
 
-S_ORIG := [1024]int {
+S_ORIG := [1024]uint {
     0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7,
     0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
     0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16,
@@ -278,12 +278,7 @@ S_ORIG := [1024]int {
     0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
 };
 
-OPENBSD_IV := [?]int {
-	0x4f787963, 0x68726f6d, 0x61746963, 0x426c6f77,
-	0x66697368, 0x53776174, 0x44796e61, 0x6d697465,
-};
-
-BCRYPT_IV := [?]int {
+BCRYPT_IV := [6]uint {
 	0x4f727068, 0x65616e42, 0x65686f6c,
 	0x64657253, 0x63727944, 0x6f756274
 };
@@ -293,8 +288,8 @@ SALT_LEN :: 16;
 BLOWFISH_ROUNDS :: 16;
 
 Ctx :: struct {
-    P: [18]int,
-    S: [1024]int,
+    P: [18]uint,
+    S: [1024]uint,
 }
 
 ENC_TABLE_BASE64 := [64]byte {
@@ -328,92 +323,85 @@ DEC_TABLE_BASE64 := [128]int {
 };
 
 key :: inline proc "contextless"(ctx: ^Ctx, key: []byte) {
-    koffp: []int = {0};
-    lr: []int = {0, 0};
-    plen := len(ctx.P);
-    slen := len(ctx.S);
+    word: uint;
+    off := 0;
+    lr: [2]uint = {0, 0};
 
-    for i := 0; i < plen; i += 1 do ctx.P[i] ~= stream_to_word(key, koffp[:]);
-    
-    for i := 0; i < plen; i += 2 {
+    for i in 0..<18 {
+        word, off = stream_to_word(key, off);
+		ctx.P[i] ~= word;
+    }
+
+    for i := 0; i < 18; i += 2 {
 		encipher(ctx, lr[:], 0);
 		ctx.P[i] = lr[0];
 		ctx.P[i + 1] = lr[1];
     }
 
-    for i := 0; i < slen; i += 2 {
+    for i := 0; i < 1024; i += 2 {
 		encipher(ctx, lr[:], 0);
 		ctx.S[i] = lr[0];
 		ctx.S[i + 1] = lr[1];
     }
 }
 
-encipher :: inline proc "contextless"(ctx: ^Ctx, lr: []int, offset: int) {
-    l := lr[offset];
+encipher :: inline proc "contextless"(ctx: ^Ctx, lr: []uint, offset: int) {
+    l := lr[offset] ~ ctx.P[0];
     r := lr[offset + 1];
 
-    l ~= ctx.P[0];
-    i, n: int;
-    for i < BLOWFISH_ROUNDS - 2 {
-        n = ctx.S[(l >> 24) & 0xff];
-		n += ctx.S[0x100 | ((l >> 16) & 0xff)];
-		n ~= ctx.S[0x200 | ((l >> 8) & 0xff)];
-		n += ctx.S[0x300 | (l & 0xff)];
-        i += 1;
-		r ~= n ~ ctx.P[i];
-
-		n = ctx.S[(r >> 24) & 0xff];
-		n += ctx.S[0x100 | ((r >> 16) & 0xff)];
-		n ~= ctx.S[0x200 | ((r >> 8) & 0xff)];
-		n += ctx.S[0x300 | (r & 0xff)];
-        i += 1;
-		l ~= n ~ ctx.P[i];
+    for i := uint(0); i <= BLOWFISH_ROUNDS - 2; i += 2 {
+        r ~= ctx.S[(l >> 24) & 0xff] + ctx.S[0x100 | ((l >> 16) & 0xff)] ~ ctx.S[0x200 | ((l >> 8) & 0xff)] + ctx.S[0x300 | (l & 0xff)] ~ ctx.P[i + 1];
+        l ~= ctx.S[(r >> 24) & 0xff] + ctx.S[0x100 | ((r >> 16) & 0xff)] ~ ctx.S[0x200 | ((r >> 8) & 0xff)] + ctx.S[0x300 | (r & 0xff)] ~ ctx.P[i + 2];
     }
+
     lr[offset] = r ~ ctx.P[BLOWFISH_ROUNDS + 1];
     lr[offset + 1] = l;
 }
 
-stream_to_word :: inline proc "contextless"(data: []byte, offp: []int) -> int {
-    word: u8;
-    off := offp[0];
+stream_to_word :: inline proc "contextless"(data: []byte, off: int) -> (uint, int) {
+    word: uint;
+    off := off;
+    length := len(data);
 
-    for i := 0; i < 4; i += 1 {
-        word = (word << 8) | (data[off] & 0xff);
-		off = (off + 1) % len(data);
+    for i in 0..<4 {
+		word = (word << 8) | uint(data[off] & 0xff);
+		off = (off + 1) % length;
     }
-
-    offp[0] = off;
-    return int(word);
+    return word, off;
 }
 
 expensive_key :: proc(ctx: ^Ctx, data, key: []byte) {
-    plen := len(ctx.P);
-    slen := len(ctx.S);
-    koffp, doffp: []int = {0}, {0};
-    lr: []int = {0, 0};
+    word: uint;
+    koff, doff: int;
+    lr: []uint = {0, 0};
 
-    for i := 0; i < plen; i += 1 do ctx.P[i] ~= stream_to_word(key, koffp[:]);
-
-    for i := 0; i < plen; i += 2 {
-        lr[0] ~= stream_to_word(data, doffp[:]);
-		lr[1] ~= stream_to_word(data, doffp[:]);
-		encipher(ctx, lr[:], 0);
-		ctx.P[i] = lr[0];
-		ctx.P[i + 1] = lr[1];
+    for i in 0..<18 {
+        word, koff = stream_to_word(key, koff);
+		ctx.P[i] ~= word;
     }
 
-    for i := 0; i < slen; i += 2 {
-        lr[0] ~= stream_to_word(data, doffp[:]);
-		lr[1] ~= stream_to_word(data, doffp[:]);
-		encipher(ctx, lr[:], 0);
+    for i := 0; i < 18; i += 2 {
+		word, doff = stream_to_word(data, doff);
+		lr[0] ~= word;
+		word, doff = stream_to_word(data, doff);
+		lr[1] ~= word;
+		encipher(ctx, lr, 0);
+		ctx.P[i] = lr[0];
+		ctx.P[i+1] = lr[1];
+    }
+
+    for i := 0; i < 1024; i += 2 {
+		word, doff = stream_to_word(data, doff);
+		lr[0] ~= word;
+		word, doff = stream_to_word(data, doff);
+		lr[1] ~= word;
+		encipher(ctx, lr, 0);
 		ctx.S[i] = lr[0];
-		ctx.S[i + 1] = lr[1];
+		ctx.S[i+1] = lr[1];
     }
 }
 
 crypt_raw :: proc(password, salt: []byte, log_rounds: int) -> []byte {
-    clen := len(BCRYPT_IV);
-    
     assert(log_rounds > 4 && log_rounds < 30, "Invalid number of rounds");
     assert(len(salt) == SALT_LEN, "Invalid salt length");
 
@@ -424,23 +412,24 @@ crypt_raw :: proc(password, salt: []byte, log_rounds: int) -> []byte {
     ctx.P = P_ORIG;
 
     expensive_key(&ctx, salt, password);
-    for i := 0; i != rounds; i += 1 {
+    for i in 0..<rounds {
         key(&ctx, password);
         key(&ctx, salt);
     }
 
     cdata := BCRYPT_IV;
 
-    for i := 0; i < 64; i += 1 {
-        for j := 0; j < (clen >> 1); j += 1 do encipher(&ctx, cdata[:], j << 1);
+    for i in 0..<64 {
+        for j in 0..<(6 >> 1) do encipher(&ctx, cdata[:], j << 1);
     }
 
-    ret := make([]byte, clen * 4);
-    for i, j := 0, 0; i < clen; i, j = i + 1, j + 1 {
-        ret[j] = byte((cdata[i] >> 24) & 0xff);
-        ret[j] = byte((cdata[i] >> 16) & 0xff);
-        ret[j] = byte((cdata[i] >> 8) & 0xff);
-        ret[j] = byte(cdata[i] & 0xff);
+    ret := make([]byte, 24);
+    for i := 0; i < 6; i += 1 {
+        j := i << 2;
+        ret[j]     = byte((cdata[i] >> 24) & 0xff);
+        ret[j + 1] = byte((cdata[i] >> 16) & 0xff);
+        ret[j + 2] = byte((cdata[i] >> 8)  & 0xff);
+        ret[j + 3] = byte(cdata[i]         & 0xff);
     }
 
     return ret;
@@ -483,23 +472,23 @@ hash_pw :: proc(password, salt: string) -> string {
 	rounds := strconv.parse_int(salt[offset: offset + 2]);
     assert(rounds < 30, "Maximum rounds allowed are 30");
 
-	real_salt := salt[offset + 3: offset + 25];
     passwordb := make([]byte, len(password) + 1);
-    passwordb = ([]byte)(password);
-    passwordb[len(password) - 1] = minor >= 'a' ? "\000" : "";
-    saltb := base64.decode(real_salt, DEC_TABLE_BASE64);
+    copy(passwordb[:], ([]byte)(password)[:]);
+
+    saltb := base64.decode(salt[offset + 3: offset + 25], DEC_TABLE_BASE64);
 
     strings.write_string(&b, "$2");
     if minor >= 'a' do strings.write_byte(&b, minor);
     strings.write_string(&b, "$");
 
-    hashed := crypt_raw(passwordb, saltb, rounds);
+    hashed := crypt_raw(passwordb[:], saltb[:], rounds);
 
     if rounds < 10 do strings.write_string(&b, "0");
-    
+
+    strings.write_int(&b, rounds);
     strings.write_string(&b, "$");
     saltb_str, _ := strings.replace_all(base64.encode(saltb, ENC_TABLE_BASE64), "=", "");
-    hashed_str, _ := strings.replace_all(base64.encode(hashed, ENC_TABLE_BASE64), "=", "");
+    hashed_str, _ := strings.replace_all(base64.encode(hashed[:len(BCRYPT_IV) * 4 - 1], ENC_TABLE_BASE64), "=", "");
     strings.write_string(&b, saltb_str);
     strings.write_string(&b, hashed_str);
 

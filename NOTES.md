@@ -1,5 +1,12 @@
 # Notes
 
+ToDos:
+- Finish up the algos
+- Create a test framework in C usings the reference impls of the algos
+- Define API for stuff like salting hashes etc.
+- Structuring (Relocate ciphers / hashes)
+
+
 * Folder Structure
     There are still some questions about this
     - I changed it for a more compact structure, more compatible with the collections system

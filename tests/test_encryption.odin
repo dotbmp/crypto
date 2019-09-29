@@ -10,6 +10,9 @@ import "../crypto/rc6"
 import "../crypto/serpent"
 import "../crypto/bcrypt"
 
+import "shared:encoding/base64"
+import "shared:encoding"
+
 hex_string :: proc(bytes: []byte, allocator := context.temp_allocator) -> string {
     lut: [16]byte = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     buf := make([]byte, len(bytes)*2, allocator);
@@ -41,14 +44,18 @@ hex_bytes :: proc(str: string, allocator := context.temp_allocator) -> []byte {
 }
 
 main :: proc() {
-   /* test_blowfish_ecb();
+    test_blowfish_ecb();
     //test_blowfish_cbc();
     test_rc2();
     test_rc4();
     test_rc5();
     test_rc6();
-    test_serpent();*/
+    //test_serpent();
     test_bcrypt();
+}
+
+aa :: proc() -> (string, bool) {
+    return "a", true;
 }
 
 test_blowfish_ecb :: proc() {
@@ -199,5 +206,10 @@ test_serpent :: proc() {
 }
 
 test_bcrypt :: proc() {
-    fmt.println(bcrypt.hash_pw("123456789", bcrypt.generate_salt(12)));
+    wanted := "$2a$12$z9uZoru19BABKmM/gniuTe3dMJshKgrpMyeL/U277cMuGYO/q/MFi";
+    salt := "$2a$12$z9uZoru19BABKmM/gniuTe";
+    hash := bcrypt.hash_pw("123", salt);
+
+    if wanted == hash do fmt.println("BCrypt test passed");
+    else do fmt.println("BCrypt test not passed");
 }
