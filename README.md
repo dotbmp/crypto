@@ -21,7 +21,7 @@ A crypto library for the Odin language
 - [x] [Streebog](https://en.wikipedia.org/wiki/Streebog)
 - [x] [Tiger / Tiger2](https://en.wikipedia.org/wiki/Tiger_(hash_function))
 - [x] [Whirlpool](https://en.wikipedia.org/wiki/Whirlpool)
-- [ ] [Bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
+- [x] [Bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
 #
 ## Implemented cryptographic encryption algorithms:
 

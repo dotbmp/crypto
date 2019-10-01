@@ -441,22 +441,24 @@ generate_salt :: proc(log_rounds: int) -> string {
 	rnd: [SALT_LEN]byte;
 	rand.read(rnd[:]);
 
-	b := strings.make_builder();
-
-	strings.write_string(&b, "$2a$");
-	if log_rounds < 10 do strings.write_string(&b, "0");
-	strings.write_int(&b, log_rounds);
-	strings.write_string(&b, "$");
     encoded, _ := strings.replace_all(base64.encode(rnd[:], ENC_TABLE_BASE64), "=", "");
-	strings.write_string(&b, encoded);
 
-	return strings.to_string(b);
+    saltb : [dynamic]byte;
+    append(&saltb, '$');
+    append(&saltb, '2');
+    append(&saltb, 'a');
+    append(&saltb, '$');
+    append(&saltb, byte('0' + log_rounds / 10));
+    append(&saltb, byte('0' + log_rounds % 10));
+    append(&saltb, '$');
+    append(&saltb, ..([]byte)(encoded));
+
+	return string(saltb[:]);
 }
 
 hash_pw :: proc(password, salt: string) -> string {
 	minor := byte(0);
 	offset: int;
-	b := strings.make_builder();
 
 	salt_bytes := ([]byte)(salt);
 	assert(salt_bytes[0] == '$' && salt_bytes[1] == '2', "Invalid salt version");
@@ -476,21 +478,19 @@ hash_pw :: proc(password, salt: string) -> string {
     copy(passwordb[:], ([]byte)(password)[:]);
 
     saltb := base64.decode(salt[offset + 3: offset + 25], DEC_TABLE_BASE64);
-
-    strings.write_string(&b, "$2");
-    if minor >= 'a' do strings.write_byte(&b, minor);
-    strings.write_string(&b, "$");
-
     hashed := crypt_raw(passwordb[:], saltb[:], rounds);
-
-    if rounds < 10 do strings.write_string(&b, "0");
-
-    strings.write_int(&b, rounds);
-    strings.write_string(&b, "$");
-    saltb_str, _ := strings.replace_all(base64.encode(saltb, ENC_TABLE_BASE64), "=", "");
     hashed_str, _ := strings.replace_all(base64.encode(hashed[:len(BCRYPT_IV) * 4 - 1], ENC_TABLE_BASE64), "=", "");
-    strings.write_string(&b, saltb_str);
-    strings.write_string(&b, hashed_str);
 
-    return strings.to_string(b);
+    hashedb : [dynamic]byte;
+    append(&hashedb, '$');
+    append(&hashedb, '2');
+    if minor >= 'a' do append(&hashedb, minor);
+    append(&hashedb, '$');
+    append(&hashedb, byte('0' + rounds / 10));
+    append(&hashedb, byte('0' + rounds % 10));
+    append(&hashedb, '$');
+    append(&hashedb, ..([]byte)(salt[offset + 3: offset + 25]));
+    append(&hashedb, ..([]byte)(hashed_str));
+
+    return string(hashedb[:]);
 }
