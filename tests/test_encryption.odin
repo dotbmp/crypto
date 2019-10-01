@@ -50,7 +50,7 @@ main :: proc() {
     test_rc4();
     test_rc5();
     test_rc6();
-    //test_serpent();
+    test_serpent();
     test_bcrypt();
 }
 

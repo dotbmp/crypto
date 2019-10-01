@@ -524,10 +524,10 @@ encrypt :: proc(key, plaintext: []byte) -> []byte {
 decrypt :: proc(key, ciphertext: []byte) -> []byte {
     sk := key_schedule(key);
 
-    r0 := u32(ciphertext[0])  | u32(ciphertext[1])<<8  | u32(ciphertext[2])<<16  | u32(ciphertext[3])<<24;
-	r1 := u32(ciphertext[4])  | u32(ciphertext[5])<<8  | u32(ciphertext[6])<<16  | u32(ciphertext[7])<<24;
-	r2 := u32(ciphertext[8])  | u32(ciphertext[9])<<8  | u32(ciphertext[10])<<16 | u32(ciphertext[11])<<24;
-	r3 := u32(ciphertext[12]) | u32(ciphertext[13])<<8 | u32(ciphertext[14])<<16 | u32(ciphertext[15])<<24;
+    r0 := u32(ciphertext[0])  | u32(ciphertext[1])  << 8  | u32(ciphertext[2])  << 16  | u32(ciphertext[3])  << 24;
+	r1 := u32(ciphertext[4])  | u32(ciphertext[5])  << 8  | u32(ciphertext[6])  << 16  | u32(ciphertext[7])  << 24;
+	r2 := u32(ciphertext[8])  | u32(ciphertext[9])  << 8  | u32(ciphertext[10]) << 16  | u32(ciphertext[11]) << 24;
+	r3 := u32(ciphertext[12]) | u32(ciphertext[13]) << 8  | u32(ciphertext[14]) << 16  | u32(ciphertext[15]) << 24;
 
 	r0 ~= sk[128];
 	r1 ~= sk[129];
