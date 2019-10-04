@@ -3,11 +3,9 @@ package bcrypt
 import "core:math/rand"
 import "core:strings"
 import "core:strconv"
-import "core:fmt"
+import "core:encoding/base64"
 
 using import ".."
-
-import "shared:encoding/base64"
 
 // @ref(zh): https://github.com/kruton/jbcrypt
 
