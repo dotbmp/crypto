@@ -35,7 +35,7 @@ A crypto library for the Odin language
 - [x] [RC5](https://en.wikipedia.org/wiki/RC5)
 - [x] [RC6](https://en.wikipedia.org/wiki/RC6)
 - [ ] [MARS](https://en.wikipedia.org/wiki/MARS_(cipher))
-- [ ] [Serpent](https://en.wikipedia.org/wiki/Serpent_(cipher))
+- [x] [Serpent](https://en.wikipedia.org/wiki/Serpent_(cipher))
 
 #
 ## Example useage

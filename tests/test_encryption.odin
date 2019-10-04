@@ -54,10 +54,6 @@ main :: proc() {
     test_bcrypt();
 }
 
-aa :: proc() -> (string, bool) {
-    return "a", true;
-}
-
 test_blowfish_ecb :: proc() {
     ctx: blowfish.Ctx;
     input: [8]byte = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -183,26 +179,44 @@ test_rc6 :: proc() {
     fmt.println("RC6 test passed");
 }
 
+TestVector :: struct {
+    key: string,
+    plaintext: string,
+    ciphertext: string,
+}
+
 test_serpent :: proc() {
-    key := "80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-    plaintext := "0000000000000000000000000000000000000000000000000000000000000000";
-    expected_cipher := "a223aa1288463c0e2be38ebd825616c0";
+    // NOTE(zh): Official test vectors for serpent from:
+    // http://www.cs.technion.ac.il/~biham/Reports/Serpent/Serpent-128-128.verified.test-vectors
+    // http://www.cs.technion.ac.il/~biham/Reports/Serpent/Serpent-192-128.verified.test-vectors
+    // http://www.cs.technion.ac.il/~biham/Reports/Serpent/Serpent-256-128.verified.test-vectors
 
-    ciphertext := serpent.encrypt(hex_bytes(key), hex_bytes(plaintext));
+    test_vectors := [?]TestVector {
+        TestVector{"80000000000000000000000000000000", "00000000000000000000000000000000", "264e5481eff42a4606abda06c0bfda3d"},
+        TestVector{"40000000000000000000000000000000", "00000000000000000000000000000000", "4a231b3bc727993407ac6ec8350e8524"},
+        TestVector{"800000000000000000000000000000000000000000000000", "00000000000000000000000000000000", "9e274ead9b737bb21efcfca548602689"},
+        TestVector{"100000000000000000000000000000000000000000000000", "00000000000000000000000000000000", "bec1e37824cf721e5d87f6cb4ebfb9be"},
+        TestVector{"0101010101010101010101010101010101010101010101010101010101010101", "01010101010101010101010101010101", "ec9723b15b2a6489f84c4524fffc2748"},
+        TestVector{"0202020202020202020202020202020202020202020202020202020202020202", "02020202020202020202020202020202", "1187f485538514476184e567da0421c7"},
+    };
 
-    if expected_cipher != hex_string(ciphertext) {
-        fmt.println("Serpent encryption test failed");
-        return;
+    for v in test_vectors {
+        cipher := serpent.encrypt(hex_bytes(v.key), hex_bytes(v.plaintext));
+
+        if v.ciphertext != hex_string(cipher) {
+            fmt.println("Serpent encryption test failed");
+            return;
+        }
+
+        plain := serpent.decrypt(hex_bytes(v.key), cipher);
+
+        if v.plaintext != hex_string(plain) {
+            fmt.println("Serpent decryption test failed");
+            return;
+        }
     }
 
-    plain := serpent.decrypt(hex_bytes(key), ciphertext);
-
-    if plaintext != hex_string(plain) {
-        fmt.println("Serpent decryption test failed");
-        return;
-    }
-
-    fmt.println("Serpent test passed");
+    fmt.println("Serpent tests passed");
 }
 
 test_bcrypt :: proc() {
