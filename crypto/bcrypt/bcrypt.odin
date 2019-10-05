@@ -371,8 +371,7 @@ stream_to_word :: inline proc "contextless"(data: []byte, off: int) -> (uint, in
 expensive_key :: proc(ctx: ^Ctx, data, key: []byte) {
     word: uint;
     koff, doff: int;
-    lr := make([]uint, 2);
-    defer delete(lr);
+    lr: [2]uint = {0, 0};
 
     for i in 0..<18 {
         word, koff = stream_to_word(key, koff);
@@ -384,7 +383,7 @@ expensive_key :: proc(ctx: ^Ctx, data, key: []byte) {
 		lr[0] ~= word;
 		word, doff = stream_to_word(data, doff);
 		lr[1] ~= word;
-		encipher(ctx, lr, 0);
+		encipher(ctx, lr[:], 0);
 		ctx.P[i] = lr[0];
 		ctx.P[i+1] = lr[1];
     }
@@ -394,7 +393,7 @@ expensive_key :: proc(ctx: ^Ctx, data, key: []byte) {
 		lr[0] ~= word;
 		word, doff = stream_to_word(data, doff);
 		lr[1] ~= word;
-		encipher(ctx, lr, 0);
+		encipher(ctx, lr[:], 0);
 		ctx.S[i] = lr[0];
 		ctx.S[i+1] = lr[1];
     }
