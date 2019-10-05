@@ -371,7 +371,8 @@ stream_to_word :: inline proc "contextless"(data: []byte, off: int) -> (uint, in
 expensive_key :: proc(ctx: ^Ctx, data, key: []byte) {
     word: uint;
     koff, doff: int;
-    lr: []uint = {0, 0};
+    lr := make([]uint, 2);
+    defer delete(lr);
 
     for i in 0..<18 {
         word, koff = stream_to_word(key, koff);
@@ -405,9 +406,10 @@ crypt_raw :: proc(password, salt: []byte, log_rounds: int) -> []byte {
 
     rounds := 1 << u32(log_rounds);
 
-    ctx: Ctx;
-    ctx.S = S_ORIG;
-    ctx.P = P_ORIG;
+    ctx := Ctx{
+        P_ORIG,
+        S_ORIG,
+    };
 
     expensive_key(&ctx, salt, password);
     for i in 0..<rounds {
@@ -473,10 +475,12 @@ hash_pw :: proc(password, salt: string) -> string {
     assert(rounds < 30, "Maximum rounds allowed are 30");
 
     passwordb := make([]byte, len(password) + 1);
+    defer delete(passwordb);
     copy(passwordb[:], ([]byte)(password)[:]);
 
     saltb := base64.decode(salt[offset + 3: offset + 25], DEC_TABLE_BASE64);
     hashed := crypt_raw(passwordb[:], saltb[:], rounds);
+    defer delete(hashed);
     hashed_str, _ := strings.replace_all(base64.encode(hashed[:len(BCRYPT_IV) * 4 - 1], ENC_TABLE_BASE64), "=", "");
 
     hashedb : [dynamic]byte;
@@ -491,4 +495,8 @@ hash_pw :: proc(password, salt: string) -> string {
     append(&hashedb, ..([]byte)(hashed_str));
 
     return string(hashedb[:]);
+}
+
+check_pw :: proc(hash, password: string) -> bool {
+    return hash == hash_pw(password, hash);
 }

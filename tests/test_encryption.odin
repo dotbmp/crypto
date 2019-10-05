@@ -220,10 +220,16 @@ test_serpent :: proc() {
 }
 
 test_bcrypt :: proc() {
-    wanted := "$2a$12$z9uZoru19BABKmM/gniuTe3dMJshKgrpMyeL/U277cMuGYO/q/MFi";
-    salt := "$2a$12$z9uZoru19BABKmM/gniuTe";
-    hash := bcrypt.hash_pw("123", salt);
+    wanted   := "$2a$12$z9uZoru19BABKmM/gniuTe3dMJshKgrpMyeL/U277cMuGYO/q/MFi";
+    salt     := "$2a$12$z9uZoru19BABKmM/gniuTe";
+    password := "123";
+    hash     := bcrypt.hash_pw(password, salt);
+    
+    passed   := true;
 
-    if wanted == hash do fmt.println("BCrypt test passed");
+    if wanted != hash do passed = false;
+    if !bcrypt.check_pw(wanted, password) do passed = false;
+    
+    if passed do fmt.println("BCrypt test passed");
     else do fmt.println("BCrypt test not passed");
 }
