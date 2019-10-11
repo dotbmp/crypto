@@ -2,7 +2,6 @@ package md2
 
 // @ref(zh): https://github.com/B-Con/crypto-algorithms
 
-import "core:fmt"
 import "core:hash"
 import "core:runtime"
 import "core:math/bits"

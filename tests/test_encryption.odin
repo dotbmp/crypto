@@ -9,6 +9,7 @@ import "../crypto/rc5"
 import "../crypto/rc6"
 import "../crypto/serpent"
 import "../crypto/bcrypt"
+import "../crypto/des"
 
 import "shared:encoding/base64"
 import "shared:encoding"
@@ -52,6 +53,8 @@ main :: proc() {
     test_rc6();
     test_serpent();
     test_bcrypt();
+    test_des();
+    test_3des();
 }
 
 test_blowfish_ecb :: proc() {
@@ -232,4 +235,64 @@ test_bcrypt :: proc() {
     
     if passed do fmt.println("BCrypt test passed");
     else do fmt.println("BCrypt test not passed");
+}
+
+test_des :: proc() {
+    key := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF};
+	schedule : [16][6]byte;
+	plaintext := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xE7};
+	expected_cipher := [8]byte {0xc9,0x57,0x44,0x25,0x6a,0x5e,0xd3,0x1d};
+
+	ciphertext := des.encrypt(plaintext[:], key[:], schedule[:]);
+    defer delete(ciphertext);
+
+    for i := 0; i < len(plaintext); i += 1 {
+        if !(expected_cipher[i] == ciphertext[i]) {
+            fmt.println("DES encryption test failed");
+            return;
+        }
+    }
+
+    plain := des.decrypt(ciphertext[:], key[:], schedule[:]);
+    defer delete(plain);
+
+    for i := 0; i < len(ciphertext); i += 1 {
+        if !(plaintext[i] == plain[i]) {
+            fmt.println("DES decryption test failed");
+            return;
+        }
+    }
+
+    fmt.println("DES test passed");
+}
+
+test_3des :: proc() {
+    key3 := [24]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF,
+	                  0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF,
+	                  0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF};
+    schedule3 : [3][16][6]byte;
+    plaintext := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xE7};
+    expected_cipher := [8]byte {0xc9,0x57,0x44,0x25,0x6a,0x5e,0xd3,0x1d};
+	
+	ciphertext := des.triple_encrypt(plaintext[:], key3[:], schedule3[:]);
+    defer delete(ciphertext);
+
+    for i := 0; i < len(plaintext); i += 1 {
+        if !(expected_cipher[i] == ciphertext[i]) {
+            fmt.println("3DES encryption test failed");
+            return;
+        }
+    }
+
+    plain := des.triple_decrypt(ciphertext[:], key3[:], schedule3[:]);
+    defer delete(plain);
+
+    for i := 0; i < len(ciphertext); i += 1 {
+        if !(plaintext[i] == plain[i]) {
+            fmt.println("3DES decryption test failed");
+            return;
+        }
+    }
+
+    fmt.println("3DES test passed");
 }

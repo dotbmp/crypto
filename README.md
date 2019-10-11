@@ -7,7 +7,6 @@ A crypto library for the Odin language
 - [x] [GOST](https://en.wikipedia.org/wiki/GOST_(hash_function)) 
 - [x] [Grøstl](https://en.wikipedia.org/wiki/Gr%C3%B8stl)
 - [x] [HAVAL](https://en.wikipedia.org/wiki/HAVAL)
-- [ ] [KangarooTwelve](https://en.wikipedia.org/wiki/SHA-3#KangarooTwelve)
 - [x] [MD2](https://en.wikipedia.org/wiki/MD2_(hash_function))
 - [x] [MD4](https://en.wikipedia.org/wiki/MD4)
 - [x] [MD5](https://en.wikipedia.org/wiki/MD5)
@@ -21,14 +20,14 @@ A crypto library for the Odin language
 - [x] [Streebog](https://en.wikipedia.org/wiki/Streebog)
 - [x] [Tiger / Tiger2](https://en.wikipedia.org/wiki/Tiger_(hash_function))
 - [x] [Whirlpool](https://en.wikipedia.org/wiki/Whirlpool)
-- [x] [Bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
+- [x] [BCrypt](https://en.wikipedia.org/wiki/Bcrypt)
 #
 ## Implemented cryptographic encryption algorithms:
 
 - [x] [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
 - [ ] [Twofish](https://en.wikipedia.org/wiki/Twofish)
 - [ ] [Threefish](https://en.wikipedia.org/wiki/Threefish)
-- [ ] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
+- [x] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
 - [ ] [AES / Rijndael ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 - [x] [RC2](https://en.wikipedia.org/wiki/RC2)
 - [x] [RC4](https://en.wikipedia.org/wiki/RC4)

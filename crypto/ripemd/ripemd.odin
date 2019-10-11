@@ -114,17 +114,17 @@ ripemd_reset :: proc(ctx: ^$T) {
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3;
     } else when T == RIPEMD_160 {
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3], ctx.s[4] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3, RIPEMD_S4;
-    } else when T == RIPEMD_256{
+    } else when T == RIPEMD_256 {
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3;
         ctx.s[4], ctx.s[5], ctx.s[6], ctx.s[7] = RIPEMD_S5, RIPEMD_S6, RIPEMD_S7, RIPEMD_S8;
-    } else when T == RIPEMD_320{
+    } else when T == RIPEMD_320 {
         ctx.s[0], ctx.s[1], ctx.s[2], ctx.s[3], ctx.s[4] = RIPEMD_S0, RIPEMD_S1, RIPEMD_S2, RIPEMD_S3, RIPEMD_S4;
         ctx.s[5], ctx.s[6], ctx.s[7], ctx.s[8], ctx.s[9] = RIPEMD_S5, RIPEMD_S6, RIPEMD_S7, RIPEMD_S8, RIPEMD_S9;
     }
 }
 
 ripemd_block :: inline proc "contextless"(ctx: ^$T, p: []byte) -> int {
-    when T == RIPEMD_128 do return ripemd_128_block(ctx, p);
+    when T      == RIPEMD_128 do return ripemd_128_block(ctx, p);
     else when T == RIPEMD_160 do return ripemd_160_block(ctx, p);
     else when T == RIPEMD_256 do return ripemd_256_block(ctx, p);
     else when T == RIPEMD_320 do return ripemd_320_block(ctx, p);
