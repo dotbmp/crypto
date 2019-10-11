@@ -35,6 +35,8 @@ A crypto library for the Odin language
 - [x] [RC6](https://en.wikipedia.org/wiki/RC6)
 - [ ] [MARS](https://en.wikipedia.org/wiki/MARS_(cipher))
 - [x] [Serpent](https://en.wikipedia.org/wiki/Serpent_(cipher))
+- [ ] [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem))
+- [ ] [Camellia](https://en.wikipedia.org/wiki/Camellia_(cipher))
 
 #
 ## Example useage
