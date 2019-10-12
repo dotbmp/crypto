@@ -157,6 +157,15 @@ ROTR64 :: inline proc "contextless" (a, b: u64) -> u64 {
     return ((a >> b) | (a << (64 - b)));
 }
 
+ROTL128 :: inline proc "contextless" (a, b, c, d: ^u32, n: uint) {
+    a, b, c, d := a, b, c, d;
+    t := a^ >> (32 - n);
+    a^ = ((a^ << n) | (b^ >> (32 - n)));
+    b^ = ((b^ << n) | (c^ >> (32 - n)));
+    c^ = ((c^ << n) | (d^ >> (32 - n)));
+    d^ = ((d^ << n) | t);
+}
+
 Mode :: enum {
     ECB,
     CBC,

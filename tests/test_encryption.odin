@@ -10,6 +10,7 @@ import "../crypto/rc6"
 import "../crypto/serpent"
 import "../crypto/bcrypt"
 import "../crypto/des"
+import "../crypto/camellia"
 
 import "shared:encoding/base64"
 import "shared:encoding"
@@ -45,7 +46,7 @@ hex_bytes :: proc(str: string, allocator := context.temp_allocator) -> []byte {
 }
 
 main :: proc() {
-    test_blowfish_ecb();
+    /*test_blowfish_ecb();
     //test_blowfish_cbc();
     test_rc2();
     test_rc4();
@@ -54,7 +55,8 @@ main :: proc() {
     test_serpent();
     test_bcrypt();
     test_des();
-    test_3des();
+    test_3des();*/
+    test_camellia();
 }
 
 test_blowfish_ecb :: proc() {
@@ -295,4 +297,32 @@ test_3des :: proc() {
     }
 
     fmt.println("3DES test passed");
+}
+
+test_camellia :: proc() {
+    test_vectors := [?]TestVector {
+        TestVector{"0123456789abcdeffedcba9876543210", "0123456789abcdeffedcba9876543210", "67673138549669730857065648eabe43"},
+        TestVector{"0123456789abcdeffedcba98765432100011223344556677", "0123456789abcdeffedcba9876543210", "b4993401b3e996f84ee5cee7d79b09b9"},
+        TestVector{"0123456789abcdeffedcba987654321000112233445566778899aabbccddeeff", "0123456789abcdeffedcba9876543210", "9acc237dff16d76c20ef7c919e3a7509"},
+    };
+	
+	for v in test_vectors {
+        cipher := camellia.encrypt(hex_bytes(v.key), hex_bytes(v.plaintext));
+        if v.ciphertext != hex_string(cipher) {
+            fmt.println("Camellia encryption test failed");
+            fmt.println("Expected: ", v.ciphertext, " but got: " , hex_string(cipher));
+            return;
+        }
+        /*
+        plain := camellia.decrypt(hex_bytes(v.key), cipher);
+
+        if v.plaintext != hex_string(plain) {
+            fmt.println("Camellia decryption test failed");
+            return;
+        }*/
+
+        delete(cipher);
+    }
+
+    fmt.println("Camellia tests passed");
 }
