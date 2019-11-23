@@ -36,7 +36,12 @@ A crypto library for the Odin language
 - [ ] [MARS](https://en.wikipedia.org/wiki/MARS_(cipher))
 - [x] [Serpent](https://en.wikipedia.org/wiki/Serpent_(cipher))
 - [ ] [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem))
-- [ ] [Camellia](https://en.wikipedia.org/wiki/Camellia_(cipher))
+- [x] [Camellia](https://en.wikipedia.org/wiki/Camellia_(cipher))
+- [ ] [ChaCha](https://en.wikipedia.org/wiki/Salsa20)
+- [ ] [Salsa20](https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant)
+
+## MAC
+- [ ] [Poly1305](https://en.wikipedia.org/wiki/Poly1305)
 
 #
 ## Example useage

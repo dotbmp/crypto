@@ -1,9 +1,8 @@
 package camellia
 
-import "core:fmt"
 using import ".."
 
-// @ref(zh): https://github.com/aead/camellia
+// @reF(zh): https://github.com/aead/camellia
 
 SIGMA := []u32 {
 	0xa09e667f, 0x3bcc908b, 0xb67ae858, 0x4caa73b2, 0xc6ef372f, 0xe94f82be,
@@ -229,10 +228,10 @@ F :: inline proc "contextless"(r0, r1, r2, r3: ^u32, k0, k1: u32) {
 key_schedule_128 :: inline proc "contextless"(key: []byte) -> Camellia128 {
     ctx: Camellia128;
 
-    r0 := u32(key[0])<<24 | u32(key[1])<<16 | u32(key[2])<<8 | u32(key[3]);
-	r1 := u32(key[4])<<24 | u32(key[5])<<16 | u32(key[6])<<8 | u32(key[7]);
-	r2 := u32(key[8])<<24 | u32(key[9])<<16 | u32(key[10])<<8 | u32(key[11]);
-	r3 := u32(key[12])<<24 | u32(key[13])<<16 | u32(key[14])<<8 | u32(key[15]);
+    r0 := u32(key[0])  << 24 | u32(key[1])  << 16 | u32(key[2])  << 8 | u32(key[3]);
+	r1 := u32(key[4])  << 24 | u32(key[5])  << 16 | u32(key[6])  << 8 | u32(key[7]);
+	r2 := u32(key[8])  << 24 | u32(key[9])  << 16 | u32(key[10]) << 8 | u32(key[11]);
+	r3 := u32(key[12]) << 24 | u32(key[13]) << 16 | u32(key[14]) << 8 | u32(key[15]);
 
 	k: [52]u32;
 
@@ -283,10 +282,10 @@ key_schedule_128 :: inline proc "contextless"(key: []byte) -> Camellia128 {
 }
 
 crypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
-    r0 := u32(src[0])<<24 | u32(src[1])<<16 | u32(src[2])<<8 | u32(src[3]);
-	r1 := u32(src[4])<<24 | u32(src[5])<<16 | u32(src[6])<<8 | u32(src[7]);
-	r2 := u32(src[8])<<24 | u32(src[9])<<16 | u32(src[10])<<8 | u32(src[11]);
-	r3 := u32(src[12])<<24 | u32(src[13])<<16 | u32(src[14])<<8 | u32(src[15]);
+    r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
+	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
+	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
+	r3 := u32(src[12]) << 24 | u32(src[13]) << 16 | u32(src[14]) << 8 | u32(src[15]);
 
 	k := ctx.subkeys;
 
@@ -335,6 +334,77 @@ crypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
 	r0 ~= k[50];
 	r1 ~= k[51];
 
+	dst[0]  = byte(r2 >> 24);
+	dst[1]  = byte(r2 >> 16);
+	dst[2]  = byte(r2 >> 8);
+	dst[3]  = byte(r2);
+	dst[4]  = byte(r3 >> 24);
+	dst[5]  = byte(r3 >> 16);
+	dst[6]  = byte(r3 >> 8);
+	dst[7]  = byte(r3);
+	dst[8]  = byte(r0 >> 24);
+	dst[9]  = byte(r0 >> 16);
+	dst[10] = byte(r0 >> 8);
+	dst[11] = byte(r0);
+	dst[12] = byte(r1 >> 24);
+	dst[13] = byte(r1 >> 16);
+	dst[14] = byte(r1 >> 8);
+	dst[15] = byte(r1);
+}
+
+decrypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
+	r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
+	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
+	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
+	r3 := u32(src[12]) << 24 | u32(src[13]) << 16 | u32(src[14]) << 8 | u32(src[15]);
+
+	k := ctx.subkeys;
+
+	r3 ~= k[51];
+	r2 ~= k[50];
+	r1 ~= k[49];
+	r0 ~= k[48];
+
+	F(&r0, &r1, &r2, &r3, k[46], k[47]);
+	F(&r2, &r3, &r0, &r1, k[44], k[45]);
+	F(&r0, &r1, &r2, &r3, k[42], k[43]);
+	F(&r2, &r3, &r0, &r1, k[40], k[41]);
+	F(&r0, &r1, &r2, &r3, k[38], k[39]);
+	F(&r2, &r3, &r0, &r1, k[36], k[37]);
+
+	t := r0 & k[34];
+	r1 ~= (t << 1) | (t >> (32 - 1));
+	r2 ~= r3 | k[33];
+	r0 ~= r1 | k[35];
+	t = r2 & k[32];
+	r3 ~= (t << 1) | (t >> (32 - 1));
+
+	F(&r0, &r1, &r2, &r3, k[30], k[31]);
+	F(&r2, &r3, &r0, &r1, k[28], k[29]);
+	F(&r0, &r1, &r2, &r3, k[26], k[27]);
+	F(&r2, &r3, &r0, &r1, k[24], k[25]);
+	F(&r0, &r1, &r2, &r3, k[22], k[23]);
+	F(&r2, &r3, &r0, &r1, k[20], k[21]);
+
+	t = r0 & k[18];
+	r1 ~= (t << 1) | (t >> (32 - 1));
+	r2 ~= r3 | k[17];
+	r0 ~= r1 | k[19];
+	t = r2 & k[16];
+	r3 ~= (t << 1) | (t >> (32 - 1));
+
+	F(&r0, &r1, &r2, &r3, k[14], k[15]);
+	F(&r2, &r3, &r0, &r1, k[12], k[13]);
+	F(&r0, &r1, &r2, &r3, k[10], k[11]);
+	F(&r2, &r3, &r0, &r1, k[8], k[9]);
+	F(&r0, &r1, &r2, &r3, k[6], k[7]);
+	F(&r2, &r3, &r0, &r1, k[4], k[5]);
+
+	r1 ~= k[3];
+	r0 ~= k[2];
+	r3 ~= k[1];
+	r2 ~= k[0];
+
 	dst[0] = byte(r2 >> 24);
 	dst[1] = byte(r2 >> 16);
 	dst[2] = byte(r2 >> 8);
@@ -358,23 +428,23 @@ key_schedule_256 :: inline proc "contextless"(key: []byte) -> Camellia256 {
 
 	k: [68]u32;
 
-	k[0] = u32(key[0])<<24 | u32(key[1])<<16 | u32(key[2])<<8 | u32(key[3]);
-	k[1] = u32(key[4])<<24 | u32(key[5])<<16 | u32(key[6])<<8 | u32(key[7]);
-	k[2] = u32(key[8])<<24 | u32(key[9])<<16 | u32(key[10])<<8 | u32(key[11]);
-	k[3] = u32(key[12])<<24 | u32(key[13])<<16 | u32(key[14])<<8 | u32(key[15]);
+	k[0] = u32(key[0])  << 24 | u32(key[1])  << 16 | u32(key[2])  << 8 | u32(key[3]);
+	k[1] = u32(key[4])  << 24 | u32(key[5])  << 16 | u32(key[6])  << 8 | u32(key[7]);
+	k[2] = u32(key[8])  << 24 | u32(key[9])  << 16 | u32(key[10]) << 8 | u32(key[11]);
+	k[3] = u32(key[12]) << 24 | u32(key[13]) << 16 | u32(key[14]) << 8 | u32(key[15]);
 
-	k[8] = u32(key[16])<<24 | u32(key[17])<<16 | u32(key[18])<<8 | u32(key[19]);
-	k[9] = u32(key[20])<<24 | u32(key[21])<<16 | u32(key[22])<<8 | u32(key[23]);
+	k[8] = u32(key[16]) << 24 | u32(key[17]) << 16 | u32(key[18]) << 8 | u32(key[19]);
+	k[9] = u32(key[20]) << 24 | u32(key[21]) << 16 | u32(key[22]) << 8 | u32(key[23]);
 	if len(key) == 24 {
 		k[10] = ~k[8];
 		k[11] = ~k[9];
 	} else {
-		k[10] = u32(key[24])<<24 | u32(key[25])<<16 | u32(key[26])<<8 | u32(key[27]);
-		k[11] = u32(key[28])<<24 | u32(key[29])<<16 | u32(key[30])<<8 | u32(key[31]);
+		k[10] = u32(key[24]) << 24 | u32(key[25]) << 16 | u32(key[26]) << 8 | u32(key[27]);
+		k[11] = u32(key[28]) << 24 | u32(key[29]) << 16 | u32(key[30]) << 8 | u32(key[31]);
 	}
 
-	s0 := k[8] ~ k[0];
-	s1 := k[9] ~ k[1];
+	s0 := k[8]  ~ k[0];
+	s1 := k[9]  ~ k[1];
 	s2 := k[10] ~ k[2];
 	s3 := k[11] ~ k[3];
 
@@ -438,10 +508,10 @@ key_schedule_256 :: inline proc "contextless"(key: []byte) -> Camellia256 {
 }
 
 crypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
-	r0 := u32(src[0])<<24 | u32(src[1])<<16 | u32(src[2])<<8 | u32(src[3]);
-	r1 := u32(src[4])<<24 | u32(src[5])<<16 | u32(src[6])<<8 | u32(src[7]);
-	r2 := u32(src[8])<<24 | u32(src[9])<<16 | u32(src[10])<<8 | u32(src[11]);
-	r3 := u32(src[12])<<24 | u32(src[13])<<16 | u32(src[14])<<8 | u32(src[15]);
+	r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
+	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
+	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
+	r3 := u32(src[12]) << 24 | u32(src[13]) << 16 | u32(src[14]) << 8 | u32(src[15]);
 
 	k := &ctx.subkeys;
 
@@ -504,16 +574,101 @@ crypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
 	r0 ~= ctx.subkeys[66];
 	r1 ~= ctx.subkeys[67];
 
-	dst[0] = byte(r2 >> 24);
-	dst[1] = byte(r2 >> 16);
-	dst[2] = byte(r2 >> 8);
-	dst[3] = byte(r2);
-	dst[4] = byte(r3 >> 24);
-	dst[5] = byte(r3 >> 16);
-	dst[6] = byte(r3 >> 8);
-	dst[7] = byte(r3);
-	dst[8] = byte(r0 >> 24);
-	dst[9] = byte(r0 >> 16);
+	dst[0]  = byte(r2 >> 24);
+	dst[1]  = byte(r2 >> 16);
+	dst[2]  = byte(r2 >> 8);
+	dst[3]  = byte(r2);
+	dst[4]  = byte(r3 >> 24);
+	dst[5]  = byte(r3 >> 16);
+	dst[6]  = byte(r3 >> 8);
+	dst[7]  = byte(r3);
+	dst[8]  = byte(r0 >> 24);
+	dst[9]  = byte(r0 >> 16);
+	dst[10] = byte(r0 >> 8);
+	dst[11] = byte(r0);
+	dst[12] = byte(r1 >> 24);
+	dst[13] = byte(r1 >> 16);
+	dst[14] = byte(r1 >> 8);
+	dst[15] = byte(r1);
+}
+
+decrypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
+	r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
+	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
+	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
+	r3 := u32(src[12]) << 24 | u32(src[13]) << 16 | u32(src[14]) << 8 | u32(src[15]);
+
+	k := ctx.subkeys;
+
+	r3 ~= k[67];
+	r2 ~= k[66];
+	r1 ~= k[65];
+	r0 ~= k[64];
+
+	F(&r0, &r1, &r2, &r3, k[62], k[63]);
+	F(&r2, &r3, &r0, &r1, k[60], k[61]);
+	F(&r0, &r1, &r2, &r3, k[58], k[59]);
+	F(&r2, &r3, &r0, &r1, k[56], k[57]);
+	F(&r0, &r1, &r2, &r3, k[54], k[55]);
+	F(&r2, &r3, &r0, &r1, k[52], k[53]);
+
+	t := r0 & k[50];
+	r1 ~= (t << 1) | (t >> (32 - 1));
+	r2 ~= r3 | k[49];
+	r0 ~= r1 | k[51];
+	t = r2 & k[48];
+	r3 ~= (t << 1) | (t >> (32 - 1));
+
+	F(&r0, &r1, &r2, &r3, k[46], k[47]);
+	F(&r2, &r3, &r0, &r1, k[44], k[45]);
+	F(&r0, &r1, &r2, &r3, k[42], k[43]);
+	F(&r2, &r3, &r0, &r1, k[40], k[41]);
+	F(&r0, &r1, &r2, &r3, k[38], k[39]);
+	F(&r2, &r3, &r0, &r1, k[36], k[37]);
+
+	t = r0 & k[34];
+	r1 ~= (t << 1) | (t >> (32 - 1));
+	r2 ~= r3 | k[33];
+	r0 ~= r1 | k[35];
+	t = r2 & k[32];
+	r3 ~= (t << 1) | (t >> (32 - 1));
+
+	F(&r0, &r1, &r2, &r3, k[30], k[31]);
+	F(&r2, &r3, &r0, &r1, k[28], k[29]);
+	F(&r0, &r1, &r2, &r3, k[26], k[27]);
+	F(&r2, &r3, &r0, &r1, k[24], k[25]);
+	F(&r0, &r1, &r2, &r3, k[22], k[23]);
+	F(&r2, &r3, &r0, &r1, k[20], k[21]);
+
+	t = r0 & k[18];
+	r1 ~= (t << 1) | (t >> (32 - 1));
+	r2 ~= r3 | k[17];
+	r0 ~= r1 | k[19];
+	t = r2 & k[16];
+	r3 ~= (t << 1) | (t >> (32 - 1));
+
+	F(&r0, &r1, &r2, &r3, k[14], k[15]);
+	F(&r2, &r3, &r0, &r1, k[12], k[13]);
+	F(&r0, &r1, &r2, &r3, k[10], k[11]);
+	F(&r2, &r3, &r0, &r1, k[8], k[9]);
+	F(&r0, &r1, &r2, &r3, k[6], k[7]);
+	F(&r2, &r3, &r0, &r1, k[4], k[5]);
+
+	r1 ~= k[3];
+	r0 ~= k[2];
+	r3 ~= k[1];
+	r2 ~= k[0];
+
+	dst[0]  = byte(r2 >> 24);
+	dst[1]  = byte(r2 >> 16);
+	dst[2]  = byte(r2 >> 8);
+	dst[3]  = byte(r2);
+	dst[4]  = byte(r3 >> 24);
+	dst[5]  = byte(r3 >> 16);
+	dst[6]  = byte(r3 >> 8);
+	dst[7]  = byte(r3);
+	dst[8]  = byte(r0 >> 24);
+	dst[9]  = byte(r0 >> 16);
 	dst[10] = byte(r0 >> 8);
 	dst[11] = byte(r0);
 	dst[12] = byte(r1 >> 24);
@@ -531,12 +686,24 @@ encrypt :: proc(key, plaintext: []byte, allocator := context.allocator) -> []byt
     } else if length == 24 || length == 32 {
         ctx := Camellia256(key_schedule_256(key));
         crypt_256(&ctx, ciphertext[:], plaintext);
-    }
+    } else {
+		return nil;
+	}
 	return ciphertext;
 }
 
 
 decrypt :: proc(key, ciphertext: []byte, allocator := context.allocator) -> []byte {
     plaintext := make([]byte, len(ciphertext), allocator);
+	length := len(key);
+    if length == 16 {
+        ctx := Camellia128(key_schedule_128(key));
+        decrypt_128(&ctx, plaintext[:], ciphertext);
+    } else if length == 24 || length == 32 {
+        ctx := Camellia256(key_schedule_256(key));
+        decrypt_256(&ctx, plaintext[:], ciphertext);
+    } else {
+		return nil;
+	}
 	return plaintext;
 }

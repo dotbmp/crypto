@@ -271,7 +271,7 @@ test :: proc(testVectors: []TestHash, algo: string) {
     fmt.printf(" === Tests for %s passed ===\n", algo);
 }
 
-main :: proc() {/*
+main :: proc() {
     // =================== //
     // MD Series           //
     // MD2                 //
@@ -746,7 +746,7 @@ main :: proc() {/*
         TestHash{"9ef345a835ee35d6d0d462ce45f722d84b5ca41fde9c81a98a22cfb4f7425720511b03a258cdc055bf8e9179dc9bdb5d88bed906c71125d4cf0cd39d3d7bebc7", "a"},
         TestHash{"862849fd911852cd54beefa88759db4cead0ef8e36aaf15398303c5c4cbc016d9b4c42b32081cbdcba710d2693e7663d244fae116ec29ffb40168baf44f944e7", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
-    test(groestl512TestVectors[:], "GROESTL-512");*/
+    test(groestl512TestVectors[:], "GROESTL-512");
     // =================== //
     // Skein               //
     // Skein-256           //

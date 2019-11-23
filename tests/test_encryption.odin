@@ -46,17 +46,17 @@ hex_bytes :: proc(str: string, allocator := context.temp_allocator) -> []byte {
 }
 
 main :: proc() {
-    /*test_blowfish_ecb();
+    test_blowfish_ecb();
     //test_blowfish_cbc();
     test_rc2();
     test_rc4();
     test_rc5();
     test_rc6();
     test_serpent();
-    test_bcrypt();
     test_des();
-    test_3des();*/
+    test_3des();
     test_camellia();
+    test_bcrypt();
 }
 
 test_blowfish_ecb :: proc() {
@@ -313,13 +313,14 @@ test_camellia :: proc() {
             fmt.println("Expected: ", v.ciphertext, " but got: " , hex_string(cipher));
             return;
         }
-        /*
+        
         plain := camellia.decrypt(hex_bytes(v.key), cipher);
 
         if v.plaintext != hex_string(plain) {
             fmt.println("Camellia decryption test failed");
+            fmt.println("Expected: ", v.plaintext, " but got: " , hex_string(plain));
             return;
-        }*/
+        }
 
         delete(cipher);
     }
