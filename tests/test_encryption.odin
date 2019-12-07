@@ -81,7 +81,7 @@ test_blowfish_cbc :: proc() {
     key: [16]byte = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xf0, 0xe1, 0xd2, 0xc3, 0xb4, 0xa5, 0x96, 0x87};
     iv: [8]byte = {0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76};
 
-    cipher := blowfish.encrypt_cbc(&ctx, ([]byte)(input), key[:], iv[:]);
+    cipher := blowfish.encrypt_cbc(&ctx, transmute([]byte)(input), key[:], iv[:]);
     fmt.println(cipher);
 }
 
@@ -113,7 +113,7 @@ test_rc4 :: proc() {
     plaintext := "hello";
     expected_cipher: [5]byte = {0x68, 0x9d, 0x12, 0xb, 0x4b};
 
-    ciphertext := rc4.encrypt(([]byte)(key), ([]byte)(plaintext));
+    ciphertext := rc4.encrypt(transmute([]byte)(key), transmute([]byte)(plaintext));
 
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
@@ -122,7 +122,7 @@ test_rc4 :: proc() {
         }
     }
 
-    plain := rc4.decrypt(([]byte)(key), ([]byte)(ciphertext));
+    plain := rc4.decrypt(transmute([]byte)(key), transmute([]byte)(ciphertext));
 
     if string(plain) != plaintext {
         fmt.println("RC4 decryption test failed");

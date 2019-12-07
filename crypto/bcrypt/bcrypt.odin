@@ -450,7 +450,7 @@ generate_salt :: proc(log_rounds: int) -> string {
     append(&saltb, byte('0' + log_rounds / 10));
     append(&saltb, byte('0' + log_rounds % 10));
     append(&saltb, '$');
-    append(&saltb, ..([]byte)(encoded));
+    append(&saltb, ..transmute([]byte)(encoded));
 
 	return string(saltb[:]);
 }
@@ -459,7 +459,7 @@ hash_pw :: proc(password, salt: string) -> string {
 	minor := byte(0);
 	offset: int;
 
-	salt_bytes := ([]byte)(salt);
+	salt_bytes := transmute([]byte)(salt);
 	assert(salt_bytes[0] == '$' && salt_bytes[1] == '2', "Invalid salt version");
 	if salt_bytes[2] == '$' do offset = 3;
 	else {
@@ -475,7 +475,7 @@ hash_pw :: proc(password, salt: string) -> string {
 
     passwordb := make([]byte, len(password) + 1);
     defer delete(passwordb);
-    copy(passwordb[:], ([]byte)(password)[:]);
+    copy(passwordb[:], transmute([]byte)(password)[:]);
 
     saltb := base64.decode(salt[offset + 3: offset + 25], DEC_TABLE_BASE64);
     hashed := crypt_raw(passwordb[:], saltb[:], rounds);
@@ -490,8 +490,8 @@ hash_pw :: proc(password, salt: string) -> string {
     append(&hashedb, byte('0' + rounds / 10));
     append(&hashedb, byte('0' + rounds % 10));
     append(&hashedb, '$');
-    append(&hashedb, ..([]byte)(salt[offset + 3: offset + 25]));
-    append(&hashedb, ..([]byte)(hashed_str));
+    append(&hashedb, ..transmute([]byte)(salt[offset + 3: offset + 25]));
+    append(&hashedb, ..transmute([]byte)(hashed_str));
 
     return string(hashedb[:]);
 }

@@ -51,215 +51,215 @@ test :: proc(testVectors: []TestHash, algo: string) {
         switch algo {
             // MD
             case "MD2": 
-                out:= md2.hash(([]byte)(s.str));
+                out:= md2.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD4":
-                out:= md4.hash(([]byte)(s.str));
+                out:= md4.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD5":
-                out:= md5.hash(([]byte)(s.str));
+                out:= md5.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
            /* case "MD6-128":
-                out:= md6.hash_128(([]byte)(s.str));
+                out:= md6.hash_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-256":
-                out:= md6.hash_256(([]byte)(s.str));
+                out:= md6.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "MD6-512":
-                out:= md6.hash_512(([]byte)(s.str));
+                out:= md6.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;*/
 
             // SHA
             case "SHA1":
-                out:= sha1.hash(([]byte)(s.str));
+                out:= sha1.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // SHA2
             case "SHA-224":
-                out:= sha2.hash_224(([]byte)(s.str));
+                out:= sha2.hash_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-256":
-                out:= sha2.hash_256(([]byte)(s.str));
+                out:= sha2.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-384":
-                out:= sha2.hash_384(([]byte)(s.str));
+                out:= sha2.hash_384(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-512":
-                out:= sha2.hash_512(([]byte)(s.str));
+                out:= sha2.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA3
             case "SHA3-224":
-                out := sha3.hash_224(([]byte)(s.str));
+                out := sha3.hash_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA3-256":
-                out := sha3.hash_256(([]byte)(s.str));
+                out := sha3.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA3-384":
-                out := sha3.hash_384(([]byte)(s.str));
+                out := sha3.hash_384(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA3-512":
-                out := sha3.hash_512(([]byte)(s.str));
+                out := sha3.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // BLAKE
             case "BLAKE-224":
-                out:= blake.hash_224(([]byte)(s.str));
+                out:= blake.hash_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE-256":
-                out:= blake.hash_256(([]byte)(s.str));
+                out:= blake.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE-384":
-                out:= blake.hash_384(([]byte)(s.str));
+                out:= blake.hash_384(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE-512":
-                out:= blake.hash_512(([]byte)(s.str));
+                out:= blake.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // BLAKE2
             case "BLAKE2S-256":
-                out:= blake2s.hash(([]byte)(s.str));
+                out:= blake2s.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "BLAKE2B-512":
-                out:= blake2b.hash(([]byte)(s.str));
+                out:= blake2b.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // RIPEMD
             case "RIPEMD-128":
-                out:= ripemd.hash_128(([]byte)(s.str));
+                out:= ripemd.hash_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "RIPEMD-160":
-                out:= ripemd.hash_160(([]byte)(s.str));
+                out:= ripemd.hash_160(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "RIPEMD-256":
-                out:= ripemd.hash_256(([]byte)(s.str));
+                out:= ripemd.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "RIPEMD-320":
-                out:= ripemd.hash_320(([]byte)(s.str));
+                out:= ripemd.hash_320(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // HAVAL
             case "HAVAL-3-128":
-                out:= haval.hash_3_128(([]byte)(s.str));
+                out:= haval.hash_3_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-160":
-                out:= haval.hash_3_160(([]byte)(s.str));
+                out:= haval.hash_3_160(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-192":
-                out:= haval.hash_3_192(([]byte)(s.str));
+                out:= haval.hash_3_192(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-224":
-                out:= haval.hash_3_224(([]byte)(s.str));
+                out:= haval.hash_3_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-3-256":
-                out:= haval.hash_3_256(([]byte)(s.str));
+                out:= haval.hash_3_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-128":
-                out:= haval.hash_4_128(([]byte)(s.str));
+                out:= haval.hash_4_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-160":
-                out:= haval.hash_4_160(([]byte)(s.str));
+                out:= haval.hash_4_160(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-192":
-                out:= haval.hash_4_192(([]byte)(s.str));
+                out:= haval.hash_4_192(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-224":
-                out:= haval.hash_4_224(([]byte)(s.str));
+                out:= haval.hash_4_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-4-256":
-                out:= haval.hash_4_256(([]byte)(s.str));
+                out:= haval.hash_4_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-128":
-                out:= haval.hash_5_128(([]byte)(s.str));
+                out:= haval.hash_5_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-160":
-                out:= haval.hash_5_160(([]byte)(s.str));
+                out:= haval.hash_5_160(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-192":
-                out:= haval.hash_5_192(([]byte)(s.str));
+                out:= haval.hash_5_192(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-224":
-                out:= haval.hash_5_224(([]byte)(s.str));
+                out:= haval.hash_5_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "HAVAL-5-256":
-                out:= haval.hash_5_256(([]byte)(s.str));
+                out:= haval.hash_5_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // GOST
             case "GOST":
-                out:= gost.hash(([]byte)(s.str));
+                out:= gost.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // STREEBOG
             case "STREEBOG-256":
-                out:= streebog.hash_256(([]byte)(s.str));
+                out:= streebog.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "STREEBOG-512":
-                out:= streebog.hash_512(([]byte)(s.str));
+                out:= streebog.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // WHIRLPOOL
             case "WHIRLPOOL":
-                out:= whirlpool.hash(([]byte)(s.str));
+                out:= whirlpool.hash(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // Tiger
             case "TIGER-128":
-                out:= tiger.hash_128(([]byte)(s.str));
+                out:= tiger.hash_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "TIGER-160":
-                out:= tiger.hash_160(([]byte)(s.str));
+                out:= tiger.hash_160(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return; 
             case "TIGER-192":
-                out:= tiger.hash_192(([]byte)(s.str));
+                out:= tiger.hash_192(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "TIGER2-128":
-                out:= tiger2.hash_128(([]byte)(s.str));
+                out:= tiger2.hash_128(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "TIGER2-160":
-                out:= tiger2.hash_160(([]byte)(s.str));
+                out:= tiger2.hash_160(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return; 
             case "TIGER2-192":
-                out:= tiger2.hash_192(([]byte)(s.str));
+                out:= tiger2.hash_192(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // JH
             case "JH-224":
-                out:= jh.hash_224(([]byte)(s.str));
+                out:= jh.hash_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "JH-256":
-                out:= jh.hash_256(([]byte)(s.str));
+                out:= jh.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "JH-384":
-                out:= jh.hash_384(([]byte)(s.str));
+                out:= jh.hash_384(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "JH-512":
-                out:= jh.hash_512(([]byte)(s.str));
+                out:= jh.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // GROESTL
             case "GROESTL-224":
-                out:= groestl.hash_224(([]byte)(s.str));
+                out:= groestl.hash_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-256":
-                out:= groestl.hash_256(([]byte)(s.str));
+                out:= groestl.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-384":
-                out:= groestl.hash_384(([]byte)(s.str));
+                out:= groestl.hash_384(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-512":
-                out:= groestl.hash_512(([]byte)(s.str));
+                out:= groestl.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // Skein
             case "Skein-256":
-                out:= skein.hash_256(([]byte)(s.str));
+                out:= skein.hash_256(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "Skein-512":
-                out:= skein.hash_512(([]byte)(s.str));
+                out:= skein.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "Skein-1024":
-                out:= skein.hash_1024(([]byte)(s.str));
+                out:= skein.hash_1024(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // Unsupported
@@ -624,6 +624,7 @@ main :: proc() {
         TestHash{"ad4434ecb18f2c99b60cbe59ec3d2469582b65273f48de72db2fde16a4889a4d", "message digest"},
     };
     test(gostTestVectors[:], "GOST");
+    /*
     // =================== //
     // TIGER               //
     // TIGER-128           //
@@ -651,7 +652,7 @@ main :: proc() {
         TestHash{"1c14795529fd9f207a958f84c52f11e887fa0cab", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
         TestHash{"6d12a41e72e644f017b6f0e2f7b44c6285f06dd5", "The quick brown fox jumps over the lazy dog"},
     };
-    test(tiger160TestVectors[:], "TIGER-160");
+    test(tiger160TestVectors[:], "TIGER-160");*/
     // TIGER-192             //
     tiger192TestVectors := [?]TestHash {
         TestHash{"3293ac630c13f0245f92bbb1766e16167a4e58492dde73f3", ""},
