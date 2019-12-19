@@ -1,7 +1,7 @@
 package _tiger
 
 import "core:mem"
-using import ".."
+import "../util"
 
 // @ref(zh): https://github.com/cxmcc/tiger
 
@@ -330,7 +330,7 @@ tiger_compress :: inline proc "contextless"(ctx: ^TIGER, data: []byte) {
 	b := ctx.b;
 	c := ctx.c;
 
-	x := cast_slice([]u64, data);
+	x := util.cast_slice([]u64, data);
 
 	ctx.a, ctx.b, ctx.c = tiger_pass(ctx.a, ctx.b, ctx.c, x, 5);
 	tiger_keyschedule(x);

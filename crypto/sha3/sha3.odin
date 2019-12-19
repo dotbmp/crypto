@@ -1,6 +1,6 @@
 package sha3
 
-using import ".."
+import "../util"
 
 // @ref(bp): https://github.com/mjosaarinen/tiny_sha3
 
@@ -60,7 +60,7 @@ sha3_keccakf :: proc "contextless" (st: ^[25]u64) {
         }
 
         for i = 0; i < 5; i += 1 {
-            t = bc[(i + 4) % 5] ~ ROTL64(bc[(i + 1) % 5], 1);
+            t = bc[(i + 4) % 5] ~ util.ROTL64(bc[(i + 1) % 5], 1);
             for j = 0; j < 25; j += 5 {
                 st[j + i] ~= t;
             }
@@ -71,7 +71,7 @@ sha3_keccakf :: proc "contextless" (st: ^[25]u64) {
         for i = 0; i < 24; i += 1 {
             j = keccakf_piln[i];
             bc[0] = st[j];
-            st[j] = ROTL64(t, u64(keccakf_rotc[i]));
+            st[j] = util.ROTL64(t, u64(keccakf_rotc[i]));
             t = bc[0];
         }
 

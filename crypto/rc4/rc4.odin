@@ -1,6 +1,6 @@
 package rc4
 
-using import ".."
+import "../util"
 
 // @ref(zh): https://gist.github.com/rverton/a44fc8ca67ab9ec32089
 

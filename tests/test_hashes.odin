@@ -652,7 +652,7 @@ main :: proc() {
         TestHash{"1c14795529fd9f207a958f84c52f11e887fa0cab", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
         TestHash{"6d12a41e72e644f017b6f0e2f7b44c6285f06dd5", "The quick brown fox jumps over the lazy dog"},
     };
-    test(tiger160TestVectors[:], "TIGER-160");*/
+    test(tiger160TestVectors[:], "TIGER-160");
     // TIGER-192             //
     tiger192TestVectors := [?]TestHash {
         TestHash{"3293ac630c13f0245f92bbb1766e16167a4e58492dde73f3", ""},
@@ -665,10 +665,9 @@ main :: proc() {
         TestHash{"1c14795529fd9f207a958f84c52f11e887fa0cabdfd91bfd", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
         TestHash{"6d12a41e72e644f017b6f0e2f7b44c6285f06dd5d2c5b075", "The quick brown fox jumps over the lazy dog"},
     };
-    test(tiger192TestVectors[:], "TIGER-192");
+    test(tiger192TestVectors[:], "TIGER-192");*/
     // TIGER2-128             //
     tiger2128TestVectors := [?]TestHash {
-        TestHash{"4441be75f6018773c206c22745374b92", ""},
         TestHash{"4441be75f6018773c206c22745374b92", ""},
         TestHash{"976abff8062a2e9dcea3a1ace966ed9c", "The quick brown fox jumps over the lazy dog"},
         TestHash{"09c11330283a27efb51930aa7dc1ec62", "The quick brown fox jumps over the lazy cog"},

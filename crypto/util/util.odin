@@ -1,4 +1,4 @@
-package crypto
+package util
 
 import "core:mem"
 import "core:os"

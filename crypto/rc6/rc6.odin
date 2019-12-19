@@ -1,7 +1,7 @@
 package rc6
 
-using import ".."
 import "core:fmt"
+import "../util"
 
 // @ref(zh): https://github.com/dgryski/go-rc6
 
@@ -48,9 +48,9 @@ expand_key :: proc(key: []byte) -> [ROUNDKEYS]u32 {
     i, j: int;
 
     for k := 0; k < 3 * ROUNDKEYS; k += 1 {
-        rk[i] = ROTL32(rk[i] + A + B, 3);
+        rk[i] = util.ROTL32(rk[i] + A + B, 3);
         A = rk[i];
-        L[j] = ROTL32(L[j] + A + B, int(A + B));
+        L[j] = util.ROTL32(L[j] + A + B, int(A + B));
         B = L[j];
 
         i = (i + 1) % ROUNDKEYS;
@@ -73,10 +73,10 @@ encrypt :: proc(key, plaintext: []byte) -> []byte {
     D += expanded_key[1];
 
     for i := 1; i <= ROUNDS; i += 1 {
-        t := ROTL32(B * (2 * B + 1), 5);
-        u := ROTL32(D * (2 * D + 1), 5);
-        A = ROTL32((A ~ t), int(u)) + expanded_key[2 * i];
-        C = ROTL32((C ~ u), int(t)) + expanded_key[2 * i + 1];
+        t := util.ROTL32(B * (2 * B + 1), 5);
+        u := util.ROTL32(D * (2 * D + 1), 5);
+        A = util.ROTL32((A ~ t), int(u)) + expanded_key[2 * i];
+        C = util.ROTL32((C ~ u), int(t)) + expanded_key[2 * i + 1];
         A, B, C, D = B, C, D, A;
     }
     A += expanded_key[2 * ROUNDS + 2];
@@ -103,10 +103,10 @@ decrypt :: proc(key, ciphertext: []byte) -> []byte {
     A -= expanded_key[2 * ROUNDS + 2];
     for i := ROUNDS; i >= 1; i -= 1 {
         A, B, C, D = D, A, B, C;
-        u := ROTL32(D * (2 * D + 1), 5);
-        t := ROTL32(B * (2 * B + 1), 5);
-        C = ROTL32(C - expanded_key[2 * i + 1], -int(t)) ~ u;
-        A = ROTL32(A - expanded_key[2 * i], -int(u)) ~ t;
+        u := util.ROTL32(D * (2 * D + 1), 5);
+        t := util.ROTL32(B * (2 * B + 1), 5);
+        C = util.ROTL32(C - expanded_key[2 * i + 1], -int(t)) ~ u;
+        A = util.ROTL32(A - expanded_key[2 * i], -int(u)) ~ t;
     }
     D -= expanded_key[1];
     B -= expanded_key[0];

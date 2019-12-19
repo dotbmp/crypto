@@ -1,7 +1,7 @@
 package blowfish
 
-using import ".."
 import "core:fmt"
+import "../util"
 
 // @ref(zh): https://www.schneier.com/code/bfsh-koc.zip // For standard Blowfish
 // @ref(zh): https://github.com/tombonner/blowfish-api  // For various modes of operation (ECB, CBC etc.)
@@ -282,7 +282,7 @@ Ctx :: struct {
     OrigIVHigh: u32,
     IVLow: u32,
     IVHigh: u32,
-    mode: Mode,
+    mode: util.Mode,
 }
 
 BLOWFISH_CIPHER :: inline proc "contextless"(xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32, round: i32) -> (u32, u32) {
@@ -427,7 +427,7 @@ blowfish_decrypt :: proc(ctx: ^Ctx, xl, xr: ^u32) {
 }
 
 encrypt_ecb :: proc(ctx: ^Ctx, src, key: []byte) -> [8]byte {
-    ctx.mode, ctx.IVHigh, ctx.IVLow = Mode.ECB, 0, 0;
+    ctx.mode, ctx.IVHigh, ctx.IVLow = util.Mode.ECB, 0, 0;
     xl, xr := blowfish_split(src);
     blowfish_setkey(ctx, key);
     blowfish_encrypt(ctx, &xl, &xr);
@@ -446,7 +446,7 @@ encrypt_cbc :: proc(ctx: ^Ctx, src, key, IV: []byte) -> []byte {
     size := u32(len(src)) >> 2;
     cipher := make([]byte, size);
     IVHigh, IVLow := blowfish_split(IV);
-    ctx.mode, ctx.OrigIVHigh, ctx.OrigIVLow = Mode.CBC, IVHigh, IVLow;
+    ctx.mode, ctx.OrigIVHigh, ctx.OrigIVLow = util.Mode.CBC, IVHigh, IVLow;
     blowfish_setkey(ctx, key);
 
     fmt.println("IV byte: ", IV);
@@ -456,7 +456,7 @@ encrypt_cbc :: proc(ctx: ^Ctx, src, key, IV: []byte) -> []byte {
     fmt.println("");
     fmt.println("IV: ", ctx.OrigIVHigh,"::" , ctx.OrigIVLow);
 
-    src_stream := bytes_to_slice([]u32, src[:]);
+    src_stream := util.bytes_to_slice([]u32, src[:]);
 
     ctx.IVHigh, ctx.IVLow = ctx.OrigIVHigh, ctx.OrigIVLow;
 

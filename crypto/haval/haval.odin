@@ -1,7 +1,7 @@
 package haval
 
 import "core:mem"
-using import ".."
+import "../util"
 
 // @ref(bp): https://web.archive.org/web/20150111210116/http://labs.calyptix.com/haval.php
 // HAVAL stub
@@ -98,31 +98,31 @@ HAVAL_FPHI_5 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
 
 HAVAL_FF_1 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_1(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w;
+    x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w;
     return x7;
 }
 
 HAVAL_FF_2 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_2(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_3 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_3(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_4 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_4(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
 HAVAL_FF_5 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_5(x6, x5, x4, x3, x2, x1, x0, rounds);
-    x7 := ROTR32(tmp, 7) + ROTR32(x7, 11) + w + c;
+    x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
@@ -363,17 +363,17 @@ haval_update :: proc(ctx: ^HAVAL, data: []byte, str_len, rounds: u32) {
 
     when ODIN_ENDIAN == "little" {
         if rmd_len + str_len >= 128 {
-            copy(slice_to_bytes(ctx.block[:])[rmd_len:], data[:fill_len]);
+            copy(util.slice_to_bytes(ctx.block[:])[rmd_len:], data[:fill_len]);
             haval_block(ctx, rounds);
             for i = fill_len; i + 127 < str_len; i += 128 {
-                copy(slice_to_bytes(ctx.block[:]), data[i:128]);
+                copy(util.slice_to_bytes(ctx.block[:]), data[i:128]);
                 haval_block(ctx, rounds);
             }
             rmd_len = 0;
         } else {
             i = 0;
         }
-        copy(slice_to_bytes(ctx.block[:])[rmd_len:], data[i:]);   
+        copy(util.slice_to_bytes(ctx.block[:])[rmd_len:], data[i:]);   
     } else {
         if rmd_len + str_len >= 128 {
             copy(ctx.remainder[rmd_len:], data[:fill_len]);
@@ -400,19 +400,19 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
                    (ctx.fingerprint[6] & 0xff000000) | 
                    (ctx.fingerprint[5] & 0x00ff0000) | 
                    (ctx.fingerprint[4] & 0x0000ff00);
-            ctx.fingerprint[0] += ROTR32(temp, 8);
+            ctx.fingerprint[0] += util.ROTR32(temp, 8);
 
             temp = (ctx.fingerprint[7] & 0x0000ff00) | 
                    (ctx.fingerprint[6] & 0x000000ff) | 
                    (ctx.fingerprint[5] & 0xff000000) | 
                    (ctx.fingerprint[4] & 0x00ff0000);
-            ctx.fingerprint[1] += ROTR32(temp, 16);
+            ctx.fingerprint[1] += util.ROTR32(temp, 16);
 
             temp = (ctx.fingerprint[7] & 0x00ff0000) | 
                    (ctx.fingerprint[6] & 0x0000ff00) | 
                    (ctx.fingerprint[5] & 0x000000ff) | 
                    (ctx.fingerprint[4] & 0xff000000);
-            ctx.fingerprint[2] += ROTR32(temp, 24);
+            ctx.fingerprint[2] += util.ROTR32(temp, 24);
 
             temp = (ctx.fingerprint[7] & 0xff000000) | 
                    (ctx.fingerprint[6] & 0x00ff0000) | 
@@ -423,12 +423,12 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
             temp = (ctx.fingerprint[7] & u32(0x3f)) | 
                    (ctx.fingerprint[6] & u32(0x7f << 25)) |  
                    (ctx.fingerprint[5] & u32(0x3f << 19));
-            ctx.fingerprint[0] += ROTR32(temp, 19);
+            ctx.fingerprint[0] += util.ROTR32(temp, 19);
 
             temp = (ctx.fingerprint[7] & u32(0x3f <<  6)) | 
                    (ctx.fingerprint[6] & u32(0x3f)) |  
                    (ctx.fingerprint[5] & u32(0x7f << 25));
-            ctx.fingerprint[1] += ROTR32(temp, 25);
+            ctx.fingerprint[1] += util.ROTR32(temp, 25);
 
             temp = (ctx.fingerprint[7] & u32(0x7f << 12)) | 
                    (ctx.fingerprint[6] & u32(0x3f <<  6)) |  
@@ -447,7 +447,7 @@ haval_tailor :: proc(ctx: ^HAVAL, size: u32) {
         case 192:
             temp = (ctx.fingerprint[7] & u32(0x1f)) | 
                    (ctx.fingerprint[6] & u32(0x3f << 26));
-            ctx.fingerprint[0] += ROTR32(temp, 26);
+            ctx.fingerprint[0] += util.ROTR32(temp, 26);
 
             temp = (ctx.fingerprint[7] & u32(0x1f <<  5)) | 
                    (ctx.fingerprint[6] & u32(0x1f));
@@ -486,7 +486,7 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     tail[0] = u8(size & 0x3) << 6 | u8(rounds & 0x7) << 3 | (HAVAL_VERSION & 0x7);
     tail[1] = u8(size >> 2) & 0xff;
 
-    HAVAL_UINT2CH(ctx.count[:], slice_to_bytes(tail[2:]), 2);
+    HAVAL_UINT2CH(ctx.count[:], util.slice_to_bytes(tail[2:]), 2);
     rmd_len := (ctx.count[0] >> 3) & 0x7f;
     if rmd_len < 118 {
         pad_len = 118 - rmd_len;

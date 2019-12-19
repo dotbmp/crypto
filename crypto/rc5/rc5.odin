@@ -1,6 +1,6 @@
 package rc5
 
-using import ".."
+import "../util"
 
 // @ref(zh): https://github.com/dgryski/go-rc5/blob/master/rc5.go
 
@@ -45,9 +45,9 @@ expand_key :: proc(key: []byte) -> [ROUNDKEYS]u32 {
     i, j: int;
 
     for k := 0; k < 3 * ROUNDKEYS; k += 1 {
-        rk[i] = ROTL32(rk[i] + A + B, 3);
+        rk[i] = util.ROTL32(rk[i] + A + B, 3);
         A = rk[i];
-        L[j] = ROTL32(L[j] + A + B, int(A + B));
+        L[j] = util.ROTL32(L[j] + A + B, int(A + B));
         B = L[j];
 
         i = (i + 1) % ROUNDKEYS;
@@ -67,8 +67,8 @@ encrypt :: proc(key, plaintext: []byte) -> []byte {
     kidx := 2;
 
     for r := 0; r < ROUNDS; r += 1 {
-        A = ROTL32(A ~ B, int(B)) + expanded_key[kidx];
-        B = ROTL32(B ~ A, int(A)) + expanded_key[kidx + 1];
+        A = util.ROTL32(A ~ B, int(B)) + expanded_key[kidx];
+        B = util.ROTL32(B ~ A, int(A)) + expanded_key[kidx + 1];
         kidx += 2;
     }
 
@@ -88,8 +88,8 @@ decrypt :: proc(key, ciphertext: []byte) -> []byte {
     kidx := 2 * ROUNDS;
 
     for r := 0; r < ROUNDS; r += 1 {
-        B = ROTL32(B - expanded_key[kidx + 1], -int(A)) ~ A;
-        A = ROTL32(A - expanded_key[kidx], -int(B)) ~ B;
+        B = util.ROTL32(B - expanded_key[kidx + 1], -int(A)) ~ A;
+        A = util.ROTL32(A - expanded_key[kidx], -int(B)) ~ B;
         kidx -= 2;
     }
 

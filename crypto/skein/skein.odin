@@ -3,7 +3,7 @@ package skein
 // @ref(zh): http://www.skein-hash.info/sites/default/files/skein_NIST_CD_121508.zip
 
 import "core:mem"
-using import ".."
+import "../util"
 
 SKEIN_MODIFIER_WORDS :: 2;
 
@@ -108,150 +108,150 @@ skein_process_block :: inline proc "contextless"(ctx: ^$T, blkPtr: []u8, blkCnt,
 
         when T == SKEIN_256 {
             for r := 1; r <= SKEIN_256_ROUNDS_TOTAL / 8; r += 1 {
-                X[0] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[ 0]); X[1] ~= X[0];
-                X[2] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[ 1]); X[3] ~= X[2];
+                X[0] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[ 0]); X[1] ~= X[0];
+                X[2] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[ 1]); X[3] ~= X[2];
 
-                X[0] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[ 2]); X[3] ~= X[0];
-                X[2] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[ 3]); X[1] ~= X[2];
+                X[0] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[ 2]); X[3] ~= X[0];
+                X[2] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[ 3]); X[1] ~= X[2];
 
-                X[0] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[ 4]); X[1] ~= X[0];
-                X[2] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[ 5]); X[3] ~= X[2];
+                X[0] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[ 4]); X[1] ~= X[0];
+                X[2] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[ 5]); X[3] ~= X[2];
 
-                X[0] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[ 6]); X[3] ~= X[0];
-                X[2] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[ 7]); X[1] ~= X[2];
+                X[0] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[ 6]); X[3] ~= X[0];
+                X[2] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[ 7]); X[1] ~= X[2];
                 SKEIN_INJECT_KEY(2 * r - 1, WCNT, X[:], ks[:], ts[:]);
 
-                X[0] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[ 8]); X[1] ~= X[0];
-                X[2] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[ 9]); X[3] ~= X[2];
+                X[0] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[ 8]); X[1] ~= X[0];
+                X[2] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[ 9]); X[3] ~= X[2];
 
-                X[0] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[10]); X[3] ~= X[0];
-                X[2] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[11]); X[1] ~= X[2];
+                X[0] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[10]); X[3] ~= X[0];
+                X[2] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[11]); X[1] ~= X[2];
 
-                X[0] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[12]); X[1] ~= X[0];
-                X[2] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[13]); X[3] ~= X[2];
+                X[0] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[12]); X[1] ~= X[0];
+                X[2] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[13]); X[3] ~= X[2];
 
-                X[0] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_256[14]); X[3] ~= X[0];
-                X[2] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_256[15]); X[1] ~= X[2];
+                X[0] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_256[14]); X[3] ~= X[0];
+                X[2] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_256[15]); X[1] ~= X[2];
                 SKEIN_INJECT_KEY(2 * r, WCNT, X[:], ks[:], ts[:]);
             }   
         } else when T == SKEIN_512 {
             for r := 1; r <= SKEIN_512_ROUNDS_TOTAL / 8; r += 1 {
-                X[0] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[ 0]); X[1] ~= X[0];
-                X[2] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[ 1]); X[3] ~= X[2];
-                X[4] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[ 2]); X[5] ~= X[4];
-                X[6] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[ 3]); X[7] ~= X[6];
+                X[0] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[ 0]); X[1] ~= X[0];
+                X[2] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[ 1]); X[3] ~= X[2];
+                X[4] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[ 2]); X[5] ~= X[4];
+                X[6] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[ 3]); X[7] ~= X[6];
 
-                X[2] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[ 4]); X[1] ~= X[2];
-                X[4] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[ 5]); X[7] ~= X[4];
-                X[6] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[ 6]); X[5] ~= X[6];
-                X[0] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[ 7]); X[3] ~= X[0];
+                X[2] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[ 4]); X[1] ~= X[2];
+                X[4] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[ 5]); X[7] ~= X[4];
+                X[6] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[ 6]); X[5] ~= X[6];
+                X[0] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[ 7]); X[3] ~= X[0];
 
-                X[4] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[ 8]); X[1] ~= X[4];
-                X[6] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[ 9]); X[3] ~= X[6];
-                X[0] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[10]); X[5] ~= X[0];
-                X[2] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[11]); X[7] ~= X[2];
+                X[4] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[ 8]); X[1] ~= X[4];
+                X[6] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[ 9]); X[3] ~= X[6];
+                X[0] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[10]); X[5] ~= X[0];
+                X[2] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[11]); X[7] ~= X[2];
 
-                X[6] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[12]); X[1] ~= X[6];
-                X[0] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[13]); X[7] ~= X[0];
-                X[2] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[14]); X[5] ~= X[2];
-                X[4] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[15]); X[3] ~= X[4];
+                X[6] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[12]); X[1] ~= X[6];
+                X[0] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[13]); X[7] ~= X[0];
+                X[2] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[14]); X[5] ~= X[2];
+                X[4] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[15]); X[3] ~= X[4];
                 SKEIN_INJECT_KEY(2 * r - 1, WCNT, X[:], ks[:], ts[:]);
 
-                X[0] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[16]); X[1] ~= X[0];
-                X[2] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[17]); X[3] ~= X[2];
-                X[4] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[18]); X[5] ~= X[4];
-                X[6] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[19]); X[7] ~= X[6];
+                X[0] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[16]); X[1] ~= X[0];
+                X[2] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[17]); X[3] ~= X[2];
+                X[4] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[18]); X[5] ~= X[4];
+                X[6] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[19]); X[7] ~= X[6];
 
-                X[2] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[20]); X[1] ~= X[2];
-                X[4] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[21]); X[7] ~= X[4];
-                X[6] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[22]); X[5] ~= X[6];
-                X[0] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[23]); X[3] ~= X[0];
+                X[2] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[20]); X[1] ~= X[2];
+                X[4] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[21]); X[7] ~= X[4];
+                X[6] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[22]); X[5] ~= X[6];
+                X[0] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[23]); X[3] ~= X[0];
 
-                X[4] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[24]); X[1] ~= X[4];
-                X[6] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[25]); X[3] ~= X[6];
-                X[0] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[26]); X[5] ~= X[0];
-                X[2] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[27]); X[7] ~= X[2];
+                X[4] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[24]); X[1] ~= X[4];
+                X[6] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[25]); X[3] ~= X[6];
+                X[0] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[26]); X[5] ~= X[0];
+                X[2] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[27]); X[7] ~= X[2];
 
-                X[6] += X[1]; X[1] = ROTL64(X[1], SKEIN_R_512[28]); X[1] ~= X[6];
-                X[0] += X[7]; X[7] = ROTL64(X[7], SKEIN_R_512[29]); X[7] ~= X[0];
-                X[2] += X[5]; X[5] = ROTL64(X[5], SKEIN_R_512[30]); X[5] ~= X[2];
-                X[4] += X[3]; X[3] = ROTL64(X[3], SKEIN_R_512[31]); X[3] ~= X[4];
+                X[6] += X[1]; X[1] = util.ROTL64(X[1], SKEIN_R_512[28]); X[1] ~= X[6];
+                X[0] += X[7]; X[7] = util.ROTL64(X[7], SKEIN_R_512[29]); X[7] ~= X[0];
+                X[2] += X[5]; X[5] = util.ROTL64(X[5], SKEIN_R_512[30]); X[5] ~= X[2];
+                X[4] += X[3]; X[3] = util.ROTL64(X[3], SKEIN_R_512[31]); X[3] ~= X[4];
                 SKEIN_INJECT_KEY(2 * r, WCNT, X[:], ks[:], ts[:]);
             }
         } else when T == SKEIN_1024 {
             for r := 1; r <= SKEIN_1024_ROUNDS_TOTAL / 8; r += 1 {
-                X[ 0] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[ 0]); X[ 1] ~= X[ 0];
-                X[ 2] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[ 1]); X[ 3] ~= X[ 2];
-                X[ 4] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[ 2]); X[ 5] ~= X[ 4];
-                X[ 6] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[ 3]); X[ 7] ~= X[ 6];
-                X[ 8] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[ 4]); X[ 9] ~= X[ 8];
-                X[10] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[ 5]); X[11] ~= X[10];
-                X[12] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[ 6]); X[13] ~= X[12];
-                X[14] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[ 7]); X[15] ~= X[14];
+                X[ 0] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[ 0]); X[ 1] ~= X[ 0];
+                X[ 2] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[ 1]); X[ 3] ~= X[ 2];
+                X[ 4] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[ 2]); X[ 5] ~= X[ 4];
+                X[ 6] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[ 3]); X[ 7] ~= X[ 6];
+                X[ 8] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[ 4]); X[ 9] ~= X[ 8];
+                X[10] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[ 5]); X[11] ~= X[10];
+                X[12] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[ 6]); X[13] ~= X[12];
+                X[14] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[ 7]); X[15] ~= X[14];
 
-                X[ 0] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[ 8]); X[ 9] ~= X[ 0];
-                X[ 2] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[ 9]); X[13] ~= X[ 2];
-                X[ 6] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[10]); X[11] ~= X[ 6];
-                X[ 4] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[11]); X[15] ~= X[ 4];
-                X[10] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[12]); X[ 7] ~= X[10];
-                X[12] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[13]); X[ 3] ~= X[12];
-                X[14] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[14]); X[ 5] ~= X[14];
-                X[ 8] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[15]); X[ 1] ~= X[ 8];
+                X[ 0] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[ 8]); X[ 9] ~= X[ 0];
+                X[ 2] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[ 9]); X[13] ~= X[ 2];
+                X[ 6] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[10]); X[11] ~= X[ 6];
+                X[ 4] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[11]); X[15] ~= X[ 4];
+                X[10] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[12]); X[ 7] ~= X[10];
+                X[12] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[13]); X[ 3] ~= X[12];
+                X[14] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[14]); X[ 5] ~= X[14];
+                X[ 8] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[15]); X[ 1] ~= X[ 8];
 
-                X[ 0] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[16]); X[ 7] ~= X[ 0];
-                X[ 2] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[17]); X[ 5] ~= X[ 2];
-                X[ 4] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[18]); X[ 3] ~= X[ 4];
-                X[ 6] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[19]); X[ 1] ~= X[ 6];
-                X[12] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[20]); X[15] ~= X[12];
-                X[14] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[21]); X[13] ~= X[14];
-                X[ 8] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[22]); X[11] ~= X[ 8];
-                X[10] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[23]); X[ 9] ~= X[10];
+                X[ 0] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[16]); X[ 7] ~= X[ 0];
+                X[ 2] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[17]); X[ 5] ~= X[ 2];
+                X[ 4] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[18]); X[ 3] ~= X[ 4];
+                X[ 6] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[19]); X[ 1] ~= X[ 6];
+                X[12] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[20]); X[15] ~= X[12];
+                X[14] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[21]); X[13] ~= X[14];
+                X[ 8] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[22]); X[11] ~= X[ 8];
+                X[10] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[23]); X[ 9] ~= X[10];
                                                                                 
-                X[ 0] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[24]); X[15] ~= X[ 0];
-                X[ 2] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[25]); X[11] ~= X[ 2];
-                X[ 6] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[26]); X[13] ~= X[ 6];
-                X[ 4] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[27]); X[ 9] ~= X[ 4];
-                X[14] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[28]); X[ 1] ~= X[14];
-                X[ 8] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[29]); X[ 5] ~= X[ 8];
-                X[10] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[30]); X[ 3] ~= X[10];
-                X[12] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[31]); X[ 7] ~= X[12];
+                X[ 0] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[24]); X[15] ~= X[ 0];
+                X[ 2] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[25]); X[11] ~= X[ 2];
+                X[ 6] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[26]); X[13] ~= X[ 6];
+                X[ 4] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[27]); X[ 9] ~= X[ 4];
+                X[14] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[28]); X[ 1] ~= X[14];
+                X[ 8] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[29]); X[ 5] ~= X[ 8];
+                X[10] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[30]); X[ 3] ~= X[10];
+                X[12] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[31]); X[ 7] ~= X[12];
                 SKEIN_INJECT_KEY(2 * r - 1, WCNT, X[:], ks[:], ts[:]);
 
-                X[ 0] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[32]); X[ 1] ~= X[ 0];
-                X[ 2] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[33]); X[ 3] ~= X[ 2];
-                X[ 4] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[34]); X[ 5] ~= X[ 4];
-                X[ 6] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[35]); X[ 7] ~= X[ 6];
-                X[ 8] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[36]); X[ 9] ~= X[ 8];
-                X[10] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[37]); X[11] ~= X[10];
-                X[12] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[38]); X[13] ~= X[12];
-                X[14] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[39]); X[15] ~= X[14];
+                X[ 0] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[32]); X[ 1] ~= X[ 0];
+                X[ 2] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[33]); X[ 3] ~= X[ 2];
+                X[ 4] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[34]); X[ 5] ~= X[ 4];
+                X[ 6] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[35]); X[ 7] ~= X[ 6];
+                X[ 8] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[36]); X[ 9] ~= X[ 8];
+                X[10] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[37]); X[11] ~= X[10];
+                X[12] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[38]); X[13] ~= X[12];
+                X[14] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[39]); X[15] ~= X[14];
 
-                X[ 0] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[40]); X[ 9] ~= X[ 0];
-                X[ 2] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[41]); X[13] ~= X[ 2];
-                X[ 6] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[42]); X[11] ~= X[ 6];
-                X[ 4] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[43]); X[15] ~= X[ 4];
-                X[10] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[44]); X[ 7] ~= X[10];
-                X[12] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[45]); X[ 3] ~= X[12];
-                X[14] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[46]); X[ 5] ~= X[14];
-                X[ 8] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[47]); X[ 1] ~= X[ 8];
+                X[ 0] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[40]); X[ 9] ~= X[ 0];
+                X[ 2] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[41]); X[13] ~= X[ 2];
+                X[ 6] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[42]); X[11] ~= X[ 6];
+                X[ 4] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[43]); X[15] ~= X[ 4];
+                X[10] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[44]); X[ 7] ~= X[10];
+                X[12] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[45]); X[ 3] ~= X[12];
+                X[14] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[46]); X[ 5] ~= X[14];
+                X[ 8] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[47]); X[ 1] ~= X[ 8];
 
-                X[ 0] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[48]); X[ 7] ~= X[ 0];
-                X[ 2] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[49]); X[ 5] ~= X[ 2];
-                X[ 4] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[50]); X[ 3] ~= X[ 4];
-                X[ 6] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[51]); X[ 1] ~= X[ 6];
-                X[12] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[52]); X[15] ~= X[12];
-                X[14] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[53]); X[13] ~= X[14];
-                X[ 8] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[54]); X[11] ~= X[ 8];
-                X[10] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[55]); X[ 9] ~= X[10];
+                X[ 0] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[48]); X[ 7] ~= X[ 0];
+                X[ 2] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[49]); X[ 5] ~= X[ 2];
+                X[ 4] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[50]); X[ 3] ~= X[ 4];
+                X[ 6] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[51]); X[ 1] ~= X[ 6];
+                X[12] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[52]); X[15] ~= X[12];
+                X[14] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[53]); X[13] ~= X[14];
+                X[ 8] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[54]); X[11] ~= X[ 8];
+                X[10] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[55]); X[ 9] ~= X[10];
                                                                                 
-                X[ 0] += X[15]; X[15] = ROTL64(X[15], SKEIN_R_1024[56]); X[15] ~= X[ 0];
-                X[ 2] += X[11]; X[11] = ROTL64(X[11], SKEIN_R_1024[57]); X[11] ~= X[ 2];
-                X[ 6] += X[13]; X[13] = ROTL64(X[13], SKEIN_R_1024[58]); X[13] ~= X[ 6];
-                X[ 4] += X[ 9]; X[ 9] = ROTL64(X[ 9], SKEIN_R_1024[59]); X[ 9] ~= X[ 4];
-                X[14] += X[ 1]; X[ 1] = ROTL64(X[ 1], SKEIN_R_1024[60]); X[ 1] ~= X[14];
-                X[ 8] += X[ 5]; X[ 5] = ROTL64(X[ 5], SKEIN_R_1024[61]); X[ 5] ~= X[ 8];
-                X[10] += X[ 3]; X[ 3] = ROTL64(X[ 3], SKEIN_R_1024[62]); X[ 3] ~= X[10];
-                X[12] += X[ 7]; X[ 7] = ROTL64(X[ 7], SKEIN_R_1024[63]); X[ 7] ~= X[12];
+                X[ 0] += X[15]; X[15] = util.ROTL64(X[15], SKEIN_R_1024[56]); X[15] ~= X[ 0];
+                X[ 2] += X[11]; X[11] = util.ROTL64(X[11], SKEIN_R_1024[57]); X[11] ~= X[ 2];
+                X[ 6] += X[13]; X[13] = util.ROTL64(X[13], SKEIN_R_1024[58]); X[13] ~= X[ 6];
+                X[ 4] += X[ 9]; X[ 9] = util.ROTL64(X[ 9], SKEIN_R_1024[59]); X[ 9] ~= X[ 4];
+                X[14] += X[ 1]; X[ 1] = util.ROTL64(X[ 1], SKEIN_R_1024[60]); X[ 1] ~= X[14];
+                X[ 8] += X[ 5]; X[ 5] = util.ROTL64(X[ 5], SKEIN_R_1024[61]); X[ 5] ~= X[ 8];
+                X[10] += X[ 3]; X[ 3] = util.ROTL64(X[ 3], SKEIN_R_1024[62]); X[ 3] ~= X[10];
+                X[12] += X[ 7]; X[ 7] = util.ROTL64(X[ 7], SKEIN_R_1024[63]); X[ 7] ~= X[12];
                 SKEIN_INJECT_KEY(2 * r, WCNT, X[:], ks[:], ts[:]);
             }
         }

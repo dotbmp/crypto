@@ -4,8 +4,7 @@ import "core:math/rand"
 import "core:strings"
 import "core:strconv"
 import "core:encoding/base64"
-
-using import ".."
+import "../util"
 
 // @ref(zh): https://github.com/kruton/jbcrypt
 

@@ -1,6 +1,6 @@
 package camellia
 
-using import ".."
+import "../util"
 
 // @reF(zh): https://github.com/aead/camellia
 
@@ -248,33 +248,33 @@ key_schedule_128 :: inline proc "contextless"(key: []byte) -> Camellia128 {
 	F(&r2, &r3, &r0, &r1, SIGMA[6], SIGMA[7]);
 
 	k[4], k[5], k[6], k[7] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 15);
+	util.ROTL128(&r0, &r1, &r2, &r3, 15);
 	k[12], k[13], k[14], k[15] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 15);
+	util.ROTL128(&r0, &r1, &r2, &r3, 15);
 	k[16], k[17], k[18], k[19] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 15);
+	util.ROTL128(&r0, &r1, &r2, &r3, 15);
 	k[24] = r0;
 	k[25] = r1;
-	ROTL128(&r0, &r1, &r2, &r3, 15);
+	util.ROTL128(&r0, &r1, &r2, &r3, 15);
 	k[28], k[29], k[30], k[31] = r0, r1, r2, r3;
-	ROTL128(&r1, &r2, &r3, &r0, 2);
+	util.ROTL128(&r1, &r2, &r3, &r0, 2);
 	k[40], k[41], k[42], k[43] = r1, r2, r3, r0;
-	ROTL128(&r1, &r2, &r3, &r0, 17);
+	util.ROTL128(&r1, &r2, &r3, &r0, 17);
 	k[48], k[49], k[50], k[51] = r1, r2, r3, r0;
 
 	r0, r1, r2, r3 = k[0], k[1], k[2], k[3];
-	ROTL128(&r0, &r1, &r2, &r3, 15);
+	util.ROTL128(&r0, &r1, &r2, &r3, 15);
 	k[8], k[9], k[10], k[11] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 30);
+	util.ROTL128(&r0, &r1, &r2, &r3, 30);
 	k[20], k[21], k[22], k[23] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 15);
+	util.ROTL128(&r0, &r1, &r2, &r3, 15);
 	k[26] = r2;
 	k[27] = r3;
-	ROTL128(&r0, &r1, &r2, &r3, 17);
+	util.ROTL128(&r0, &r1, &r2, &r3, 17);
 	k[32], k[33], k[34], k[35] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 17);
+	util.ROTL128(&r0, &r1, &r2, &r3, 17);
 	k[36], k[37], k[38], k[39] = r0, r1, r2, r3;
-	ROTL128(&r0, &r1, &r2, &r3, 17);
+	util.ROTL128(&r0, &r1, &r2, &r3, 17);
 	k[44], k[45], k[46], k[47] = r0, r1, r2, r3;
 
     ctx.subkeys = k;
@@ -467,40 +467,40 @@ key_schedule_256 :: inline proc "contextless"(key: []byte) -> Camellia256 {
 	F(&s2, &s3, &s0, &s1, SIGMA[10], SIGMA[11]);
 
 	k[4], k[5], k[6], k[7] = s0, s1, s2, s3;
-	ROTL128(&s0, &s1, &s2, &s3, 30);
+	util.ROTL128(&s0, &s1, &s2, &s3, 30);
 	k[20], k[21], k[22], k[23] = s0, s1, s2, s3;
-	ROTL128(&s0, &s1, &s2, &s3, 30); 
+	util.ROTL128(&s0, &s1, &s2, &s3, 30); 
 	k[40], k[41], k[42], k[43] = s0, s1, s2, s3;
-	ROTL128(&s1, &s2, &s3, &s0, 19); 
+	util.ROTL128(&s1, &s2, &s3, &s0, 19); 
 	k[64], k[65], k[66], k[67] = s1, s2, s3, s0;
 
 	s0, s1, s2, s3 = k[8], k[9], k[10], k[11];
-	ROTL128(&s0, &s1, &s2, &s3, 15); 
+	util.ROTL128(&s0, &s1, &s2, &s3, 15); 
 	k[8], k[9], k[10], k[11] = s0, s1, s2, s3;
-	ROTL128(&s0, &s1, &s2, &s3, 15); 
+	util.ROTL128(&s0, &s1, &s2, &s3, 15); 
 	k[16], k[17], k[18], k[19] = s0, s1, s2, s3;
-	ROTL128(&s0, &s1, &s2, &s3, 30); 
+	util.ROTL128(&s0, &s1, &s2, &s3, 30); 
 	k[36], k[37], k[38], k[39] = s0, s1, s2, s3;
-	ROTL128(&s1, &s2, &s3, &s0, 2); 
+	util.ROTL128(&s1, &s2, &s3, &s0, 2); 
 	k[52], k[53], k[54], k[55] = s1, s2, s3, s0;
 
 	s0, s1, s2, s3 = k[12], k[13], k[14], k[15];
-	ROTL128(&s0, &s1, &s2, &s3, 15);
+	util.ROTL128(&s0, &s1, &s2, &s3, 15);
 	k[12], k[13], k[14], k[15] = s0, s1, s2, s3;
-	ROTL128(&s0, &s1, &s2, &s3, 30); 
+	util.ROTL128(&s0, &s1, &s2, &s3, 30); 
 	k[28], k[29], k[30], k[31] = s0, s1, s2, s3;
 	k[48], k[49], k[50], k[51] = s1, s2, s3, s0;
-	ROTL128(&s1, &s2, &s3, &s0, 17); 
+	util.ROTL128(&s1, &s2, &s3, &s0, 17); 
 	k[56], k[57], k[58], k[59] = s1, s2, s3, s0;
 
 	s0, s1, s2, s3 = k[0], k[1], k[2], k[3];
-	ROTL128(&s1, &s2, &s3, &s0, 13); 
+	util.ROTL128(&s1, &s2, &s3, &s0, 13); 
 	k[24], k[25], k[26], k[27] = s1, s2, s3, s0;
-	ROTL128(&s1, &s2, &s3, &s0, 15); 
+	util.ROTL128(&s1, &s2, &s3, &s0, 15); 
 	k[32], k[33], k[34], k[35] = s1, s2, s3, s0;
-	ROTL128(&s1, &s2, &s3, &s0, 17);
+	util.ROTL128(&s1, &s2, &s3, &s0, 17);
 	k[44], k[45], k[46], k[47] = s1, s2, s3, s0;
-	ROTL128(&s2, &s3, &s0, &s1, 2);
+	util.ROTL128(&s2, &s3, &s0, &s1, 2);
 	k[60], k[61], k[62], k[63] = s2, s3, s0, s1;
 
 	ctx.subkeys = k;

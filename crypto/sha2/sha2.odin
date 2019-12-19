@@ -1,7 +1,7 @@
 package sha2
 
 import "core:mem"
-using import ".."
+import "../util"
 
 SHA224_BLOCK_SIZE :: 28;
 SHA256_BLOCK_SIZE :: 32;
@@ -41,35 +41,35 @@ SHA512_MAJ :: inline proc "contextless"(x, y, z: u64) -> u64 {
 }
 
 SHA256_EP0 :: inline proc "contextless"(x: u32) -> u32 {
-    return (ROTR32(x, 6) ~ ROTR32(x, 11) ~ ROTR32(x, 25));
+    return (util.ROTR32(x, 6) ~ util.ROTR32(x, 11) ~ util.ROTR32(x, 25));
 }
 
 SHA256_EP1 :: inline proc "contextless"(x: u32) -> u32 {
-    return (ROTR32(x, 2) ~ ROTR32(x, 13) ~ ROTR32(x, 22));
+    return (util.ROTR32(x, 2) ~ util.ROTR32(x, 13) ~ util.ROTR32(x, 22));
 }
 
 SHA256_SIG0 :: inline proc "contextless"(x: u32) -> u32 {
-    return (ROTR32(x, 7) ~ ROTR32(x, 18) ~ ((x) >> 3));
+    return (util.ROTR32(x, 7) ~ util.ROTR32(x, 18) ~ ((x) >> 3));
 }
 
 SHA256_SIG1 :: inline proc "contextless"(x: u32) -> u32 {
-    return (ROTR32(x, 17) ~ ROTR32(x, 19) ~ ((x) >> 10));
+    return (util.ROTR32(x, 17) ~ util.ROTR32(x, 19) ~ ((x) >> 10));
 }
 
 SHA512_EP0 :: inline proc "contextless"(x: u64) -> u64 {
-    return (ROTR64(x, 28) ~ ROTR64(x, 34) ~ ROTR64(x, 39));
+    return (util.ROTR64(x, 28) ~ util.ROTR64(x, 34) ~ util.ROTR64(x, 39));
 }
 
 SHA512_EP1 :: inline proc "contextless"(x: u64) -> u64 {
-    return (ROTR64(x, 14) ~ ROTR64(x, 18) ~ ROTR64(x, 41));
+    return (util.ROTR64(x, 14) ~ util.ROTR64(x, 18) ~ util.ROTR64(x, 41));
 }
 
 SHA512_SIG0 :: inline proc "contextless"(x: u64) -> u64 {
-    return (ROTR64(x, 1) ~ ROTR64(x, 8) ~ ((x) >> 7));
+    return (util.ROTR64(x, 1) ~ util.ROTR64(x, 8) ~ ((x) >> 7));
 }
 
 SHA512_SIG1 :: inline proc "contextless"(x: u64) -> u64 {
-    return (ROTR64(x, 19) ~ ROTR64(x, 61) ~ ((x) >> 6));
+    return (util.ROTR64(x, 19) ~ util.ROTR64(x, 61) ~ ((x) >> 6));
 }
 
 SHA256_K := [64]u32 {

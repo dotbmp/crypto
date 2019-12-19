@@ -1,6 +1,6 @@
 package rc2
 
-using import ".."
+import "../util"
 
 // @ref(zh): https://github.com/dgryski/go-rc2
 
@@ -66,19 +66,19 @@ encrypt :: proc(key, plaintext: []byte) -> [8]byte {
 	j: int;
 	for j <= 16 {
 		r0 = r0 + expanded_key[j] + (r3 & r2) + ((~r3) & r1);
-		r0 = ROTL16(r0, 1);
+		r0 = util.ROTL16(r0, 1);
 		j += 1;
 
 		r1 = r1 + expanded_key[j] + (r0 & r3) + ((~r0) & r2);
-		r1 = ROTL16(r1, 2);
+		r1 = util.ROTL16(r1, 2);
 		j += 1;
 
 		r2 = r2 + expanded_key[j] + (r1 & r0) + ((~r1) & r3);
-		r2 = ROTL16(r2, 3);
+		r2 = util.ROTL16(r2, 3);
 		j += 1;
 
 		r3 = r3 + expanded_key[j] + (r2 & r1) + ((~r2) & r0);
-		r3 = ROTL16(r3, 5);
+		r3 = util.ROTL16(r3, 5);
 		j += 1;
 	}
 
@@ -89,19 +89,19 @@ encrypt :: proc(key, plaintext: []byte) -> [8]byte {
 
 	for j <= 40 {
 		r0 = r0 + expanded_key[j] + (r3 & r2) + ((~r3) & r1);
-		r0 = ROTL16(r0, 1);
+		r0 = util.ROTL16(r0, 1);
 		j += 1;
 
 		r1 = r1 + expanded_key[j] + (r0 & r3) + ((~r0) & r2);
-		r1 = ROTL16(r1, 2);
+		r1 = util.ROTL16(r1, 2);
 		j += 1;
 
 		r2 = r2 + expanded_key[j] + (r1 & r0) + ((~r1) & r3);
-		r2 = ROTL16(r2, 3);
+		r2 = util.ROTL16(r2, 3);
 		j += 1;
 
 		r3 = r3 + expanded_key[j] + (r2 & r1) + ((~r2) & r0);
-		r3 = ROTL16(r3, 5);
+		r3 = util.ROTL16(r3, 5);
 		j += 1;
 	}
 
@@ -112,19 +112,19 @@ encrypt :: proc(key, plaintext: []byte) -> [8]byte {
 
 	for j <= 60 {
 		r0 = r0 + expanded_key[j] + (r3 & r2) + ((~r3) & r1);
-		r0 = ROTL16(r0, 1);
+		r0 = util.ROTL16(r0, 1);
 		j += 1;
 
 		r1 = r1 + expanded_key[j] + (r0 & r3) + ((~r0) & r2);
-		r1 = ROTL16(r1, 2);
+		r1 = util.ROTL16(r1, 2);
 		j += 1;
 
 		r2 = r2 + expanded_key[j] + (r1 & r0) + ((~r1) & r3);
-		r2 = ROTL16(r2, 3);
+		r2 = util.ROTL16(r2, 3);
 		j += 1;
 
 		r3 = r3 + expanded_key[j] + (r2 & r1) + ((~r2) & r0);
-		r3 = ROTL16(r3, 5);
+		r3 = util.ROTL16(r3, 5);
 		j += 1;
 	}
 
@@ -149,19 +149,19 @@ decrypt :: proc(key, ciphertext: []byte) -> [8]byte {
 	j := 63;
 
 	for j >= 44 {
-		r3 = ROTL16(r3, 16 - 5);
+		r3 = util.ROTL16(r3, 16 - 5);
 		r3 = r3 - expanded_key[j] - (r2 & r1) - ((~r2) & r0);
 		j -= 1;
 
-		r2 = ROTL16(r2, 16 - 3);
+		r2 = util.ROTL16(r2, 16 - 3);
 		r2 = r2 - expanded_key[j] - (r1 & r0) - ((~r1) & r3);
 		j -= 1;
 
-		r1 = ROTL16(r1, 16 - 2);
+		r1 = util.ROTL16(r1, 16 - 2);
 		r1 = r1 - expanded_key[j] - (r0 & r3) - ((~r0) & r2);
 		j -= 1;
 
-		r0 = ROTL16(r0, 16 - 1);
+		r0 = util.ROTL16(r0, 16 - 1);
 		r0 = r0 - expanded_key[j] - (r3 & r2) - ((~r3) & r1);
 		j -= 1;
 	}
@@ -172,19 +172,19 @@ decrypt :: proc(key, ciphertext: []byte) -> [8]byte {
 	r0 = r0 - expanded_key[r3 & 63];
 
 	for j >= 20 {
-		r3 = ROTL16(r3, 16 - 5);
+		r3 = util.ROTL16(r3, 16 - 5);
 		r3 = r3 - expanded_key[j] - (r2 & r1) - ((~r2) & r0);
 		j -= 1;
 
-		r2 = ROTL16(r2, 16 - 3);
+		r2 = util.ROTL16(r2, 16 - 3);
 		r2 = r2 - expanded_key[j] - (r1 & r0) - ((~r1) & r3);
 		j -= 1;
 
-		r1 = ROTL16(r1, 16 - 2);
+		r1 = util.ROTL16(r1, 16 - 2);
 		r1 = r1 - expanded_key[j] - (r0 & r3) - ((~r0) & r2);
 		j -= 1;
 
-		r0 = ROTL16(r0, 16 - 1);
+		r0 = util.ROTL16(r0, 16 - 1);
 		r0 = r0 - expanded_key[j] - (r3 & r2) - ((~r3) & r1);
 		j -= 1;
 	}
@@ -195,19 +195,19 @@ decrypt :: proc(key, ciphertext: []byte) -> [8]byte {
 	r0 = r0 - expanded_key[r3 & 63];
 	
 	for j >= 0 {
-		r3 = ROTL16(r3, 16 - 5);
+		r3 = util.ROTL16(r3, 16 - 5);
 		r3 = r3 - expanded_key[j] - (r2 & r1) - ((~r2) & r0);
 		j -= 1;
 
-		r2 = ROTL16(r2, 16 - 3);
+		r2 = util.ROTL16(r2, 16 - 3);
 		r2 = r2 - expanded_key[j] - (r1 & r0) - ((~r1) & r3);
 		j -= 1;
 
-		r1 = ROTL16(r1, 16 - 2);
+		r1 = util.ROTL16(r1, 16 - 2);
 		r1 = r1 - expanded_key[j] - (r0 & r3) - ((~r0) & r2);
 		j -= 1;
 
-		r0 = ROTL16(r0, 16 - 1);
+		r0 = util.ROTL16(r0, 16 - 1);
 		r0 = r0 - expanded_key[j] - (r3 & r2) - ((~r3) & r1);
 		j -= 1;
 	}

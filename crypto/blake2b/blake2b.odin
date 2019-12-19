@@ -1,17 +1,17 @@
 package blake2b
 
-using import "../_blake2"
+import b "../_blake2"
 
-hash :: proc "contextless" (data: []byte) -> [BLAKE2B_SIZE]byte #no_bounds_check {;
+hash :: proc "contextless" (data: []byte) -> [b.BLAKE2B_SIZE]byte #no_bounds_check {;
 
-	hash : [BLAKE2B_SIZE]byte = ---;
-    ctx : BLAKE2B;
-	cfg : BLAKE2_CONFIG;
-	cfg.size = BLAKE2B_SIZE;
-	blake2_initialize(&ctx, &cfg, false);
-    blake2_reset(&ctx, false);
-	blake2_write(&ctx, data, false);
-	hash = blake2b_final(&ctx);
+	hash : [b.BLAKE2B_SIZE]byte = ---;
+    ctx : b.BLAKE2B;
+	cfg : b.BLAKE2_CONFIG;
+	cfg.size = b.BLAKE2B_SIZE;
+	b.blake2_initialize(&ctx, &cfg, false);
+    b.blake2_reset(&ctx, false);
+	b.blake2_write(&ctx, data, false);
+	hash = b.blake2b_final(&ctx);
 
     return hash;
 }

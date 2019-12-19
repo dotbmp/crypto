@@ -1,7 +1,7 @@
 package streebog
 
 import "core:mem"
-using import ".."
+import "../util"
 
 // @ref(zh): https://github.com/Polymorph1024/Streebog
 
@@ -220,7 +220,7 @@ streebog_P :: proc(state: []byte) {
 }
 
 streebog_L :: proc(state: []byte) {
-	ins := cast_slice([]u64, state);
+	ins := util.cast_slice([]u64, state);
 	out: [8]u64;
 	for i: i32 = 7; i >= 0; i -= 1 {
 		for j: i32 = 63; j >= 0; j -= 1 {
@@ -229,7 +229,7 @@ streebog_L :: proc(state: []byte) {
 			}	
 		}
 	}
-	copy(state, cast_slice([]byte, out[:]));
+	copy(state, util.cast_slice([]byte, out[:]));
 }
 
 streebog_GetKey :: proc(K: []byte, i: i32) {

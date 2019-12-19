@@ -1,7 +1,7 @@
 package ripemd
 
 import "core:mem"
-using import ".."
+import "../util"
 
 // @ref(zh): https://github.com/maoxs2/go-ripemd <- Has a lot of errors and mixups with 256 and 320
 // Fixed them using info from https://homes.esat.kuleuven.be/~bosselae/ripemd160.html#Outline
@@ -146,44 +146,44 @@ ripemd_128_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 16 {
 			alpha = a + (b ~ c ~ d) + x[RIPEMD_128_N0[i]];
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (bb & dd | cc &~ dd) + x[RIPEMD_128_N1[i]] + 0x50a28be6;
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd= dd, alpha, bb, cc;
 			i += 1;
 		}
 		for i < 32 {
 			alpha = a + (d ~ (b & (c~d))) + x[RIPEMD_128_N0[i]] + 0x5a827999;
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (dd ~ (bb | ~cc)) + x[RIPEMD_128_N1[i]] + 0x5c4dd124;
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
 		}
 		for i < 48 {
 			alpha = a + (d ~ (b | ~c)) + x[RIPEMD_128_N0[i]] + 0x6ed9eba1;
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (dd ~ (bb & (cc~dd))) + x[RIPEMD_128_N1[i]] + 0x6d703ef3;
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
 		}
 		for i < 64 {
 			alpha = a + (c ~ (d & (b~c))) + x[RIPEMD_128_N0[i]] + 0x8f1bbcdc;
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_128_N1[i]];
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
 		}
@@ -213,65 +213,65 @@ ripemd_160_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 16 {
 			alpha = a + (b ~ c ~ d) + x[RIPEMD_160_N0[i]];
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb ~ (cc | ~dd)) + x[RIPEMD_160_N1[i]] + 0x50a28be6;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
 		for i < 32 {
 			alpha = a + (b&c | ~b&d) + x[RIPEMD_160_N0[i]] + 0x5a827999;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb&dd | cc&~dd) + x[RIPEMD_160_N1[i]] + 0x5c4dd124;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
 		for i < 48 {
 			alpha = a + (b | ~c ~ d) + x[RIPEMD_160_N0[i]] + 0x6ed9eba1;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb | ~cc ~ dd) + x[RIPEMD_160_N1[i]] + 0x6d703ef3;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
 		for i < 64 {
 			alpha = a + (b&d | c&~d) + x[RIPEMD_160_N0[i]] + 0x8f1bbcdc;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb&cc | ~bb&dd) + x[RIPEMD_160_N1[i]] + 0x7a6d76e9;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
 		for i < 80 {
 			alpha = a + (b ~ (c | ~d)) + x[RIPEMD_160_N0[i]] + 0xa953fd4e;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_160_N1[i]];
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
@@ -302,11 +302,11 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 16 {
 			alpha = a + (b ~ c ~ d) + x[RIPEMD_128_N0[i]];
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (bb & dd | cc &~ dd) + x[RIPEMD_128_N1[i]] + 0x50a28be6;
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd= dd, alpha, bb, cc;
 			i += 1;
 		}
@@ -316,11 +316,11 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 32 {
 			alpha = a + (d ~ (b & (c~d))) + x[RIPEMD_128_N0[i]] + 0x5a827999;
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (dd ~ (bb | ~cc)) + x[RIPEMD_128_N1[i]] + 0x5c4dd124;
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
 		}
@@ -330,11 +330,11 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 48 {
 			alpha = a + (d ~ (b | ~c)) + x[RIPEMD_128_N0[i]] + 0x6ed9eba1;
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (dd ~ (bb & (cc~dd))) + x[RIPEMD_128_N1[i]] + 0x6d703ef3;
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
 		}
@@ -344,11 +344,11 @@ ripemd_256_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 64 {
 			alpha = a + (c ~ (d & (b~c))) + x[RIPEMD_128_N0[i]] + 0x8f1bbcdc;
 			s := int(RIPEMD_128_R0[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			a, b, c, d = d, alpha, b, c;
 			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_128_N1[i]];
 			s = int(RIPEMD_128_R1[i]);
-			alpha = ROTL32(alpha, s);
+			alpha = util.ROTL32(alpha, s);
 			aa, bb, cc, dd = dd, alpha, bb, cc;
 			i += 1;
 		}
@@ -384,13 +384,13 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 16 {
 			alpha = a + (b ~ c ~ d) + x[RIPEMD_160_N0[i]];
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb ~ (cc | ~dd)) + x[RIPEMD_160_N1[i]] + 0x50a28be6;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
@@ -400,13 +400,13 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 32 {
 			alpha = a + (b&c | ~b&d) + x[RIPEMD_160_N0[i]] + 0x5a827999;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb&dd | cc&~dd) + x[RIPEMD_160_N1[i]] + 0x5c4dd124;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
@@ -416,13 +416,13 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 48 {
 			alpha = a + (b | ~c ~ d) + x[RIPEMD_160_N0[i]] + 0x6ed9eba1;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb | ~cc ~ dd) + x[RIPEMD_160_N1[i]] + 0x6d703ef3;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
@@ -432,13 +432,13 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 64 {
 			alpha = a + (b&d | c&~d) + x[RIPEMD_160_N0[i]] + 0x8f1bbcdc;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb&cc | ~bb&dd) + x[RIPEMD_160_N1[i]] + 0x7a6d76e9;
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}
@@ -448,13 +448,13 @@ ripemd_320_block :: proc(ctx: ^$T, p: []byte) -> int {
 		for i < 80 {
 			alpha = a + (b ~ (c | ~d)) + x[RIPEMD_160_N0[i]] + 0xa953fd4e;
 			s := int(RIPEMD_160_R0[i]);
-			alpha = ROTL32(alpha, s) + e;
-			beta = ROTL32(c, 10);
+			alpha = util.ROTL32(alpha, s) + e;
+			beta = util.ROTL32(c, 10);
 			a, b, c, d, e = e, alpha, b, beta, d;
 			alpha = aa + (bb ~ cc ~ dd) + x[RIPEMD_160_N1[i]];
 			s = int(RIPEMD_160_R1[i]);
-			alpha = ROTL32(alpha, s) + ee;
-			beta = ROTL32(cc, 10);
+			alpha = util.ROTL32(alpha, s) + ee;
+			beta = util.ROTL32(cc, 10);
 			aa, bb, cc, dd, ee = ee, alpha, bb, beta, dd;
 			i += 1;
 		}

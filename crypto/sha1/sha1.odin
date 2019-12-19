@@ -1,7 +1,7 @@
 package sha1
 
 import "core:mem"
-using import ".."
+import "../util"
 
 SHA1_BLOCK_SIZE :: 20;
 
@@ -35,36 +35,36 @@ sha1_transform :: proc(ctx : ^SHA1_CTX, data : [64]byte) {
 	e = ctx.state[4];
 
 	for i = 0; i < 20; i += 1 {
-		t = ROTL32(a, 5) + ((b & c) ~ (~b & d)) + e + ctx.k[0] + m[i];
+		t = util.ROTL32(a, 5) + ((b & c) ~ (~b & d)) + e + ctx.k[0] + m[i];
 		e = d;
 		d = c;
-		c = ROTL32(b, 30);
+		c = util.ROTL32(b, 30);
 		b = a;
 		a = t;
 	}
 	for i < 40 {
-		t = ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[1] + m[i];
+		t = util.ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[1] + m[i];
 		e = d;
 		d = c;
-		c = ROTL32(b, 30);
+		c = util.ROTL32(b, 30);
 		b = a;
 		a = t;
         i += 1;
 	}
 	for i < 60 {
-		t = ROTL32(a, 5) + ((b & c) ~ (b & d) ~ (c & d)) + e + ctx.k[2] + m[i];
+		t = util.ROTL32(a, 5) + ((b & c) ~ (b & d) ~ (c & d)) + e + ctx.k[2] + m[i];
 		e = d;
 		d = c;
-		c = ROTL32(b, 30);
+		c = util.ROTL32(b, 30);
 		b = a;
 		a = t;
         i += 1;
 	}
 	for i < 80 {
-		t = ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[3] + m[i];
+		t = util.ROTL32(a, 5) + (b ~ c ~ d) + e + ctx.k[3] + m[i];
 		e = d;
 		d = c;
-		c = ROTL32(b, 30);
+		c = util.ROTL32(b, 30);
 		b = a;
 		a = t;
         i += 1;
