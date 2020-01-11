@@ -1,7 +1,7 @@
 package test_encryption
 
 import "core:fmt"
-using import "../crypto"
+import "../crypto"
 import "../crypto/blowfish"
 import "../crypto/rc2"
 import "../crypto/rc4"
@@ -11,9 +11,6 @@ import "../crypto/serpent"
 import "../crypto/bcrypt"
 import "../crypto/des"
 import "../crypto/camellia"
-
-import "shared:encoding/base64"
-import "shared:encoding"
 
 hex_string :: proc(bytes: []byte, allocator := context.temp_allocator) -> string {
     lut: [16]byte = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};

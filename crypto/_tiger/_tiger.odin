@@ -306,7 +306,6 @@ tiger_pass :: inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u6
 }
 
 tiger_keyschedule :: inline proc "contextless"(x: []u64) {
-	x := x;
 	x[0] -= x[7] ~ 0xa5a5a5a5a5a5a5a5;
 	x[1] ~= x[0];
 	x[2] += x[1];
@@ -351,10 +350,13 @@ tiger_init :: proc(ctx: ^TIGER) {
 	ctx.length = 0;
 }
 
-tiger_update :: proc(ctx: ^TIGER, p: []byte) {
+tiger_update :: proc(ctx: ^TIGER, input: []byte) {
+	// TODO(zh): Fix useage of input directly. Will break without this because of strings living in .rodata
+	p := make([]byte, len(input));
+	copy(p, input);
+
 	length := len(p);
 	ctx.length += u64(length);
-	p := p;
 	if ctx.nx > 0 {
 		n := len(p);
 		if n > 64 - ctx.nx {
