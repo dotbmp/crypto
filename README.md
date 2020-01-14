@@ -14,7 +14,7 @@ A crypto library for the Odin language
 - [x] [JH](https://en.wikipedia.org/wiki/JH_(hash_function))
 - [x] [RIPEMD](https://en.wikipedia.org/wiki/RIPEMD)
 - [x] [SHA-1](https://en.wikipedia.org/wiki/SHA-1)
-- [ ] [SHA-2](https://en.wikipedia.org/wiki/SHA-2)
+- [x] [SHA-2](https://en.wikipedia.org/wiki/SHA-2)
 - [x] [SHA-3 (Keccak)](https://en.wikipedia.org/wiki/SHA-3)
 - [ ] [Skein](https://en.wikipedia.org/wiki/Skein_(hash_function))
 - [x] [Streebog](https://en.wikipedia.org/wiki/Streebog)

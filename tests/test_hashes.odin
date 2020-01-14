@@ -75,7 +75,7 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // SHA2
-            /*case "SHA-224":
+            case "SHA-224":
                 out:= sha2.hash_224(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-256":
@@ -86,7 +86,7 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "SHA-512":
                 out:= sha2.hash_512(transmute([]byte)(s.str));
-                if !check_hash(out[:], s.hash, s.str, algo) do return;*/
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
             
             // SHA3
             case "SHA3-224":
