@@ -344,6 +344,7 @@ sha2_final :: proc(ctx: ^$T, digest: []byte) {
 
 	mem.set(rawptr(&(ctx.block[ctx.length:])[0]), 0, int(uint(pm_len) - ctx.length));
     ctx.block[ctx.length] = 0x80;
+
     UNPACK32(ctx.block[pm_len - 4:], len_b);
 
 	sha2_transf(ctx, ctx.block[:], uint(block_nb));

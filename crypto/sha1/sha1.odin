@@ -3,18 +3,18 @@ package sha1
 import "core:mem"
 import "../util"
 
-SHA1_BLOCK_SIZE :: 20;
+DIGEST_SIZE :: 20;
+BLOCK_SIZE :: 64;
 
 SHA1_CTX :: struct {
-    data : [64]u8,
+    data : [BLOCK_SIZE]u8,
     datalen : u32,
     bitlen : u64,
     state : [5]u32,
     k : [4]u32,
 }
 
-sha1_transform :: proc(ctx : ^SHA1_CTX, data : [64]byte) {
-
+sha1_transform :: proc(ctx : ^SHA1_CTX, data : [BLOCK_SIZE]byte) {
     a, b, c, d, e, i, j, t : u32;
     m : [80]u32;
 
@@ -95,7 +95,7 @@ sha1_update :: proc(ctx : ^SHA1_CTX, data : []byte) {
 	for i : i32 = 0; i < i32(len(data)); i += 1 {
 		ctx.data[ctx.datalen] = data[i];
 		ctx.datalen += 1;
-		if (ctx.datalen == 64) {
+		if (ctx.datalen == BLOCK_SIZE) {
 			sha1_transform(ctx, ctx.data);
 			ctx.bitlen += 512;
 			ctx.datalen = 0;
@@ -103,8 +103,7 @@ sha1_update :: proc(ctx : ^SHA1_CTX, data : []byte) {
 	}
 }
 
-sha1_final :: proc(ctx : ^SHA1_CTX, hash : ^[SHA1_BLOCK_SIZE]byte) {
-
+sha1_final :: proc(ctx : ^SHA1_CTX, hash : ^[DIGEST_SIZE]byte) {
 	i := ctx.datalen;
 
 	if ctx.datalen < 56 {
@@ -118,7 +117,7 @@ sha1_final :: proc(ctx : ^SHA1_CTX, hash : ^[SHA1_BLOCK_SIZE]byte) {
 	else {
 		ctx.data[i] = 0x80;
         i += 1;
-        for i < 64 {
+        for i < BLOCK_SIZE {
             ctx.data[i] = 0x00;
             i += 1;
         }
@@ -146,14 +145,11 @@ sha1_final :: proc(ctx : ^SHA1_CTX, hash : ^[SHA1_BLOCK_SIZE]byte) {
 	}
 }
 
-hash :: proc(data: []byte) -> [SHA1_BLOCK_SIZE]byte {
-
-    hash : [SHA1_BLOCK_SIZE]byte;
+hash :: proc(data: []byte) -> [DIGEST_SIZE]byte {
+    hash : [DIGEST_SIZE]byte;
     ctx : SHA1_CTX;
-
     sha1_init(&ctx);
 	sha1_update(&ctx, data);
 	sha1_final(&ctx, &hash);
-
     return hash;
 }

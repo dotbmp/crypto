@@ -3,10 +3,11 @@ package md5
 import "core:mem"
 import "../util"
 
-MD5_BLOCK_SIZE :: 16;
+DIGEST_SIZE :: 16;
+BLOCK_SIZE :: 64;
 
 MD5_CTX :: struct {
-    data: [64]u8,
+    data: [BLOCK_SIZE]u8,
     state: [4]u32,
     bitlen: u64,
     datalen: u32,
@@ -56,11 +57,11 @@ MD5_II :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
     return a;
 }
 
-md5_transform :: proc(ctx: ^MD5_CTX, data: [64]byte) {
+md5_transform :: proc(ctx: ^MD5_CTX, data: [BLOCK_SIZE]byte) {
     a, b, c, d,  i, j : u32;
-    m : [MD5_BLOCK_SIZE]u32;
+    m : [DIGEST_SIZE]u32;
 
-    for i, j = 0, 0; i < MD5_BLOCK_SIZE; i+=1 {
+    for i, j = 0, 0; i < DIGEST_SIZE; i+=1 {
         m[i] = u32(data[j]) + u32(data[j + 1]) << 8 + u32(data[j + 2]) << 16 + u32(data[j + 3]) << 24;
         j+=4;
     }
@@ -145,7 +146,6 @@ md5_transform :: proc(ctx: ^MD5_CTX, data: [64]byte) {
 }
 
 md5_init :: proc(ctx: ^MD5_CTX) {
-
     ctx.datalen = 0;
 	ctx.bitlen = 0;
 	ctx.state[0] = 0x67452301;
@@ -155,13 +155,10 @@ md5_init :: proc(ctx: ^MD5_CTX) {
 }
 
 md5_update :: proc(ctx: ^MD5_CTX, data: []byte) {
-
     for i := 0; i < len(data); i += 1 {
-        
         ctx.data[ctx.datalen] = data[i];
         ctx.datalen += 1;
-
-        if(ctx.datalen == 64) {
+        if(ctx.datalen == BLOCK_SIZE) {
             md5_transform(ctx, ctx.data);
             ctx.bitlen += 512;
             ctx.datalen = 0;
@@ -169,8 +166,7 @@ md5_update :: proc(ctx: ^MD5_CTX, data: []byte) {
     }
 }
 
-md5_final :: proc(ctx: ^MD5_CTX, hash: ^[MD5_BLOCK_SIZE]u8){
-
+md5_final :: proc(ctx: ^MD5_CTX, hash: ^[DIGEST_SIZE]u8){
     i : u32;
     i = ctx.datalen;
 
@@ -189,7 +185,7 @@ md5_final :: proc(ctx: ^MD5_CTX, hash: ^[MD5_BLOCK_SIZE]u8){
         ctx.data[i] = 0x80;
         i += 1;
 
-        for i < 64 {
+        for i < BLOCK_SIZE {
             ctx.data[i] = 0x00;
             i+=1;
         }
@@ -217,14 +213,11 @@ md5_final :: proc(ctx: ^MD5_CTX, hash: ^[MD5_BLOCK_SIZE]u8){
     }
 }
 
-hash :: proc(data: []byte) -> [MD5_BLOCK_SIZE]byte {
-
-    hash : [MD5_BLOCK_SIZE]byte;
+hash :: proc(data: []byte) -> [DIGEST_SIZE]byte {
+    hash : [DIGEST_SIZE]byte;
     ctx : MD5_CTX;
-
     md5_init(&ctx);
 	md5_update(&ctx, data);
 	md5_final(&ctx, &hash);
-
     return hash;
 }
