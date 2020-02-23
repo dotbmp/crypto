@@ -3,6 +3,7 @@ package test_encryption
 import "core:fmt"
 import "../crypto"
 import "../crypto/blowfish"
+import "../crypto/threefish"
 import "../crypto/rc2"
 import "../crypto/rc4"
 import "../crypto/rc5"
@@ -11,6 +12,22 @@ import "../crypto/serpent"
 import "../crypto/bcrypt"
 import "../crypto/des"
 import "../crypto/camellia"
+
+u64_le :: inline proc "contextless"(b: []byte) -> u64 {
+	return u64(b[0]) | u64(b[1]) << 8 | u64(b[2]) << 16 | u64(b[3]) << 24 |
+	       u64(b[4]) << 32 | u64(b[5]) << 40 | u64(b[6]) << 48 | u64(b[7]) << 56;
+}
+
+put_u64_le :: inline proc "contextless"(b: []byte, v: u64) {
+    b[0] = byte(v);
+    b[1] = byte(v >> 8);
+    b[2] = byte(v >> 16);
+    b[3] = byte(v >> 24);
+    b[4] = byte(v >> 32);
+    b[5] = byte(v >> 40);
+    b[6] = byte(v >> 48);
+    b[7] = byte(v >> 56);
+}
 
 hex_string :: proc(bytes: []byte, allocator := context.temp_allocator) -> string {
     lut: [16]byte = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -53,6 +70,7 @@ main :: proc() {
     test_des();
     test_3des();
     test_camellia();
+    test_threefish();
     test_bcrypt();
 }
 
@@ -294,6 +312,96 @@ test_3des :: proc() {
     }
 
     fmt.println("3DES test passed");
+}
+
+test_threefish :: proc() {
+    // ########## 256 ##########
+    data256 := [?]u64{0, 0, 0, 0};
+    key256 := [?]u64{0, 0, 0, 0};
+    tweak256 := [?]u64{0, 0};
+    res256 :=  [?]u64{0x94EEEA8B1F2ADA84, 0xADF103313EAE6670,
+    0x952419A1F4B16D53, 0xD83F13E63C9F6B11};
+
+    databytes256 := make([]byte, 32);
+    keybytes256 := make([]byte, 32);
+    resbytes256 := make([]byte, 32);
+
+    for i in 0..<4 {
+        put_u64_le(keybytes256[i*8:i*8+8], key256[i]);
+        put_u64_le(databytes256[i*8:i*8+8], data256[i]);
+        put_u64_le(resbytes256[i*8:i*8+8], res256[i]);
+    }
+
+    enc256 := threefish.encrypt_256(databytes256[:], keybytes256[:], tweak256[:]);
+    dec256 := threefish.decrypt_256(enc256[:], keybytes256[:], tweak256[:]);
+
+    for i := 0; i < len(enc256); i += 1 {
+        if enc256[i] != resbytes256[i] || dec256[i] != databytes256[i] {
+            fmt.println("Threefish 256 test failed");
+            return;
+        }
+    }
+
+    // ########## 512 ##########
+    data512 := [?]u64{0, 0, 0, 0, 0, 0, 0, 0};
+    key512 := [?]u64{0, 0, 0, 0, 0, 0, 0, 0};
+    tweak512 := [?]u64{0, 0};
+    res512 :=  [?]u64{0xBC2560EFC6BBA2B1, 0xE3361F162238EB40,
+    0xFB8631EE0ABBD175, 0x7B9479D4C5479ED1, 0xCFF0356E58F8C27B,
+    0xB1B7B08430F0E7F7, 0xE9A380A56139ABF1, 0xBE7B6D4AA11EB47E};
+
+    databytes512 := make([]byte, 64);
+    keybytes512 := make([]byte, 64);
+    resbytes512 := make([]byte, 64);
+
+    for i in 0..<8 {
+        put_u64_le(keybytes512[i*8:i*8+8], key512[i]);
+        put_u64_le(databytes512[i*8:i*8+8], data512[i]);
+        put_u64_le(resbytes512[i*8:i*8+8], res512[i]);
+    }
+
+    enc512 := threefish.encrypt_512(databytes512[:], keybytes512[:], tweak512[:]);
+    dec512 := threefish.decrypt_512(enc512[:], keybytes512[:], tweak512[:]);
+
+    for i := 0; i < len(enc512); i += 1 {
+        if enc512[i] != resbytes512[i] || dec512[i] != databytes512[i] {
+            fmt.println("Threefish 512 test failed");
+            return;
+        }
+    }
+
+    // ########## 1024 ##########
+    data1024 := [?]u64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    key1024 := [?]u64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    tweak1024 := [?]u64{0, 0};
+    res1024 :=  [?]u64{0x04B3053D0A3D5CF0, 0x0136E0D1C7DD85F7,
+    0x067B212F6EA78A5C, 0x0DA9C10B4C54E1C6, 0x0F4EC27394CBACF0,
+    0x32437F0568EA4FD5, 0xCFF56D1D7654B49C, 0xA2D5FB14369B2E7B,
+    0x540306B460472E0B, 0x71C18254BCEA820D, 0xC36B4068BEAF32C8,
+    0xFA4329597A360095, 0xC4A36C28434A5B9A, 0xD54331444B1046CF,
+    0xDF11834830B2A460, 0x1E39E8DFE1F7EE4F};
+
+    databytes1024 := make([]byte, 128);
+    keybytes1024 := make([]byte, 128);
+    resbytes1024 := make([]byte, 128);
+
+    for i in 0..<16 {
+        put_u64_le(keybytes1024[i*8:i*8+8], key1024[i]);
+        put_u64_le(databytes1024[i*8:i*8+8], data1024[i]);
+        put_u64_le(resbytes1024[i*8:i*8+8], res1024[i]);
+    }
+
+    enc1024 := threefish.encrypt_1024(databytes1024[:], keybytes1024[:], tweak1024[:]);
+    dec1024 := threefish.decrypt_1024(enc1024[:], keybytes1024[:], tweak1024[:]);
+
+    for i := 0; i < len(enc1024); i += 1 {
+        if enc1024[i] != resbytes1024[i] || dec1024[i] != databytes1024[i] {
+            fmt.println("Threefish 1024 test failed");
+            return;
+        }
+    }
+
+    fmt.println("Threefish tests passed");
 }
 
 test_camellia :: proc() {
