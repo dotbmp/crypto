@@ -1,5 +1,7 @@
 package threefish
 
+// @ref(zh): https://github.com/tildeleb/hashland/tree/master/threefish
+
 KEY_SCHEDULE_CONST  :: u64(0x1bd11bdaa9fc1a22);
 EXPANDED_TWEAK_SIZE :: 3;
 
