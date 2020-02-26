@@ -25,7 +25,7 @@ A crypto library for the Odin language
 ## Implemented cryptographic encryption algorithms:
 
 - [x] [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
-- [ ] [Twofish](https://en.wikipedia.org/wiki/Twofish)
+- [x] [Twofish](https://en.wikipedia.org/wiki/Twofish)
 - [x] [Threefish](https://en.wikipedia.org/wiki/Threefish)
 - [x] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
 - [ ] [AES (Rijndael) ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
