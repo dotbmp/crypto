@@ -1,7 +1,7 @@
 # crypto
 A crypto library for the Odin language
 
-## Implemented cryptographic hash algorithms:
+## Hash algorithms:
 
 - [x] [BLAKE / BLAKE2](https://en.wikipedia.org/wiki/BLAKE_(hash_function))
 - [x] [GOST](https://en.wikipedia.org/wiki/GOST_(hash_function)) 
@@ -22,7 +22,7 @@ A crypto library for the Odin language
 - [x] [Whirlpool](https://en.wikipedia.org/wiki/Whirlpool)
 - [x] [BCrypt](https://en.wikipedia.org/wiki/Bcrypt)
 #
-## Implemented cryptographic encryption algorithms:
+## Encryption algorithms:
 
 - [x] [Blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher))
 - [x] [Twofish](https://en.wikipedia.org/wiki/Twofish)
@@ -37,12 +37,24 @@ A crypto library for the Odin language
 - [x] [Serpent](https://en.wikipedia.org/wiki/Serpent_(cipher))
 - [ ] [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem))
 - [x] [Camellia](https://en.wikipedia.org/wiki/Camellia_(cipher))
-- [ ] [ChaCha](https://en.wikipedia.org/wiki/Salsa20)
-- [ ] [Salsa20](https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant)
+- [ ] [Salsa20](https://en.wikipedia.org/wiki/Salsa20)
+- [ ] [ChaCha](https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant)
+#
+## Message authenticaion codes:
 
-## MAC
 - [ ] [Poly1305](https://en.wikipedia.org/wiki/Poly1305)
 - [x] [HMAC](https://en.wikipedia.org/wiki/HMAC) ([MD5](https://en.wikipedia.org/wiki/MD5), [SHA-1](https://en.wikipedia.org/wiki/SHA-1), [SHA-2](https://en.wikipedia.org/wiki/SHA-2))
+#
+## Key derivation functions:
+
+- [ ] [scrypt](https://en.wikipedia.org/wiki/scrypt)
+- [ ] [Argon2](https://en.wikipedia.org/wiki/Argon2)
+- [ ] [Catena]()
+- [ ] [Lyra2]()
+- [ ] [Makwa]()
+- [ ] [yescrypt]()
+- [ ] [PBKDF1](https://en.wikipedia.org/wiki/PBKDF2)
+- [ ] [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2)
 
 #
 ## Example useage
