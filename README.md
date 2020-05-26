@@ -28,7 +28,7 @@ A crypto library for the Odin language
 - [x] [Twofish](https://en.wikipedia.org/wiki/Twofish)
 - [x] [Threefish](https://en.wikipedia.org/wiki/Threefish)
 - [x] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
-- [ ] [AES (Rijndael) ](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+- [ ] [AES (Rijndael)](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 - [x] [RC2](https://en.wikipedia.org/wiki/RC2)
 - [x] [RC4](https://en.wikipedia.org/wiki/RC4)
 - [x] [RC5](https://en.wikipedia.org/wiki/RC5)
@@ -39,6 +39,7 @@ A crypto library for the Odin language
 - [x] [Camellia](https://en.wikipedia.org/wiki/Camellia_(cipher))
 - [ ] [Salsa20](https://en.wikipedia.org/wiki/Salsa20)
 - [ ] [ChaCha](https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant)
+- [x] [IDEA](https://en.wikipedia.org/wiki/International_Data_Encryption_Algorithm)
 #
 ## Message authenticaion codes:
 
@@ -55,15 +56,22 @@ A crypto library for the Odin language
 - [ ] [yescrypt]()
 - [ ] [PBKDF1](https://en.wikipedia.org/wiki/PBKDF2)
 - [ ] [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2)
+#
+## Key exchange algorithms:
+
+- [ ] [SRP](https://en.wikipedia.org/wiki/Secure_Remote_Password_protocol)
+- [ ] [DH (Diffie-Hellman)](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange)
+- [ ] [PSK](https://en.wikipedia.org/wiki/Pre-shared_key)
+
 
 #
 ## Example useage
 
-```go
+```odin
 package main
 
-import "shared:crypto/md4"
-import "shared:crypto/haval"
+import "crypto/md4"
+import "crypto/haval"
 
 main :: proc() {
     md4_hash   := md4.hash(transmute([]byte)("foo")); // MD4 only has a single output size
