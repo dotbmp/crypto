@@ -123,7 +123,7 @@ ripemd_reset :: proc(ctx: ^$T) {
     }
 }
 
-ripemd_block :: inline proc "contextless"(ctx: ^$T, p: []byte) -> int {
+ripemd_block :: inline proc (ctx: ^$T, p: []byte) -> int {
     when T      == RIPEMD_128 do return ripemd_128_block(ctx, p);
     else when T == RIPEMD_160 do return ripemd_160_block(ctx, p);
     else when T == RIPEMD_256 do return ripemd_256_block(ctx, p);
@@ -576,7 +576,7 @@ ripemd_checksum :: proc(ctx: ^$T, p: []byte) -> []byte {
     return digest;
 }
 
-hash_128 :: proc "contextless"(data: []byte) -> [RIPEMD_128_SIZE]byte #no_bounds_check {
+hash_128 :: proc (data: []byte) -> [RIPEMD_128_SIZE]byte #no_bounds_check {
 
 	hash : [RIPEMD_128_SIZE]byte = ---;
     ctx : RIPEMD_128;
@@ -589,7 +589,7 @@ hash_128 :: proc "contextless"(data: []byte) -> [RIPEMD_128_SIZE]byte #no_bounds
     return hash;
 }
 
-hash_160 :: proc "contextless"(data: []byte) -> [RIPEMD_160_SIZE]byte #no_bounds_check {
+hash_160 :: proc (data: []byte) -> [RIPEMD_160_SIZE]byte #no_bounds_check {
 
 	hash : [RIPEMD_160_SIZE]byte = ---;
     ctx : RIPEMD_160;
@@ -602,7 +602,7 @@ hash_160 :: proc "contextless"(data: []byte) -> [RIPEMD_160_SIZE]byte #no_bounds
 	return hash;
 }
 
-hash_256 :: proc "contextless"(data: []byte) -> [RIPEMD_256_SIZE]byte #no_bounds_check {
+hash_256 :: proc (data: []byte) -> [RIPEMD_256_SIZE]byte #no_bounds_check {
 
 	hash : [RIPEMD_256_SIZE]byte = ---;
     ctx : RIPEMD_256;
@@ -615,7 +615,7 @@ hash_256 :: proc "contextless"(data: []byte) -> [RIPEMD_256_SIZE]byte #no_bounds
 	return hash;
 }
 
-hash_320 :: proc "contextless"(data: []byte) -> [RIPEMD_320_SIZE]byte #no_bounds_check {
+hash_320 :: proc (data: []byte) -> [RIPEMD_320_SIZE]byte #no_bounds_check {
 
 	hash : [RIPEMD_320_SIZE]byte = ---;
     ctx : RIPEMD_320;

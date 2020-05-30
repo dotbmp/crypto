@@ -364,7 +364,7 @@ sha2_final :: proc(ctx: ^$T, digest: []byte) {
 	} 
 }
 
-hash_224 :: proc "contextless" (data: []byte) -> [SHA224_DIGEST_SIZE]byte {
+hash_224 :: proc (data: []byte) -> [SHA224_DIGEST_SIZE]byte {
     hash: [SHA224_DIGEST_SIZE]byte;
     ctx: Sha256;
 	ctx.is224 = true;
@@ -374,7 +374,7 @@ hash_224 :: proc "contextless" (data: []byte) -> [SHA224_DIGEST_SIZE]byte {
     return hash;
 }
 
-hash_256 :: proc "contextless" (data: []byte) -> [SHA256_DIGEST_SIZE]byte {
+hash_256 :: proc (data: []byte) -> [SHA256_DIGEST_SIZE]byte {
     hash: [SHA256_DIGEST_SIZE]byte;
     ctx: Sha256;
     sha2_init(&ctx);
@@ -383,7 +383,7 @@ hash_256 :: proc "contextless" (data: []byte) -> [SHA256_DIGEST_SIZE]byte {
     return hash;
 }
 
-hash_384 :: proc "contextless" (data: []byte) -> [SHA384_DIGEST_SIZE]byte {
+hash_384 :: proc (data: []byte) -> [SHA384_DIGEST_SIZE]byte {
     hash: [SHA384_DIGEST_SIZE]byte;
     ctx: Sha512;
 	ctx.is384 = true;
@@ -393,7 +393,7 @@ hash_384 :: proc "contextless" (data: []byte) -> [SHA384_DIGEST_SIZE]byte {
     return hash;
 }
 
-hash_512 :: proc "contextless" (data: []byte) -> [SHA512_DIGEST_SIZE]byte {
+hash_512 :: proc (data: []byte) -> [SHA512_DIGEST_SIZE]byte {
     hash: [SHA512_DIGEST_SIZE]byte;
     ctx: Sha512;
     sha2_init(&ctx);

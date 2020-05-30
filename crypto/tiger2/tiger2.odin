@@ -2,7 +2,7 @@ package tiger2
 
 import t "../_tiger"
 
-hash_128 :: proc "contextless" (input: []byte) -> [16]byte {
+hash_128 :: proc (input: []byte) -> [16]byte {
     hash: [16]byte;
     ctx: t.TIGER;
 	ctx.ver = 2;
@@ -13,7 +13,7 @@ hash_128 :: proc "contextless" (input: []byte) -> [16]byte {
     return hash;
 }
 
-hash_160 :: proc "contextless" (input: []byte) -> [20]byte {
+hash_160 :: proc (input: []byte) -> [20]byte {
     hash: [20]byte;
     ctx: t.TIGER;
 	ctx.ver = 2;
@@ -24,7 +24,7 @@ hash_160 :: proc "contextless" (input: []byte) -> [20]byte {
     return hash;
 }
 
-hash_192 :: proc "contextless" (input: []byte) -> [24]byte {
+hash_192 :: proc (input: []byte) -> [24]byte {
     hash: [24]byte;
     ctx: t.TIGER;
 	ctx.ver = 2;

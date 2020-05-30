@@ -61,37 +61,37 @@ Groestl_Variant :: enum {
     Q1024 = 3
 }
 
-GROESTL_MUL2 :: inline proc "contextless"(b: u8) -> u8 {
+GROESTL_MUL2 :: inline proc (b: u8) -> u8 {
     return (b >> 7) != 0 ? (b << 1) ~ 0x1b : (b << 1);
 }
 
-GROESTL_MUL3 :: inline proc "contextless"(b: u8) -> u8 {
+GROESTL_MUL3 :: inline proc (b: u8) -> u8 {
     return GROESTL_MUL2(b) ~ b;
 }
 
-GROESTL_MUL4 :: inline proc "contextless"(b: u8) -> u8 {
+GROESTL_MUL4 :: inline proc (b: u8) -> u8 {
     return GROESTL_MUL2(GROESTL_MUL2(b));
 }
 
-GROESTL_MUL5 :: inline proc "contextless"(b: u8) -> u8 {
+GROESTL_MUL5 :: inline proc (b: u8) -> u8 {
     return GROESTL_MUL4(b) ~ b;
 }
 
-GROESTL_MUL6 :: inline proc "contextless"(b: u8) -> u8 {
+GROESTL_MUL6 :: inline proc (b: u8) -> u8 {
     return GROESTL_MUL4(b) ~ GROESTL_MUL2(b);
 }
 
-GROESTL_MUL7 :: inline proc "contextless"(b: u8) -> u8 {
+GROESTL_MUL7 :: inline proc (b: u8) -> u8 {
     return GROESTL_MUL4(b) ~ GROESTL_MUL2(b) ~ b;
 }
 
-groestl_subbytes :: inline proc "contextless"(x: [][16]byte, columns: int) {
+groestl_subbytes :: inline proc (x: [][16]byte, columns: int) {
     for i := 0; i < 8; i += 1 {
         for j := 0; j < columns; j += 1 do x[i][j] = GROESTL_S[x[i][j]];
     }
 }
 
-groestl_shiftbytes :: inline proc "contextless"(x: [][16]byte, columns: int, v: Groestl_Variant) {
+groestl_shiftbytes :: inline proc (x: [][16]byte, columns: int, v: Groestl_Variant) {
     temp: [16]u8;
     R := &GROESTL_SHIFT[int(v) / 2][int(v) & 1];
 
@@ -101,7 +101,7 @@ groestl_shiftbytes :: inline proc "contextless"(x: [][16]byte, columns: int, v: 
     }
 }
 
-groestl_mixbytes :: inline proc "contextless"(x: [][16]byte, columns: int) {
+groestl_mixbytes :: inline proc (x: [][16]byte, columns: int) {
     temp: [8]u8;
 
     for i := 0; i < columns; i += 1 {
@@ -119,7 +119,7 @@ groestl_mixbytes :: inline proc "contextless"(x: [][16]byte, columns: int) {
     }
 }
 
-groestl_p :: inline proc "contextless"(ctx: ^GROESTL, x: [][16]byte) {
+groestl_p :: inline proc (ctx: ^GROESTL, x: [][16]byte) {
     v := ctx.columns == 8 ? Groestl_Variant.P512 : Groestl_Variant.P1024;
     for i := 0; i < ctx.rounds; i += 1 {
         groestl_add_roundconstant(x, ctx.columns, u8(i), v);
@@ -129,7 +129,7 @@ groestl_p :: inline proc "contextless"(ctx: ^GROESTL, x: [][16]byte) {
     }
 }
 
-groestl_q :: inline proc "contextless"(ctx: ^GROESTL, x: [][16]byte) {
+groestl_q :: inline proc (ctx: ^GROESTL, x: [][16]byte) {
     v := ctx.columns == 8 ? Groestl_Variant.Q512 : Groestl_Variant.Q1024;
     for i := 0; i < ctx.rounds; i += 1 {
         groestl_add_roundconstant(x, ctx.columns, u8(i), v);
@@ -305,7 +305,7 @@ groestl_final :: proc(ctx: ^GROESTL, output: []byte) {
     for i := 0; i < ctx.statesize; i += 1 do ctx.buffer[i] = 0;
 }
 
-hash_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_224 :: proc (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 224);
@@ -314,7 +314,7 @@ hash_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     return hash;
 }
 
-hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_256 :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 256);
@@ -323,7 +323,7 @@ hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     return hash;
 }
 
-hash_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
+hash_384 :: proc (data: []byte) -> [48]byte #no_bounds_check {
     hash : [48]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 384);
@@ -332,7 +332,7 @@ hash_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
     return hash;
 }
 
-hash_512 :: proc "contextless" (data: []byte) -> [64]byte #no_bounds_check {
+hash_512 :: proc (data: []byte) -> [64]byte #no_bounds_check {
     hash : [64]byte;
     ctx : GROESTL;
     groestl_init(&ctx, 512);

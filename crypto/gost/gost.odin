@@ -286,7 +286,7 @@ gost_final :: proc(ctx: ^GOST, digest: []byte) {
     }
 }
 
-hash :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     ctx: GOST;
     gost_init();

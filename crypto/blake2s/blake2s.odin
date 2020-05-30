@@ -2,7 +2,7 @@ package blake2s
 
 import b "../_blake2"
 
-hash :: proc "contextless" (data: []byte) -> [b.BLAKE2S_SIZE]byte #no_bounds_check {
+hash :: proc (data: []byte) -> [b.BLAKE2S_SIZE]byte #no_bounds_check {
 
 	hash : [b.BLAKE2S_SIZE]byte = ---;
     ctx : b.BLAKE2S;

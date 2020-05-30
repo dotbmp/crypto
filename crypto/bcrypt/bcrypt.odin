@@ -469,7 +469,7 @@ hash_pw :: proc(password, salt: string) -> string {
 
 	assert(salt[offset + 2] == '$', "Missing salt rounds");
 
-	rounds := strconv.parse_int(salt[offset: offset + 2]);
+	rounds, _ := strconv.parse_int(salt[offset: offset + 2]);
     assert(rounds < 30, "Maximum rounds allowed are 30");
 
     passwordb := make([]byte, len(password) + 1);

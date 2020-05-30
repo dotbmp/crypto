@@ -340,7 +340,7 @@ streebog_final :: proc(ctx: ^STREEBOG) {
 	ctx.buf_size = 0;
 }
 
-hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_256 :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
 	ctx: STREEBOG;
 	streebog_init(&ctx, 256);
@@ -350,7 +350,7 @@ hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     return hash;
 }
 
-hash_512 :: proc "contextless" (data: []byte) -> [64]byte #no_bounds_check {
+hash_512 :: proc (data: []byte) -> [64]byte #no_bounds_check {
 	ctx: STREEBOG;
 	streebog_init(&ctx, 512);
 	streebog_update(&ctx, data);

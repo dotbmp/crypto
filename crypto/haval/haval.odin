@@ -29,27 +29,27 @@ HAVAL_PADDING := [128]u8 {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-HAVAL_F_1 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_1 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x1) & ((x0) ~ (x4)) ~ (x2) & (x5) ~ (x3) & (x6) ~ (x0));
 }
 
-HAVAL_F_2 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_2 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x2) & ((x1) & ~(x3) ~ (x4) & (x5) ~ (x6) ~ (x0)) ~ (x4) & ((x1) ~ (x5)) ~ (x3) & (x5) ~ (x0));
 }
 
-HAVAL_F_3 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_3 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x3) & ((x1) & (x2) ~ (x6) ~ (x0)) ~ (x1) & (x4) ~ (x2) & (x5) ~ (x0));
 }
 
-HAVAL_F_4 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_4 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x4) & ((x5) & ~(x2) ~ (x3) & ~(x6) ~ (x1) ~ (x6) ~ (x0)) ~ (x3) & ((x1) & (x2) ~ (x5) ~ (x6)) ~ (x2) & (x6) ~ (x0));
 }
 
-HAVAL_F_5 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_5 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x0) & ((x1) & (x2) & (x3) ~ ~(x5)) ~ (x1) & (x4) ~ (x2) & (x5) ~ (x3) & (x6));
 }
 
-HAVAL_FPHI_1 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_1 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 3: return HAVAL_F_1(x1, x0, x3, x5, x6, x2, x4);
         case 4: return HAVAL_F_1(x2, x6, x1, x4, x5, x3, x0);
@@ -59,7 +59,7 @@ HAVAL_FPHI_1 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
     return 0;
 }
 
-HAVAL_FPHI_2 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_2 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 3: return HAVAL_F_2(x4, x2, x1, x0, x5, x3, x6);
         case 4: return HAVAL_F_2(x3, x5, x2, x0, x1, x6, x4);
@@ -69,7 +69,7 @@ HAVAL_FPHI_2 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
     return 0;
 }
 
-HAVAL_FPHI_3 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_3 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 3: return HAVAL_F_3(x6, x1, x2, x3, x4, x5, x0);
         case 4: return HAVAL_F_3(x1, x4, x3, x6, x0, x2, x5);
@@ -79,7 +79,7 @@ HAVAL_FPHI_3 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
     return 0;
 }
 
-HAVAL_FPHI_4 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_4 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 4: return HAVAL_F_4(x6, x4, x0, x5, x2, x1, x3);
         case 5: return HAVAL_F_4(x1, x5, x3, x2, x0, x4, x6);
@@ -88,7 +88,7 @@ HAVAL_FPHI_4 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
     return 0;
 }
 
-HAVAL_FPHI_5 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_5 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 5: return HAVAL_F_5(x2, x5, x0, x6, x4, x3, x1);
         case: assert(rounds != 5, "Rounds count not supported!");
@@ -96,43 +96,43 @@ HAVAL_FPHI_5 :: inline proc "contextless"(x6, x5, x4, x3, x2, x1, x0, rounds: u3
     return 0;
 }
 
-HAVAL_FF_1 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
+HAVAL_FF_1 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_1(x6, x5, x4, x3, x2, x1, x0, rounds);
     x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w;
     return x7;
 }
 
-HAVAL_FF_2 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_2 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_2(x6, x5, x4, x3, x2, x1, x0, rounds);
     x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
-HAVAL_FF_3 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_3 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_3(x6, x5, x4, x3, x2, x1, x0, rounds);
     x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
-HAVAL_FF_4 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_4 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_4(x6, x5, x4, x3, x2, x1, x0, rounds);
     x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
-HAVAL_FF_5 :: inline proc "contextless"(x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_5 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_5(x6, x5, x4, x3, x2, x1, x0, rounds);
     x7 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x7;
 }
 
-HAVAL_CH2UINT :: inline proc "contextless" (str: []u8, word: []u32) {
+HAVAL_CH2UINT :: inline proc  (str: []u8, word: []u32) {
     for _, i in word[:32] {
         word[i] = u32(str[i*4+0]) << 0 | u32(str[i*4+1]) << 8 | u32(str[i*4+2]) << 16 | u32(str[i*4+3]) << 24;
     }
 }
 
-HAVAL_UINT2CH :: inline proc "contextless"(word: []u32, str: []u8, wlen: u32) {
+HAVAL_UINT2CH :: inline proc (word: []u32, str: []u8, wlen: u32) {
     for _, i in word[:wlen] {
         str[i*4+0] = byte(word[i] >> 0) & 0xff;
         str[i*4+1] = byte(word[i] >> 8) & 0xff;
@@ -502,7 +502,7 @@ haval_final :: proc(ctx: ^HAVAL, digest: []byte, rounds, size: u32) {
     mem.set(ctx, 0, size_of(ctx));
 }
 
-haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_bounds_check {
+haval :: proc (data: []byte, rounds, size: u32) -> []byte #no_bounds_check {
 	hash := make([]byte, size);
     ctx : HAVAL;
     haval_init(&ctx);
@@ -512,105 +512,105 @@ haval :: proc "contextless" (data: []byte, rounds, size: u32) -> []byte #no_boun
     return hash;
 }
 
-hash_3_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+hash_3_128 :: proc (data: []byte) -> [16]byte #no_bounds_check {
     hash : [16]byte;
     tmp := haval(data, 3, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_4_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+hash_4_128 :: proc (data: []byte) -> [16]byte #no_bounds_check {
     hash : [16]byte;
     tmp := haval(data, 4, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_5_128 :: proc "contextless" (data: []byte) -> [16]byte #no_bounds_check {
+hash_5_128 :: proc (data: []byte) -> [16]byte #no_bounds_check {
     hash : [16]byte;
     tmp := haval(data, 5, 128);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_3_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+hash_3_160 :: proc (data: []byte) -> [20]byte #no_bounds_check {
     hash : [20]byte;
     tmp := haval(data, 3, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_4_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+hash_4_160 :: proc (data: []byte) -> [20]byte #no_bounds_check {
     hash : [20]byte;
     tmp := haval(data, 4, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_5_160 :: proc "contextless" (data: []byte) -> [20]byte #no_bounds_check {
+hash_5_160 :: proc (data: []byte) -> [20]byte #no_bounds_check {
     hash : [20]byte;
     tmp := haval(data, 5, 160);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_3_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+hash_3_192 :: proc (data: []byte) -> [24]byte #no_bounds_check {
     hash : [24]byte;
     tmp := haval(data, 3, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_4_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+hash_4_192 :: proc (data: []byte) -> [24]byte #no_bounds_check {
     hash : [24]byte;
     tmp := haval(data, 4, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_5_192 :: proc "contextless" (data: []byte) -> [24]byte #no_bounds_check {
+hash_5_192 :: proc (data: []byte) -> [24]byte #no_bounds_check {
     hash : [24]byte;
     tmp := haval(data, 5, 192);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_3_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_3_224 :: proc (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     tmp := haval(data, 3, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_4_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_4_224 :: proc (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     tmp := haval(data, 4, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_5_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_5_224 :: proc (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     tmp := haval(data, 5, 224);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_3_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_3_256 :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     tmp := haval(data, 3, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_4_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_4_256 :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     tmp := haval(data, 4, 256);
     copy(hash[:], tmp[:]);
     return hash;
 }
 
-hash_5_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_5_256 :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     tmp := haval(data, 5, 256);
     copy(hash[:], tmp[:]);

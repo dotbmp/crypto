@@ -342,7 +342,7 @@ blake512_write :: proc "contextless" (ctx : ^BLAKE_512, p: []byte) #no_bounds_ch
 	}
 }
 
-blake_checksum_256 :: proc "contextless" (ctx: ^BLAKE_256) -> [BLAKE_SIZE_256]byte #no_bounds_check {
+blake_checksum_256 :: proc (ctx: ^BLAKE_256) -> [BLAKE_SIZE_256]byte #no_bounds_check {
 	nx := u64(ctx.nx);
 
 	tmp : [65]byte;
@@ -395,7 +395,7 @@ blake_checksum_256 :: proc "contextless" (ctx: ^BLAKE_256) -> [BLAKE_SIZE_256]by
 	return digest;
 }
 
-blake512_final :: proc "contextless" (ctx: ^BLAKE_512) -> [BLAKE_SIZE_512]byte #no_bounds_check {
+blake512_final :: proc (ctx: ^BLAKE_512) -> [BLAKE_SIZE_512]byte #no_bounds_check {
 	
 	nx := u64(ctx.nx);
 
@@ -463,7 +463,7 @@ blake_writeAdditionalData_512 :: proc "contextless" (ctx: ^BLAKE_512, p: []byte)
 	blake512_write(ctx, p);
 }
 
-hash_224 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds_check {
+hash_224 :: proc (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds_check {
 	hash : [BLAKE_SIZE_224]byte = ---;
     ctx : BLAKE_256;
     ctx.is224 = true;
@@ -475,7 +475,7 @@ hash_224 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds
     return hash;
 }
 
-hash_256 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds_check {
+hash_256 :: proc (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds_check {
 
 	hash : [BLAKE_SIZE_256]byte = ---;
     ctx : BLAKE_256;
@@ -486,7 +486,7 @@ hash_256 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds
     return hash;
 }
 
-hash_384 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds_check {
+hash_384 :: proc (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds_check {
 
 	hash : [BLAKE_SIZE_384]byte = ---;
     ctx : BLAKE_512;
@@ -499,7 +499,7 @@ hash_384 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds
     return hash;
 }
 
-hash_512 :: proc "contextless" (data: []byte) -> [BLAKE_SIZE_512]byte #no_bounds_check {
+hash_512 :: proc (data: []byte) -> [BLAKE_SIZE_512]byte #no_bounds_check {
 
 	hash : [BLAKE_SIZE_512]byte = ---;
     ctx : BLAKE_512;

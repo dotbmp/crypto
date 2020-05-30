@@ -30,7 +30,7 @@ JH :: struct {
     buffer: [64]byte,
 }
 
-JH_L :: inline proc "contextless"(a, b: byte) -> (byte, byte) {
+JH_L :: inline proc (a, b: byte) -> (byte, byte) {
     a, b := a, b;
     (b) ~= ( ( (a) << 1) ~ ( (a) >> 3) ~ (( (a) >> 2) & 2) ) & 0xf;
     (a) ~= ( ( (b) << 1) ~ ( (b) >> 3) ~ (( (b) >> 2) & 2) ) & 0xf;
@@ -229,7 +229,7 @@ jh_final :: proc(ctx: ^JH) -> [128]byte {
     return ctx.H;
 }
 
-hash_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
+hash_224 :: proc (data: []byte) -> [28]byte #no_bounds_check {
     hash : [28]byte;
     ctx : JH;
     jh_init(&ctx, 224);
@@ -239,7 +239,7 @@ hash_224 :: proc "contextless" (data: []byte) -> [28]byte #no_bounds_check {
     return hash;
 }
 
-hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
+hash_256 :: proc (data: []byte) -> [32]byte #no_bounds_check {
     hash : [32]byte;
     ctx : JH;
     jh_init(&ctx, 256);
@@ -249,7 +249,7 @@ hash_256 :: proc "contextless" (data: []byte) -> [32]byte #no_bounds_check {
     return hash;
 }
 
-hash_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
+hash_384 :: proc (data: []byte) -> [48]byte #no_bounds_check {
     hash : [48]byte;
     ctx : JH;
     jh_init(&ctx, 384);
@@ -259,7 +259,7 @@ hash_384 :: proc "contextless" (data: []byte) -> [48]byte #no_bounds_check {
     return hash;
 }
 
-hash_512 :: proc "contextless" (data: []byte) -> [64]byte #no_bounds_check {
+hash_512 :: proc (data: []byte) -> [64]byte #no_bounds_check {
     hash : [64]byte;
     ctx : JH;
     jh_init(&ctx, 512);
