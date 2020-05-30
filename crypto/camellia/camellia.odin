@@ -678,32 +678,30 @@ decrypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
 }
 
 encrypt :: proc(key, plaintext: []byte, allocator := context.allocator) -> []byte {
+	length := len(key);
+	assert(length == 16 || length == 24 || length == 32, "Invalid key size");
     ciphertext := make([]byte, len(plaintext), allocator);
-    length := len(key);
     if length == 16 {
         ctx := Camellia128(key_schedule_128(key));
         crypt_128(&ctx, ciphertext[:], plaintext);
     } else if length == 24 || length == 32 {
         ctx := Camellia256(key_schedule_256(key));
         crypt_256(&ctx, ciphertext[:], plaintext);
-    } else {
-		return nil;
-	}
+    }
 	return ciphertext;
 }
 
 
 decrypt :: proc(key, ciphertext: []byte, allocator := context.allocator) -> []byte {
-    plaintext := make([]byte, len(ciphertext), allocator);
 	length := len(key);
+	assert(length == 16 || length == 24 || length == 32, "Invalid key size");
+    plaintext := make([]byte, len(ciphertext), allocator);
     if length == 16 {
         ctx := Camellia128(key_schedule_128(key));
         decrypt_128(&ctx, plaintext[:], ciphertext);
     } else if length == 24 || length == 32 {
         ctx := Camellia256(key_schedule_256(key));
         decrypt_256(&ctx, plaintext[:], ciphertext);
-    } else {
-		return nil;
-	}
+    }
 	return plaintext;
 }
