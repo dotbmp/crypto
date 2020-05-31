@@ -374,7 +374,7 @@ blake_checksum_256 :: proc (ctx: ^BLAKE_256) -> [BLAKE_SIZE_256]byte #no_bounds_
 	}
 
 	for i : uint = 0; i < 8; i += 1 {
-		tmp[i] = (56 - 8 * i) < 64 ? byte(length >> (56 - 8 * i)) : 0; // @todo(bp): remove this hideous fucking monstrosity once the compiler is fixed
+		tmp[i] = byte(length >> (56 - 8 * i));
 	}
 	blake_writeAdditionalData_256(ctx, tmp[0:8]);
 
