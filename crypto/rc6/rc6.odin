@@ -1,6 +1,5 @@
 package rc6
 
-import "core:fmt"
 import "../util"
 
 // @ref(zh): https://github.com/dgryski/go-rc6
