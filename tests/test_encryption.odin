@@ -74,7 +74,6 @@ main :: proc() {
     test_des();
     test_3des();
     test_camellia();
-
     test_bcrypt();
     test_idea();
 }
@@ -188,6 +187,7 @@ test_rc6 :: proc() {
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
             fmt.println("RC6 encryption test failed");
+            fmt.println("Expected: ", expected_cipher, "\nbut got: ", ciphertext);
             return;
         }
     }

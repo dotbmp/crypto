@@ -139,9 +139,10 @@ ROTR16 :: inline proc "contextless" (a, b: u16) -> u16 {
     return ((a >> b) | (a << (16 - b)));
 }
 
+//@FIXME(zh): Remove those ugly casts once the shifting is fixed.
 ROTL32 :: inline proc "contextless"(a: u32, b: int) -> u32 {
     s := uint(b) & 31;
-    return a << s | a >> (32 - s);
+    return u32((uint(a) << s) | (uint(a) >> (32 - s)));
 }
 
 ROTR32 :: inline proc "contextless" (a: u32, b: int) -> u32 {
