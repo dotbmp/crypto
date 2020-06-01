@@ -12,8 +12,6 @@ SHA512_DIGEST_SIZE :: 64;
 
 SHA256_BLOCK_SIZE :: 64;
 SHA512_BLOCK_SIZE :: 128;
-SHA384_BLOCK_SIZE :: SHA512_BLOCK_SIZE;
-SHA224_BLOCK_SIZE :: SHA256_BLOCK_SIZE;
 
 Sha256 :: struct {
     tot_len: uint,
@@ -279,45 +277,26 @@ sha2_update :: proc(ctx: ^$T, data: []byte) {
 	new_len, rem_len, tmp_len: uint;
 	shifted_message := make([]byte, length);
 
-	when T == Sha256 {
-		if ctx.is224 do tmp_len = SHA224_BLOCK_SIZE - ctx.length;
-		else 		 do tmp_len = SHA256_BLOCK_SIZE - ctx.length;
-	} else when T == Sha512 {
-		if ctx.is384 do tmp_len = SHA384_BLOCK_SIZE - ctx.length;
-		else 		 do tmp_len = SHA512_BLOCK_SIZE - ctx.length;
-	} 
+	when T == Sha256 	  do CURR_BLOCK_SIZE :: SHA256_BLOCK_SIZE;
+	else when T == Sha512 do CURR_BLOCK_SIZE :: SHA512_BLOCK_SIZE;
 
+	tmp_len = CURR_BLOCK_SIZE - ctx.length;
 	rem_len = length < tmp_len ? length : tmp_len;
-
 	copy(ctx.block[ctx.length:], data[:rem_len]);
 
-	if ctx.length + length < SHA256_BLOCK_SIZE {
+	if ctx.length + length < CURR_BLOCK_SIZE {
 		ctx.length += length;
 		return;
 	}
 
 	new_len = length - rem_len;
-	when T == Sha256 {
-		if ctx.is224 do block_nb = new_len / SHA224_BLOCK_SIZE;
-		else 		 do block_nb = new_len / SHA256_BLOCK_SIZE;
-	} else when T == Sha512 {
-		if ctx.is384 do block_nb = new_len / SHA384_BLOCK_SIZE;
-		else 		 do block_nb = new_len / SHA512_BLOCK_SIZE;
-	} 
-
+	block_nb = new_len / CURR_BLOCK_SIZE;
     shifted_message = data[rem_len:];
 
 	sha2_transf(ctx, ctx.block[:], 1);
 	sha2_transf(ctx, shifted_message, block_nb);
 
-	when T == Sha256 {
-		if ctx.is224 do rem_len = new_len % SHA224_BLOCK_SIZE;
-		else 		 do rem_len = new_len % SHA256_BLOCK_SIZE;
-	} else when T == Sha512 {
-		if ctx.is384 do rem_len = new_len % SHA384_BLOCK_SIZE;
-		else 		 do rem_len = new_len % SHA512_BLOCK_SIZE;
-	} 
-
+	rem_len = new_len % CURR_BLOCK_SIZE;
 	when T == Sha256 	  do copy(ctx.block[:], shifted_message[block_nb << 6:rem_len]);
 	else when T == Sha512 do copy(ctx.block[:], shifted_message[block_nb << 7:rem_len]);
 
@@ -330,16 +309,14 @@ sha2_final :: proc(ctx: ^$T, digest: []byte) {
 	block_nb, pm_len, len_b: u32;
 	i: i32;
 
-	when T == Sha256 {
-		if ctx.is224 do block_nb = 1 + ((SHA224_BLOCK_SIZE - 9) < (ctx.length % SHA224_BLOCK_SIZE) ? 1 : 0);
-		else 		 do block_nb = 1 + ((SHA256_BLOCK_SIZE - 9) < (ctx.length % SHA256_BLOCK_SIZE) ? 1 : 0);
-	} else when T == Sha512 {
-		if ctx.is384 do block_nb = 1 + ((SHA384_BLOCK_SIZE - 17) < (ctx.length % SHA384_BLOCK_SIZE) ? 1 : 0);
-		else 		 do block_nb = 1 + ((SHA512_BLOCK_SIZE - 17) < (ctx.length % SHA512_BLOCK_SIZE) ? 1 : 0);
-	} 
+	when T == Sha256 	  do CURR_BLOCK_SIZE :: SHA256_BLOCK_SIZE;
+	else when T == Sha512 do CURR_BLOCK_SIZE :: SHA512_BLOCK_SIZE;
+
+	when T == Sha256 	  do block_nb = 1 + ((CURR_BLOCK_SIZE - 9)  < (ctx.length % CURR_BLOCK_SIZE) ? 1 : 0);
+	else when T == Sha512 do block_nb = 1 + ((CURR_BLOCK_SIZE - 17) < (ctx.length % CURR_BLOCK_SIZE) ? 1 : 0);
 
 	len_b = u32(ctx.tot_len + ctx.length) << 3;
-	when T == Sha256 do pm_len = block_nb << 6;
+	when T == Sha256 	  do pm_len = block_nb << 6;
 	else when T == Sha512 do pm_len = block_nb << 7;
 
 	mem.set(rawptr(&(ctx.block[ctx.length:])[0]), 0, int(uint(pm_len) - ctx.length));
