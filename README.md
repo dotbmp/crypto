@@ -41,7 +41,7 @@ A crypto library for the Odin language
 - [ ] [ChaCha](https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant)
 - [x] [IDEA](https://en.wikipedia.org/wiki/International_Data_Encryption_Algorithm)
 #
-## Message authenticaion codes:
+## Message authentication codes:
 
 - [ ] [Poly1305](https://en.wikipedia.org/wiki/Poly1305)
 - [x] [HMAC](https://en.wikipedia.org/wiki/HMAC) ([MD5](https://en.wikipedia.org/wiki/MD5), [SHA-1](https://en.wikipedia.org/wiki/SHA-1), [SHA-2](https://en.wikipedia.org/wiki/SHA-2))
