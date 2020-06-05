@@ -28,7 +28,7 @@ A crypto library for the Odin language
 - [x] [Twofish](https://en.wikipedia.org/wiki/Twofish)
 - [x] [Threefish](https://en.wikipedia.org/wiki/Threefish)
 - [x] [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
-- [ ] [AES (Rijndael)](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+- [x] [AES (Rijndael)](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 - [x] [RC2](https://en.wikipedia.org/wiki/RC2)
 - [x] [RC4](https://en.wikipedia.org/wiki/RC4)
 - [x] [RC5](https://en.wikipedia.org/wiki/RC5)

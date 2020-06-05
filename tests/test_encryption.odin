@@ -14,6 +14,7 @@ import "../crypto/bcrypt"
 import "../crypto/des"
 import "../crypto/camellia"
 import "../crypto/idea"
+import "../crypto/aes"
 
 u64_le :: inline proc "contextless"(b: []byte) -> u64 {
 	return u64(b[0]) | u64(b[1]) << 8 | u64(b[2]) << 16 | u64(b[3]) << 24 |
@@ -62,6 +63,7 @@ hex_bytes :: proc(str: string, allocator := context.temp_allocator) -> []byte {
 }
 
 main :: proc() {
+    test_aes();
     test_blowfish();
     test_twofish();
     test_threefish();
@@ -76,6 +78,23 @@ main :: proc() {
     test_camellia();
     test_bcrypt();
     test_idea();
+}
+
+test_aes :: proc() {
+    ctx: aes.Aes256;
+
+    plaintext := [16]byte{0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a};
+    ciphertext := [16]byte{0xf3,0xee,0xd1,0xbd,0xb5,0xd2,0xa0,0x3c,0x06,0x4b,0x5a,0x7e,0x3d,0xb1,0x81,0xf8};
+    key := [32]byte{0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4};
+
+    cipher := aes.encrypt(&ctx, key[:], plaintext[:]);
+    clear  := aes.decrypt(&ctx, cipher[:]);
+    
+    if cipher == ciphertext && clear == plaintext {
+        fmt.println("AES ECB test passed");
+    } else {
+        fmt.println("AES ECB test failed");
+    }
 }
 
 test_blowfish :: proc() {
