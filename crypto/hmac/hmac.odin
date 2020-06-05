@@ -1,21 +1,23 @@
 package hmac
 
 // @ref(zh): https://github.com/ogay/hmac/blob/master/hmac_sha2.c
+
 import "core:mem"
+import "../sha2"
+import "../sha1"
+import "../md5"
 
 /////////////////////////////
 // SHA2 HMAC
 /////////////////////////////
-
-import "../sha2"
 
 HmacSha224 :: struct {
     ctx_inside: sha2.Sha256,
     ctx_outside: sha2.Sha256,
     ctx_inside_reinit: sha2.Sha256,
     ctx_outside_reinit: sha2.Sha256,
-    block_ipad: [sha2.SHA224_BLOCK_SIZE]byte,
-    block_opad: [sha2.SHA224_BLOCK_SIZE]byte,
+    block_ipad: [sha2.SHA256_BLOCK_SIZE]byte,
+    block_opad: [sha2.SHA256_BLOCK_SIZE]byte,
 };
 
 HmacSha256 :: struct {
@@ -32,8 +34,8 @@ HmacSha384 :: struct {
     ctx_outside: sha2.Sha512,
     ctx_inside_reinit: sha2.Sha512,
     ctx_outside_reinit: sha2.Sha512,
-    block_ipad: [sha2.SHA384_BLOCK_SIZE]byte,
-    block_opad: [sha2.SHA384_BLOCK_SIZE]byte,
+    block_ipad: [sha2.SHA512_BLOCK_SIZE]byte,
+    block_opad: [sha2.SHA512_BLOCK_SIZE]byte,
 };
 
 HmacSha512 :: struct {
@@ -51,7 +53,7 @@ hmac_sha2_init :: proc(ctx: ^$T, key: []byte) {
     key_used := make([]byte, key_size);
 
     when T == HmacSha224 {
-        block_size  :: sha2.SHA224_BLOCK_SIZE;
+        block_size  :: sha2.SHA256_BLOCK_SIZE;
         digest_size :: sha2.SHA224_DIGEST_SIZE;
         sizeof      :: size_of(sha2.Sha256);
     } else when T == HmacSha256 {
@@ -59,7 +61,7 @@ hmac_sha2_init :: proc(ctx: ^$T, key: []byte) {
         digest_size :: sha2.SHA256_DIGEST_SIZE;
         sizeof      :: size_of(sha2.Sha256);
     } else when T == HmacSha384 {
-        block_size  :: sha2.SHA384_BLOCK_SIZE;
+        block_size  :: sha2.SHA512_BLOCK_SIZE;
         digest_size :: sha2.SHA384_DIGEST_SIZE;
         sizeof      :: size_of(sha2.Sha512);
     } else when T == HmacSha512 {
@@ -158,8 +160,6 @@ sha512 :: proc(data, key: []byte) -> [sha2.SHA512_DIGEST_SIZE]byte {
 // SHA1 HMAC
 /////////////////////////////
 
-import "../sha1"
-
 HmacSha1 :: struct {
     ctx_inside: sha1.SHA1_CTX,
     ctx_outside: sha1.SHA1_CTX,
@@ -225,8 +225,6 @@ sha1 :: proc(data, key: []byte) -> [sha1.DIGEST_SIZE]byte {
 /////////////////////////////
 // MD5 HMAC
 /////////////////////////////
-
-import "../md5"
 
 HmacMd5 :: struct {
     ctx_inside: md5.MD5_CTX,
