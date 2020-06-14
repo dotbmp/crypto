@@ -167,6 +167,10 @@ ROTL128 :: inline proc "contextless" (a, b, c, d: ^u32, n: uint) {
     d^ = ((d^ << n) | t);
 }
 
+xor_buf :: proc(input, output: []byte) {
+    for i := 0; i < len(input); i += 1 do output[i] ~= input[i];
+}
+
 Mode :: enum {
     ECB,
     CBC,

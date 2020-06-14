@@ -1,7 +1,7 @@
 package aes
 
 import "../util"
-
+import "core:fmt"
 // @ref(zh): https://github.com/B-Con/crypto-algorithms/aes.c
 
 SBOX := [16][16]byte {
@@ -540,6 +540,37 @@ inv_mix_columns :: proc(state: []byte) {
 	state[15] ~= GF_MUL[col[1]][4];
 	state[15] ~= GF_MUL[col[2]][2];
 	state[15] ~= GF_MUL[col[3]][5];
+}
+
+
+encrypt_cbc :: proc(ctx: ^$T, key, plaintext, iv: []byte, allocator := context.allocator) -> []byte {
+	input, output, iv_buf: [BLOCK_SIZE]byte;
+	blocks := len(plaintext) / BLOCK_SIZE;
+	ciphertext := make([]byte, blocks * BLOCK_SIZE, allocator);
+	copy(iv_buf[:], iv[:]);
+	for i := 0; i < blocks; i += 1 {
+		copy(input[:], plaintext[i * BLOCK_SIZE:]);
+		util.xor_buf(iv_buf[:], input[:]);
+		output = encrypt(ctx, key[:], input[:]);
+		copy(ciphertext[i * BLOCK_SIZE:], output[:]);
+		copy(iv_buf[:], output[:]);
+	}
+	return ciphertext;
+}
+
+decrypt_cbc :: proc(ctx: ^$T, ciphertext, iv: []byte, allocator := context.allocator) -> []byte {
+	input, output, iv_buf: [BLOCK_SIZE]byte;
+	blocks := len(ciphertext) / BLOCK_SIZE;
+	plaintext := make([]byte, blocks * BLOCK_SIZE, allocator);
+	copy(iv_buf[:], iv[:]);
+	for i := 0; i < blocks; i += 1 {
+		copy(input[:], ciphertext[i * BLOCK_SIZE:]);
+		output = decrypt(ctx, input[:]);
+		util.xor_buf(iv_buf[:], output[:]);
+		copy(plaintext[i * BLOCK_SIZE:], output[:]);
+		copy(iv_buf[:], input[:]);
+	}
+	return plaintext;
 }
 
 encrypt :: proc(ctx: ^$T, key, plaintext: []byte) -> [16]byte {
