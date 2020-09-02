@@ -1,7 +1,6 @@
 package test_encryption
 
 import "core:fmt"
-import "../crypto"
 import "../crypto/blowfish"
 import "../crypto/twofish"
 import "../crypto/threefish"
