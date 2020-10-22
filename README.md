@@ -1,6 +1,7 @@
 # crypto
 A crypto library for the Odin language
 
+#
 ## Hash algorithms:
 
 - [x] [BLAKE / BLAKE2](https://en.wikipedia.org/wiki/BLAKE_(hash_function))
