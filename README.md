@@ -80,8 +80,20 @@ main :: proc() {
 }
 ```
 #
-## API documentation
+## API
 
+The API follows a couple simple ideas.
+We try to have one call for each thing where possible. The idea behind it is to make using it very easy and simple, without needing to set up a lot or calling 3 procs just to get a hash.
+Having said that, you can still call the procs however you want.
+
+For the hash algorithms, the proc is almost always called hash.
+If there are different sizes of hashes, it is just hash followed by the size (e.g. hash_256, hash_512).
+If the algorithm has additional parameters, like number of rounds that is added to the proc name as well.
+(e.g. hash_3_256)
+
+*One algorithm that does not follow this is the HMAC implementation, where the proc names are just the hash names themselves, since there is more than one HMAC implementation. Another example of this is BCrypt.
+
+For the encryption algorithms the corresponding procs are called encrypt and decrypt, if there are various sizes or modes of operation the modes are added to the proc name. (e.g. encrypt_ecb, encrypt_cbc, triple_encrypt/decrypt in the case of Triple-DES)
 
 #
 ## Disclaimer
@@ -94,4 +106,4 @@ We do not recommend using them in a production environment, without any addition
 #
 ## Contributing
 
-We welcome contributions in the form of implementations to not yet added algorithms, improvements to existing ones and of their respective test cases. Please adhere to the provided API design.
+We welcome contributions in the form of implementations to not yet added algorithms, improvements to existing ones and of their respective test cases. Please adhere to the provided API design where possible.
