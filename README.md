@@ -86,7 +86,7 @@ The API follows a couple simple ideas.
 We try to have one call for each thing where possible. The idea behind it is to make using it very easy and simple, without needing to set up a lot or calling 3 procs just to get a hash.
 Having said that, you can still call the procs however you want.
 
-For the hash algorithms, the proc is almost always called hash.
+For the hash algorithms, the proc is almost always* called hash.
 If there are different sizes of hashes, it is just hash followed by the size (e.g. hash_256, hash_512).
 If the algorithm has additional parameters, like number of rounds that is added to the proc name as well.
 (e.g. hash_3_256)
