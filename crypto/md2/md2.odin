@@ -2,10 +2,6 @@ package md2
 
 // @ref(zh): https://github.com/B-Con/crypto-algorithms
 
-import "core:hash"
-import "core:runtime"
-import "core:math/bits"
-
 MD2_BLOCK_SIZE :: 16;
 
 MD2_CTX :: struct {

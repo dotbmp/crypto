@@ -76,7 +76,7 @@ gf_mult :: proc(a, b: byte, p: u32) -> byte {
 	P := [2]u32{0, p};
 	result: u32;
 
-    for i in 0..<7 {
+    for _ in 0..<7 {
         result ~= B[a & 1];
 		a >>= 1;
 		B[1] = P[B[1] >> 7] ~ (B[1] << 1);
@@ -142,17 +142,17 @@ init :: proc(ctx: ^Twofish, key: []byte) {
     S: [BLOCK_SIZE]byte;
     for i in 0..<k {
         for rsRow, j in RS {
-            for rsVal, k in rsRow {
-                S[4 * i + j] ~= gf_mult(key[8 * i + k], rsVal, RS_POLY);
+            for rsVal, l in rsRow {
+                S[4 * i + j] ~= gf_mult(key[8 * i + l], rsVal, RS_POLY);
             }
         }
     }
 
     tmp: [4]byte;
     for i in 0..<20 {
-        for v, j in tmp do tmp[j] = 2 * byte(i);
+        for _, j in tmp do tmp[j] = 2 * byte(i);
         A := h(tmp[:], key, 0);
-        for v, j in tmp do tmp[j] = 2 * byte(i) + 1;
+        for _, j in tmp do tmp[j] = 2 * byte(i) + 1;
         B := h(tmp[:], key, 1);
         B = util.ROTL32(B, 8);
 

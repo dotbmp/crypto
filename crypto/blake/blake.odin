@@ -1,8 +1,5 @@
 package blake
 
-import "core:runtime"
-import "core:mem"
-
 // @ref(zh): https://github.com/ouzklcn/blake
 
 // BLAKE reference implemenation:
@@ -428,7 +425,9 @@ blake512_final :: proc (ctx: ^BLAKE_512) -> [BLAKE_SIZE_512]byte #no_bounds_chec
 	}
 
 	for i : uint = 0; i < 16; i += 1 {
-		tmp[i] = (120 - 8 * i) < 64 ? byte(length >> (120 - 8 * i)) : 0; // @todo(bp): remove this hideous fucking monstrosity once the compiler is fixed
+		tmp[i] = (120 - 8 * i) < 64 ? byte(length >> (120 - 8 * i)) : 0; 
+		// @todo(bp): remove this hideous fucking monstrosity once the compiler is fixed
+		// @note(zh): won't be fixed. shifting is like this on purpose. Bill does not want the other behavior
 	}
 	blake_writeAdditionalData_512(ctx, tmp[0:16]);
 

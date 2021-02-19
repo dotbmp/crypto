@@ -1,6 +1,5 @@
 package ripemd
 
-import "core:mem"
 import "../util"
 
 // @ref(zh): https://github.com/maoxs2/go-ripemd <- Has a lot of errors and mixups with 256 and 320

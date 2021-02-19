@@ -1,7 +1,5 @@
 package whirlpool
 
-import "core:mem"
-
 // @ref(bp): https://github.com/jzelinskie/whirlpool
 // whirlpool stub
 // reference implementaton:

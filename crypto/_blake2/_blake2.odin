@@ -1,8 +1,5 @@
 package _blake2
 
-import "core:runtime"
-import "core:mem"
-
 // @ref(zh): https://github.com/dchest/blake2s
 // @ref(zh): https://github.com/dchest/blake2b
 
@@ -182,7 +179,6 @@ blake2_initialize :: proc(ctx: ^$T, c: ^BLAKE2_CONFIG, is_blake2s: bool) {
 }
 
 blake2_write :: proc(ctx: $T, p: []byte, is_blake2s: bool) {
-	nn := len(p);
 	block_size := BLAKE2S_BLOCK_SIZE;
 	p := p;
 	if !is_blake2s do block_size = BLAKE2B_BLOCK_SIZE;

@@ -1,7 +1,5 @@
 package blowfish
 
-import "../util"
-
 // @ref(zh): https://www.schneier.com/code/bfsh-koc.zip // For standard Blowfish
 // @ref(zh): https://github.com/tombonner/blowfish-api  // For various modes of operation (ECB, CBC etc.)
 

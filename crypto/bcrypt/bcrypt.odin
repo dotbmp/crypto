@@ -4,7 +4,6 @@ import "core:math/rand"
 import "core:strings"
 import "core:strconv"
 import "core:encoding/base64"
-import "../util"
 
 // @ref(zh): https://github.com/kruton/jbcrypt
 
@@ -360,7 +359,7 @@ stream_to_word :: inline proc "contextless"(data: []byte, off: int) -> (uint, in
     off := off;
     length := len(data);
 
-    for i in 0..<4 {
+    for _ in 0..<4 {
 		word = (word << 8) | uint(data[off] & 0xff);
 		off = (off + 1) % length;
     }
@@ -410,14 +409,14 @@ crypt_raw :: proc(password, salt: []byte, log_rounds: int) -> []byte {
     };
 
     expensive_key(&ctx, salt, password);
-    for i in 0..<rounds {
+    for _ in 0..<rounds {
         key(&ctx, password);
         key(&ctx, salt);
     }
 
     cdata := BCRYPT_IV;
 
-    for i in 0..<64 {
+    for _ in 0..<64 {
         for j in 0..<(6 >> 1) do encipher(&ctx, cdata[:], j << 1);
     }
 

@@ -136,12 +136,12 @@ sha1_final :: proc(ctx : ^SHA1_CTX, hash : ^[DIGEST_SIZE]byte) {
 	ctx.data[56] = u8(ctx.bitlen >> 56);
 	sha1_transform(ctx, ctx.data);
 
-	for i : u32 = 0; i < 4; i += 1 {
-		hash[i]      = u8((ctx.state[0] >> (24 - i * 8))) & 0x000000ff;
-		hash[i + 4]  = u8((ctx.state[1] >> (24 - i * 8))) & 0x000000ff;
-		hash[i + 8]  = u8((ctx.state[2] >> (24 - i * 8))) & 0x000000ff;
-		hash[i + 12] = u8((ctx.state[3] >> (24 - i * 8))) & 0x000000ff;
-		hash[i + 16] = u8((ctx.state[4] >> (24 - i * 8))) & 0x000000ff;
+	for j : u32 = 0; j < 4; j += 1 {
+		hash[j]      = u8((ctx.state[0] >> (24 - j * 8))) & 0x000000ff;
+		hash[j + 4]  = u8((ctx.state[1] >> (24 - j * 8))) & 0x000000ff;
+		hash[j + 8]  = u8((ctx.state[2] >> (24 - j * 8))) & 0x000000ff;
+		hash[j + 12] = u8((ctx.state[3] >> (24 - j * 8))) & 0x000000ff;
+		hash[j + 16] = u8((ctx.state[4] >> (24 - j * 8))) & 0x000000ff;
 	}
 }
 

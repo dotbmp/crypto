@@ -1,7 +1,5 @@
 package rc4
 
-import "../util"
-
 // @ref(zh): https://gist.github.com/rverton/a44fc8ca67ab9ec32089
 
 N :: 256;

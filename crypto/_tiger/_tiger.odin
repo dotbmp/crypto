@@ -1,6 +1,5 @@
 package _tiger
 
-import "core:mem"
 import "../util"
 
 // @ref(zh): https://github.com/cxmcc/tiger

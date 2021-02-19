@@ -1,6 +1,5 @@
 package streebog
 
-import "core:mem"
 import "../util"
 
 // @ref(zh): https://github.com/Polymorph1024/Streebog

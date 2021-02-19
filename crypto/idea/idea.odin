@@ -52,7 +52,7 @@ crypt :: proc(ctx: ^Idea, input, output: []byte) {
 	x3 := i32(((i32(input[6] & 0xff)) << 8) | i32(input[7] & 0xff));
 
 	p := 0;
-	for a in 0..<ROUNDS {
+	for _ in 0..<ROUNDS {
 		y0 := i32(mul(x0, ctx.expanded_key[p])); p += 1;
 		y1 := i32(add(x1, ctx.expanded_key[p])); p += 1;
 		y2 := i32(add(x2, ctx.expanded_key[p])); p += 1;

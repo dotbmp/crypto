@@ -1,7 +1,5 @@
 package jh
 
-import "core:strings"
-
 // @ref(zh): http://www3.ntu.edu.sg/home/wuhj/research/jh/jh_ref.h
 
 JH_ROUNDCONSTANT_ZERO := [64]byte {
@@ -124,9 +122,6 @@ JH_E8_initialgroup :: proc(ctx: ^JH) {
 }
 
 JH_E8 :: proc(ctx: ^JH) {
-    t0,t1,t2,t3: byte;
-    tem: [256]byte;
-
     for i := 0; i < 64; i += 1 do ctx.roundconstant[i] = JH_ROUNDCONSTANT_ZERO[i];
     JH_E8_initialgroup(ctx);
     for i := 0; i < 42; i += 1 {
