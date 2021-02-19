@@ -95,6 +95,9 @@ If the algorithm has additional parameters, like number of rounds that is added 
 
 For the encryption algorithms the corresponding procs are called encrypt and decrypt, if there are various sizes or modes of operation the modes are added to the proc name. (e.g. encrypt_ecb, encrypt_cbc, triple_encrypt/decrypt in the case of Triple-DES)
 
+API design regarding salting and file hashing is not yet done.
+Ideally we want to have a single call for both and then just deal with whatever is put in accordingly and call the correct proc.
+
 #
 ## Disclaimer
 
