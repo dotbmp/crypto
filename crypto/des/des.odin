@@ -209,7 +209,6 @@ F :: inline proc "contextless"(state: u32, key: []byte) -> u32 {
 	return state;
 }
 
-@private
 des_key_setup :: proc (key: []byte, schedule: [][6]byte, is_encrypt: bool) {
     i, j, to_gen, C, D: u32;
 
@@ -229,7 +228,6 @@ des_key_setup :: proc (key: []byte, schedule: [][6]byte, is_encrypt: bool) {
     }
 }
 
-@private
 des_crypt :: proc(input, out: []byte, key: [][6]byte) {
     t: u32;
     state: [2]u32;
