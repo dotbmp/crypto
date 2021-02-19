@@ -2,7 +2,6 @@ package util
 
 import "core:mem"
 import "core:os"
-import "core:fmt"
 
 hash_file :: proc{hash_file_array, hash_file_slice_in, hash_file_slice_out};
 
@@ -139,7 +138,7 @@ ROTR16 :: inline proc "contextless" (a, b: u16) -> u16 {
     return ((a >> b) | (a << (16 - b)));
 }
 
-//@FIXME(zh): Remove those ugly casts once the shifting is fixed.
+//@note(zh): Needs to be done that way since Odin's shifting behavior is different than for example Go's
 ROTL32 :: inline proc "contextless"(a: u32, b: int) -> u32 {
     s := uint(b) & 31;
     return u32((uint(a) << s) | (uint(a) >> (32 - s)));
@@ -170,11 +169,3 @@ ROTL128 :: inline proc "contextless" (a, b, c, d: ^u32, n: uint) {
 xor_buf :: proc(input, output: []byte) {
     for i := 0; i < len(input); i += 1 do output[i] ~= input[i];
 }
-
-Mode :: enum {
-    ECB,
-    CBC,
-    CFB,
-    OFB,
-    CTR,
-};

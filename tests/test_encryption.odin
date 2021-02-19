@@ -67,7 +67,6 @@ main :: proc() {
     test_blowfish();
     test_twofish();
     test_threefish();
-    //test_blowfish_cbc();
     test_rc2();
     test_rc4();
     test_rc5();
@@ -80,49 +79,60 @@ main :: proc() {
     test_idea();
 }
 
+print_test_result :: proc(algo: string, passed: bool) {
+    if passed do fmt.printf(" === Tests for %s passed ===\n", algo);
+    else      do fmt.printf(" === Tests for %s failed ===\n", algo);   
+}
+
 test_aes_ecb :: proc() {
     ctx: aes.Aes256;
 
-    plaintext := [16]byte{0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a};
+    plaintext  := [16]byte{0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a};
     ciphertext := [16]byte{0xf3,0xee,0xd1,0xbd,0xb5,0xd2,0xa0,0x3c,0x06,0x4b,0x5a,0x7e,0x3d,0xb1,0x81,0xf8};
-    key := [32]byte{0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4};
+    key        := [32]byte{0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4};
 
-    cipher := aes.encrypt(&ctx, key[:], plaintext[:]);
-    clear  := aes.decrypt(&ctx, cipher[:]);
+    cipher := aes.encrypt_ecb(&ctx, key[:], plaintext[:]);
+    clear  := aes.decrypt_ecb(&ctx, cipher[:]);
     
-    if cipher == ciphertext && clear == plaintext {
-        fmt.println("AES ECB test passed");
-    } else {
-        fmt.println("AES ECB test failed");
+    for v, i in cipher {
+        if v != ciphertext[i] {
+            print_test_result("AES ECB", false);
+            return;
+        }
     }
+    for v, i in clear {
+        if v != plaintext[i] {
+            print_test_result("AES ECB", false);
+            return;
+        }
+    }
+    print_test_result("AES ECB", true);
 }
 
 test_aes_cbc :: proc() {
     ctx: aes.Aes256;
 
-    plaintext := [32]byte{0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a,0xae,0x2d,0x8a,0x57,0x1e,0x03,0xac,0x9c,0x9e,0xb7,0x6f,0xac,0x45,0xaf,0x8e,0x51};
+    plaintext  := [32]byte{0x6b,0xc1,0xbe,0xe2,0x2e,0x40,0x9f,0x96,0xe9,0x3d,0x7e,0x11,0x73,0x93,0x17,0x2a,0xae,0x2d,0x8a,0x57,0x1e,0x03,0xac,0x9c,0x9e,0xb7,0x6f,0xac,0x45,0xaf,0x8e,0x51};
     ciphertext := [32]byte{0xf5,0x8c,0x4c,0x04,0xd6,0xe5,0xf1,0xba,0x77,0x9e,0xab,0xfb,0x5f,0x7b,0xfb,0xd6,0x9c,0xfc,0x4e,0x96,0x7e,0xdb,0x80,0x8d,0x67,0x9f,0x77,0x7b,0xc6,0x70,0x2c,0x7d};
-    key := [32]byte{0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4};
-    iv := [16]byte{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f};
+    key        := [32]byte{0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4};
+    iv         := [16]byte{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f};
 
     cipher := aes.encrypt_cbc(&ctx, key[:], plaintext[:], iv[:]);
     clear  := aes.decrypt_cbc(&ctx, cipher[:], iv[:]);
 
     for i := 0; i < len(cipher); i += 1 {
         if cipher[i] != ciphertext[i] {
-            fmt.println("AES CBC test failed");
+            print_test_result("AES CBC", false);
             return;
         }
     }
-
     for i := 0; i < len(clear); i += 1 {
         if clear[i] != plaintext[i] {
-            fmt.println("AES CBC test failed");
+            print_test_result("AES CBC", false);
             return;
         }
     }
-    
-    fmt.println("AES CBC test passed");
+    print_test_result("AES CBC", true);
 }
 
 test_blowfish :: proc() {
@@ -133,22 +143,11 @@ test_blowfish :: proc() {
     clear: [8]byte;
     blowfish.decrypt_ecb(&ctx, clear[:], cipher[:]);
     if hex_string(cipher[:]) == "4ef997456198dd78" && hex_string(clear[:]) == "0000000000000000" {
-        fmt.println("Blowfish test passed");
+        print_test_result("Blowfish", true);
     } 
     else {
-        fmt.println("Blowfish test failed");
+        print_test_result("Blowfish", false);
     }
-}
-
-test_blowfish_cbc :: proc() {
-    ctx: blowfish.Ctx;
-
-    input := "4567 123 woNt sit eh emi";
-    key: [16]byte = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xf0, 0xe1, 0xd2, 0xc3, 0xb4, 0xa5, 0x96, 0x87};
-    iv: [8]byte = {0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76};
-
-    cipher := blowfish.encrypt_cbc(&ctx, transmute([]byte)(input), key[:], iv[:]);
-    fmt.println(cipher);
 }
 
 test_rc2 :: proc() {
@@ -160,18 +159,18 @@ test_rc2 :: proc() {
     ciphertext := hex_string(cipherbytes[:]);
 
     if !(expected_cipher == ciphertext) {
-        fmt.println("RC2 encryption test failed");
+        print_test_result("RC2", false);
         return;
     }
 
     plain := rc2.decrypt(key, hex_bytes(ciphertext));
 
     if hex_string(plain[:]) != hex_string(plaintext) {
-        fmt.println("RC2 decryption test failed");
+        print_test_result("RC2", false);
         return;
     }
 
-    fmt.println("RC2 test passed");
+    print_test_result("RC2", true);
 }
 
 test_rc4 :: proc() {
@@ -183,7 +182,7 @@ test_rc4 :: proc() {
 
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
-            fmt.println("RC4 encryption test failed");
+            print_test_result("RC4", false);
             return;
         }
     }
@@ -191,11 +190,11 @@ test_rc4 :: proc() {
     plain := rc4.decrypt(transmute([]byte)(key), transmute([]byte)(ciphertext));
 
     if string(plain) != plaintext {
-        fmt.println("RC4 decryption test failed");
+        print_test_result("RC4", false);
         return;
     }
 
-    fmt.println("RC4 test passed");
+    print_test_result("RC4", true);
 }
 
 test_rc5 :: proc() {
@@ -207,7 +206,7 @@ test_rc5 :: proc() {
 
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
-            fmt.println("RC5 encryption test failed");
+            print_test_result("RC5", false);
             return;
         }
     }
@@ -216,12 +215,12 @@ test_rc5 :: proc() {
 
     for i := 0; i < len(ciphertext); i += 1 {
         if !(plaintext[i] == plain[i]) {
-            fmt.println("RC5 decryption test failed");
+            print_test_result("RC5", false);
             return;
         }
     }
 
-    fmt.println("RC5 test passed");
+    print_test_result("RC5", true);
 }
 
 test_rc6 :: proc() {
@@ -233,8 +232,7 @@ test_rc6 :: proc() {
 
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
-            fmt.println("RC6 encryption test failed");
-            fmt.println("Expected: ", expected_cipher, "\nbut got: ", ciphertext);
+            print_test_result("RC6", false);
             return;
         }
     }
@@ -243,12 +241,12 @@ test_rc6 :: proc() {
 
     for i := 0; i < len(ciphertext); i += 1 {
         if !(plaintext[i] == plain[i]) {
-            fmt.println("RC6 decryption test failed");
+            print_test_result("RC6", false);
             return;
         }
     }
 
-    fmt.println("RC6 test passed");
+    print_test_result("RC6", true);
 }
 
 TestVector :: struct {
@@ -276,19 +274,19 @@ test_serpent :: proc() {
         cipher := serpent.encrypt(hex_bytes(v.key), hex_bytes(v.plaintext));
 
         if v.ciphertext != hex_string(cipher) {
-            fmt.println("Serpent encryption test failed");
+            print_test_result("Serpent", false);
             return;
         }
 
         plain := serpent.decrypt(hex_bytes(v.key), cipher);
 
         if v.plaintext != hex_string(plain) {
-            fmt.println("Serpent decryption test failed");
+            print_test_result("Serpent", false);
             return;
         }
     }
 
-    fmt.println("Serpent tests passed");
+    print_test_result("Serpent", true);
 }
 
 test_bcrypt :: proc() {
@@ -302,8 +300,7 @@ test_bcrypt :: proc() {
     if wanted != hash do passed = false;
     if !bcrypt.check_pw(wanted, password) do passed = false;
     
-    if passed do fmt.println("BCrypt test passed");
-    else do fmt.println("BCrypt test not passed");
+    print_test_result("BCrypt", passed);
 }
 
 test_des :: proc() {
@@ -317,7 +314,7 @@ test_des :: proc() {
 
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
-            fmt.println("DES encryption test failed");
+            print_test_result("DES", false);
             return;
         }
     }
@@ -327,12 +324,12 @@ test_des :: proc() {
 
     for i := 0; i < len(ciphertext); i += 1 {
         if !(plaintext[i] == plain[i]) {
-            fmt.println("DES decryption test failed");
+            print_test_result("DES", false);
             return;
         }
     }
 
-    fmt.println("DES test passed");
+    print_test_result("DES", true);
 }
 
 test_3des :: proc() {
@@ -348,7 +345,7 @@ test_3des :: proc() {
 
     for i := 0; i < len(plaintext); i += 1 {
         if !(expected_cipher[i] == ciphertext[i]) {
-            fmt.println("3DES encryption test failed");
+            print_test_result("3DES", false);
             return;
         }
     }
@@ -358,12 +355,12 @@ test_3des :: proc() {
 
     for i := 0; i < len(ciphertext); i += 1 {
         if !(plaintext[i] == plain[i]) {
-            fmt.println("3DES decryption test failed");
+            print_test_result("3DES", false);
             return;
         }
     }
 
-    fmt.println("3DES test passed");
+    print_test_result("3DES", true);
 }
 
 test_twofish :: proc() {
@@ -418,20 +415,20 @@ test_twofish :: proc() {
 
         for w, i in ciphertext {
             if w != v.enc[i] {
-                fmt.println("Twofish test failed. Expected ", v.enc, " but got: ", ciphertext);
+                print_test_result("Twofish", false);
                 return;
             }
         }
 
         for w, i in plaintext {
             if w != v.dec[i] {
-                fmt.println("Twofish test failed. Expected ", v.dec, " but got: ", plaintext);
+                print_test_result("Twofish", false);
                 return;
             }
         }
     }
 
-    fmt.println("Twofish tests passed");
+    print_test_result("Twofish", true);
 }
 
 test_threefish :: proc() {
@@ -457,7 +454,7 @@ test_threefish :: proc() {
 
     for i := 0; i < len(enc256); i += 1 {
         if enc256[i] != resbytes256[i] || dec256[i] != databytes256[i] {
-            fmt.println("Threefish 256 test failed");
+            print_test_result("Threefish256", false);
             return;
         }
     }
@@ -485,7 +482,7 @@ test_threefish :: proc() {
 
     for i := 0; i < len(enc512); i += 1 {
         if enc512[i] != resbytes512[i] || dec512[i] != databytes512[i] {
-            fmt.println("Threefish 512 test failed");
+            print_test_result("Threefish512", false);
             return;
         }
     }
@@ -516,12 +513,12 @@ test_threefish :: proc() {
 
     for i := 0; i < len(enc1024); i += 1 {
         if enc1024[i] != resbytes1024[i] || dec1024[i] != databytes1024[i] {
-            fmt.println("Threefish 1024 test failed");
+            print_test_result("Threefish1024", false);
             return;
         }
     }
 
-    fmt.println("Threefish tests passed");
+    print_test_result("Threefish", true);
 }
 
 test_camellia :: proc() {
@@ -534,23 +531,21 @@ test_camellia :: proc() {
 	for v in test_vectors {
         cipher := camellia.encrypt(hex_bytes(v.key), hex_bytes(v.plaintext));
         if v.ciphertext != hex_string(cipher) {
-            fmt.println("Camellia encryption test failed");
-            fmt.println("Expected: ", v.ciphertext, " but got: " , hex_string(cipher));
+            print_test_result("Camellia", false);
             return;
         }
         
         plain := camellia.decrypt(hex_bytes(v.key), cipher);
 
         if v.plaintext != hex_string(plain) {
-            fmt.println("Camellia decryption test failed");
-            fmt.println("Expected: ", v.plaintext, " but got: " , hex_string(plain));
+            print_test_result("Camellia", false);
             return;
         }
 
         delete(cipher);
     }
 
-    fmt.println("Camellia tests passed");
+    print_test_result("Camellia", true);
 }
 
 test_idea :: proc() {
@@ -585,17 +580,15 @@ test_idea :: proc() {
     for v in &tests {
         cipher := idea.encrypt(v.key[:], v.plaintext[:]);
         if hex_string(cipher[:]) != hex_string(v.ciphertext[:]) {
-            fmt.println("IDEA encryption test failed");
-            fmt.println("Expected: ", hex_string(v.ciphertext[:]), " but got: " , hex_string(cipher));
+            print_test_result("IDEA", false);
             return;
         }
         plain := idea.decrypt(v.key[:], cipher[:]);
         if hex_string(plain[:]) != hex_string(v.plaintext[:]) {
-            fmt.println("IDEA decryption test failed");
-            fmt.println("Expected: ", hex_string(v.plaintext[:]), " but got: " , hex_string(plain));
+            print_test_result("IDEA", false);
             return;
         }
     }
 
-    fmt.println("IDEA tests passed");
+    print_test_result("IDEA", true);
 }

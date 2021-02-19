@@ -100,7 +100,6 @@ mds_column_mult :: proc(input: byte, col: int) -> u32 {
         case 3:
             return u32(mul5B) | u32(mul01) << 8 | u32(mulEF) << 16 | u32(mul5B) << 24;
 	}
-    unreachable();
     return 0;
 }
 

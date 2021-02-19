@@ -1,6 +1,5 @@
 package blowfish
 
-import "core:fmt"
 import "../util"
 
 // @ref(zh): https://www.schneier.com/code/bfsh-koc.zip // For standard Blowfish
@@ -282,7 +281,6 @@ Ctx :: struct {
     OrigIVHigh: u32,
     IVLow: u32,
     IVHigh: u32,
-    mode: util.Mode,
 }
 
 BLOWFISH_CIPHER :: inline proc "contextless"(xl, xr: u32, P: ^[18]u32, S0, S1, S2, S3: ^[256]u32, round: i32) -> (u32, u32) {
@@ -427,7 +425,7 @@ blowfish_decrypt :: proc(ctx: ^Ctx, xl, xr: ^u32) {
 }
 
 encrypt_ecb :: proc(ctx: ^Ctx, src, key: []byte) -> [8]byte {
-    ctx.mode, ctx.IVHigh, ctx.IVLow = util.Mode.ECB, 0, 0;
+    ctx.IVHigh, ctx.IVLow = 0, 0;
     xl, xr := blowfish_split(src);
     blowfish_setkey(ctx, key);
     blowfish_encrypt(ctx, &xl, &xr);
@@ -440,44 +438,4 @@ decrypt_ecb :: proc(ctx: ^Ctx, dst, src: []byte) {
     xl, xr := blowfish_split(src);
     blowfish_decrypt(ctx, &xl, &xr);
     blowfish_combine(dst, xl, xr);
-}
-
-encrypt_cbc :: proc(ctx: ^Ctx, src, key, IV: []byte) -> []byte {
-    size := u32(len(src)) >> 2;
-    cipher := make([]byte, size);
-    IVHigh, IVLow := blowfish_split(IV);
-    ctx.mode, ctx.OrigIVHigh, ctx.OrigIVLow = util.Mode.CBC, IVHigh, IVLow;
-    blowfish_setkey(ctx, key);
-
-    fmt.println("IV byte: ", IV);
-    for i := 0; i < 8; i += 1 {
-        fmt.printf("0x%x, ", IV[i]);
-    }
-    fmt.println("");
-    fmt.println("IV: ", ctx.OrigIVHigh,"::" , ctx.OrigIVLow);
-
-    src_stream := util.bytes_to_slice([]u32, src[:]);
-
-    ctx.IVHigh, ctx.IVLow = ctx.OrigIVHigh, ctx.OrigIVLow;
-
-    xl := src_stream[0] ~ ctx.IVHigh;
-    xr := src_stream[1] ~ ctx.IVLow;
-    P  := &ctx.P;
-    S0 := &ctx.S[0];
-    S1 := &ctx.S[1];
-    S2 := &ctx.S[2];
-    S3 := &ctx.S[3];
-    BLOWFISH_ENCIPHER1(&cipher[0], &cipher[1], xl, xr, P, S0, S1, S2, S3);
-
-    i: u32;
-    for i = 2; i < size; i += 2 {
-        xl = u32(src[i] ~ cipher[i - 2]);
-        xr = u32(src[i + 1] ~ cipher[i - 1]);
-        BLOWFISH_ENCIPHER1(&cipher[i], &cipher[i + 1], xl, xr, P, S0, S1, S2, S3);
-    }
-
-    ctx.IVHigh = u32(cipher[i - 2]);
-    ctx.IVLow = u32(cipher[i - 1]);
-
-    return cipher;
 }

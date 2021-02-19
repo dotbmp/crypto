@@ -85,3 +85,13 @@ main :: proc() {
 
 #
 ## Disclaimer
+
+The algorithms were ported out of curiosity and due to interest in the field.
+We have not had any of the code verified by a third party or tested/fuzzed by any automatic means.
+Whereever we were able to find official test vectors, those were used to verify the implementation.
+We do not recommend using them in a production environment, without any additional testing and/or verification
+
+#
+## Contributing
+
+We welcome contributions in the form of implementations to not yet added algorithms, improvements to existing ones and of their respective test cases. Please adhere to the provided API design.

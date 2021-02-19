@@ -1,7 +1,6 @@
 package aes
 
 import "../util"
-import "core:fmt"
 // @ref(zh): https://github.com/B-Con/crypto-algorithms/aes.c
 
 SBOX := [16][16]byte {
@@ -180,17 +179,14 @@ KE_ROTWORD :: inline proc "contextless"(x: u32) -> u32 {
 }
 
 Aes128 :: struct {
-    mode: util.Mode,
     schedule: [60]u32,
 };
 
 Aes192 :: struct {
-    mode: util.Mode,
     schedule: [60]u32,
 };
 
 Aes256 :: struct {
-    mode: util.Mode,
     schedule: [60]u32,
 };
 
@@ -542,6 +538,29 @@ inv_mix_columns :: proc(state: []byte) {
 	state[15] ~= GF_MUL[col[3]][5];
 }
 
+encrypt_ecb :: proc(ctx: ^$T, key, plaintext: []byte, allocator := context.allocator) -> []byte {
+	input, output: [BLOCK_SIZE]byte;
+	blocks := len(plaintext) / BLOCK_SIZE;
+	ciphertext := make([]byte, blocks * BLOCK_SIZE, allocator);
+	for i := 0; i < blocks; i += 1 {
+		copy(input[:], plaintext[i * BLOCK_SIZE:]);
+		output = encrypt_block(ctx, key[:], input[:]);
+		copy(ciphertext[i * BLOCK_SIZE:], output[:]);
+	}
+	return ciphertext;
+}
+
+decrypt_ecb :: proc(ctx: ^$T, ciphertext: []byte, allocator := context.allocator) -> []byte {
+	input, output: [BLOCK_SIZE]byte;
+	blocks := len(ciphertext) / BLOCK_SIZE;
+	plaintext := make([]byte, blocks * BLOCK_SIZE, allocator);
+	for i := 0; i < blocks; i += 1 {
+		copy(input[:], ciphertext[i * BLOCK_SIZE:]);
+		output = decrypt_block(ctx, input[:]);
+		copy(plaintext[i * BLOCK_SIZE:], output[:]);
+	}
+	return plaintext;
+}
 
 encrypt_cbc :: proc(ctx: ^$T, key, plaintext, iv: []byte, allocator := context.allocator) -> []byte {
 	input, output, iv_buf: [BLOCK_SIZE]byte;
@@ -551,7 +570,7 @@ encrypt_cbc :: proc(ctx: ^$T, key, plaintext, iv: []byte, allocator := context.a
 	for i := 0; i < blocks; i += 1 {
 		copy(input[:], plaintext[i * BLOCK_SIZE:]);
 		util.xor_buf(iv_buf[:], input[:]);
-		output = encrypt(ctx, key[:], input[:]);
+		output = encrypt_block(ctx, key[:], input[:]);
 		copy(ciphertext[i * BLOCK_SIZE:], output[:]);
 		copy(iv_buf[:], output[:]);
 	}
@@ -565,7 +584,7 @@ decrypt_cbc :: proc(ctx: ^$T, ciphertext, iv: []byte, allocator := context.alloc
 	copy(iv_buf[:], iv[:]);
 	for i := 0; i < blocks; i += 1 {
 		copy(input[:], ciphertext[i * BLOCK_SIZE:]);
-		output = decrypt(ctx, input[:]);
+		output = decrypt_block(ctx, input[:]);
 		util.xor_buf(iv_buf[:], output[:]);
 		copy(plaintext[i * BLOCK_SIZE:], output[:]);
 		copy(iv_buf[:], input[:]);
@@ -573,7 +592,7 @@ decrypt_cbc :: proc(ctx: ^$T, ciphertext, iv: []byte, allocator := context.alloc
 	return plaintext;
 }
 
-encrypt :: proc(ctx: ^$T, key, plaintext: []byte) -> [16]byte {
+encrypt_block :: proc(ctx: ^$T, key, plaintext: []byte) -> [16]byte {
 	state: [16]byte;
 	state[0]  = plaintext[0];
 	state[4]  = plaintext[1];
@@ -642,7 +661,7 @@ encrypt :: proc(ctx: ^$T, key, plaintext: []byte) -> [16]byte {
 	return out;
 }
 
-decrypt :: proc(ctx: ^$T, ciphertext: []byte) -> [16]byte {
+decrypt_block :: proc(ctx: ^$T, ciphertext: []byte) -> [16]byte {
 	state: [16]byte;
 	state[0]  = ciphertext[0];
 	state[4]  = ciphertext[1];
