@@ -17,7 +17,7 @@ GOST_SBOX_2 : [256]u32;
 GOST_SBOX_3 : [256]u32;
 GOST_SBOX_4 : [256]u32;
 
-GOST_ENCRYPT_ROUND :: inline proc "contextless"(l, r, t, k1, k2: u32) -> (u32, u32, u32) {
+GOST_ENCRYPT_ROUND :: #force_inline proc "contextless"(l, r, t, k1, k2: u32) -> (u32, u32, u32) {
     l, r, t := l, r, t;
     t  = (k1) + r; 
     l ~= GOST_SBOX_1[t & 0xff] ~ GOST_SBOX_2[(t >> 8) & 0xff] ~ GOST_SBOX_3[(t >> 16) & 0xff] ~ GOST_SBOX_4[t >> 24]; 
@@ -26,7 +26,7 @@ GOST_ENCRYPT_ROUND :: inline proc "contextless"(l, r, t, k1, k2: u32) -> (u32, u
     return l, r, t;
 }
 
-GOST_ENCRYPT :: inline proc "contextless"(l, r, t: u32, key: []u32) -> (u32, u32, u32) {
+GOST_ENCRYPT :: #force_inline proc "contextless"(l, r, t: u32, key: []u32) -> (u32, u32, u32) {
     l, r, t := l, r, t;
     l, r, t = GOST_ENCRYPT_ROUND(l, r, t, key[0], key[1]); 
     l, r, t = GOST_ENCRYPT_ROUND(l, r, t, key[2], key[3]); 

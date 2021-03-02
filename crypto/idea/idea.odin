@@ -11,15 +11,15 @@ Idea :: struct {
 };
 
 
-add :: inline proc(a, b: i32) -> i32 {
+add :: #force_inline proc(a, b: i32) -> i32 {
 	return (a + b) & 0xffff;
 }
 
-add_inv :: inline proc(x: i32) -> i32 {
+add_inv :: #force_inline proc(x: i32) -> i32 {
 	return (0x10000 - x) & 0xffff;
 }
 
-mul :: inline proc(a, b: i32) -> i32 {
+mul :: #force_inline proc(a, b: i32) -> i32 {
 	r := u32(a * b);
 	if r != 0 {
 		return i32(r % 0x10001) & 0xffff;
@@ -28,7 +28,7 @@ mul :: inline proc(a, b: i32) -> i32 {
 	}
 }
 
-mul_inv :: inline proc(x: i32) -> i32 {
+mul_inv :: #force_inline proc(x: i32) -> i32 {
 	if x <= 1 do return x;
 	y  := i32(0x10001);
 	t0 := i32(1);

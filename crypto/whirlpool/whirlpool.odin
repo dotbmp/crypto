@@ -565,11 +565,11 @@ WHIRLPOOL :: struct {
     hash: [8]u64,
 }
 
-WHIRLPOOL_U64 :: inline proc (b: []byte) -> u64 {
+WHIRLPOOL_U64 :: #force_inline proc (b: []byte) -> u64 {
 	return u64(b[7]) | u64(b[6]) << 8 | u64(b[5]) << 16 | u64(b[4]) << 24 | u64(b[3]) << 32 | u64(b[2]) << 40 | u64(b[1]) << 48 | u64(b[0]) << 56;
 }
 
-whirlpool_transform :: inline proc (ctx: ^WHIRLPOOL) {
+whirlpool_transform :: #force_inline proc (ctx: ^WHIRLPOOL) {
 	K, block, state, L: [8]u64;
 
 	for i := 0; i < 8; i += 1 do block[i] = WHIRLPOOL_U64(ctx.buffer[8 * i:]);

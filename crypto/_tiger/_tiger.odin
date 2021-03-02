@@ -282,7 +282,7 @@ TIGER :: struct {
 	ver: int,
 }
 
-tiger_round :: inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64) {
+tiger_round :: #force_inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64) {
 	a, b, c := a, b, c;
 	c ~= x;
 	a -= TIGER_T1[c & 0xff] ~ TIGER_T2[(c >> 16) & 0xff] ~ TIGER_T3[(c >> 32) & 0xff] ~ TIGER_T4[(c >> 48) & 0xff];
@@ -291,7 +291,7 @@ tiger_round :: inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64
 	return a, b, c;
 }
 
-tiger_pass :: inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u64, u64, u64) {
+tiger_pass :: #force_inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u64, u64, u64) {
 	a, b, c := a, b, c;
 	a, b, c = tiger_round(a, b, c, x[0], mul);
 	b, c, a = tiger_round(b, c, a, x[1], mul);
@@ -304,7 +304,7 @@ tiger_pass :: inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u6
 	return a, b, c;
 }
 
-tiger_keyschedule :: inline proc "contextless"(x: []u64) {
+tiger_keyschedule :: #force_inline proc "contextless"(x: []u64) {
 	x[0] -= x[7] ~ 0xa5a5a5a5a5a5a5a5;
 	x[1] ~= x[0];
 	x[2] += x[1];
@@ -323,7 +323,7 @@ tiger_keyschedule :: inline proc "contextless"(x: []u64) {
 	x[7] -= x[6] ~ 0x0123456789abcdef;
 }
 
-tiger_compress :: inline proc "contextless"(ctx: ^TIGER, data: []byte) {
+tiger_compress :: #force_inline proc "contextless"(ctx: ^TIGER, data: []byte) {
 	a := ctx.a;
 	b := ctx.b;
 	c := ctx.c;

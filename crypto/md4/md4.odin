@@ -12,33 +12,33 @@ MD4_CTX :: struct {
     datalen: u32,
 }
 
-MD4_F :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD4_F :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return ((x & y) | (~x & z));
 }
 
-MD4_G :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD4_G :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return ((x & y) | (x & z) | (y & z));
 }
 
-MD4_H :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD4_H :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return (x ~ y ~ z);
 }
 
-MD4_FF :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
+MD4_FF :: #force_inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
     a := a;
     a += MD4_F(b,c,d) + x;
     a = util.ROTL32(a,int(s)); 
     return a;
 }
 
-MD4_GG :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
+MD4_GG :: #force_inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
     a := a;
     a += MD4_G(b,c,d) + x + 0x5a827999;
     a = util.ROTL32(a,int(s));
     return a;
 }
 
-MD4_HH :: inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
+MD4_HH :: #force_inline proc "contextless" (a, b, c, d, x, s : u32) -> u32 {
     a := a;
     a += MD4_H(b,c,d) + x + 0x6ed9eba1;
     a = util.ROTL32(a,int(s)); 

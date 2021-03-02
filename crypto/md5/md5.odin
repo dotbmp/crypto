@@ -13,44 +13,44 @@ MD5_CTX :: struct {
     datalen: u32,
 }
 
-MD5_F :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD5_F :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return ((x & y) | (~x & z));
 }
 
-MD5_G :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD5_G :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return ((x & z) | (y & ~z));
 }
 
-MD5_H :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD5_H :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return (x ~ y ~ z);
 }
 
-MD5_I :: inline proc "contextless" (x, y, z : u32) -> u32 {
+MD5_I :: #force_inline proc "contextless" (x, y, z : u32) -> u32 {
     return (y ~ (x | ~z));
 }
 
-MD5_FF :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+MD5_FF :: #force_inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
     a := a;
     a += MD5_F(b,c,d) + m + t;
     a = b + util.ROTL32(a,int(s)); 
     return a;
 }
 
-MD5_GG :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+MD5_GG :: #force_inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
     a := a;
     a += MD5_G(b,c,d) + m + t;
     a = b + util.ROTL32(a,int(s));
     return a;
 }
 
-MD5_HH :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+MD5_HH :: #force_inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
     a := a;
     a += MD5_H(b,c,d) + m + t;
     a = b + util.ROTL32(a,int(s)); 
     return a;
 }
 
-MD5_II :: inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
+MD5_II :: #force_inline proc "contextless" (a, b, c, d, m, s, t : u32) -> u32 {
     a := a;
     a += MD5_I(b,c,d) + m + t;
     a = b + util.ROTL32(a,int(s)); 

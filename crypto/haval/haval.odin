@@ -29,27 +29,27 @@ HAVAL_PADDING := [128]u8 {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-HAVAL_F_1 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_1 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x1) & ((x0) ~ (x4)) ~ (x2) & (x5) ~ (x3) & (x6) ~ (x0));
 }
 
-HAVAL_F_2 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_2 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x2) & ((x1) & ~(x3) ~ (x4) & (x5) ~ (x6) ~ (x0)) ~ (x4) & ((x1) ~ (x5)) ~ (x3) & (x5) ~ (x0));
 }
 
-HAVAL_F_3 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_3 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x3) & ((x1) & (x2) ~ (x6) ~ (x0)) ~ (x1) & (x4) ~ (x2) & (x5) ~ (x0));
 }
 
-HAVAL_F_4 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_4 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x4) & ((x5) & ~(x2) ~ (x3) & ~(x6) ~ (x1) ~ (x6) ~ (x0)) ~ (x3) & ((x1) & (x2) ~ (x5) ~ (x6)) ~ (x2) & (x6) ~ (x0));
 }
 
-HAVAL_F_5 :: inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
+HAVAL_F_5 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0: u32) -> u32 {
     return ((x0) & ((x1) & (x2) & (x3) ~ ~(x5)) ~ (x1) & (x4) ~ (x2) & (x5) ~ (x3) & (x6));
 }
 
-HAVAL_FPHI_1 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_1 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 3: return HAVAL_F_1(x1, x0, x3, x5, x6, x2, x4);
         case 4: return HAVAL_F_1(x2, x6, x1, x4, x5, x3, x0);
@@ -59,7 +59,7 @@ HAVAL_FPHI_1 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     return 0;
 }
 
-HAVAL_FPHI_2 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_2 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 3: return HAVAL_F_2(x4, x2, x1, x0, x5, x3, x6);
         case 4: return HAVAL_F_2(x3, x5, x2, x0, x1, x6, x4);
@@ -69,7 +69,7 @@ HAVAL_FPHI_2 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     return 0;
 }
 
-HAVAL_FPHI_3 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_3 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 3: return HAVAL_F_3(x6, x1, x2, x3, x4, x5, x0);
         case 4: return HAVAL_F_3(x1, x4, x3, x6, x0, x2, x5);
@@ -79,7 +79,7 @@ HAVAL_FPHI_3 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     return 0;
 }
 
-HAVAL_FPHI_4 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_4 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 4: return HAVAL_F_4(x6, x4, x0, x5, x2, x1, x3);
         case 5: return HAVAL_F_4(x1, x5, x3, x2, x0, x4, x6);
@@ -88,7 +88,7 @@ HAVAL_FPHI_4 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     return 0;
 }
 
-HAVAL_FPHI_5 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
+HAVAL_FPHI_5 :: #force_inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     switch rounds {
         case 5: return HAVAL_F_5(x2, x5, x0, x6, x4, x3, x1);
         case: assert(rounds != 5, "Rounds count not supported!");
@@ -96,43 +96,43 @@ HAVAL_FPHI_5 :: inline proc (x6, x5, x4, x3, x2, x1, x0, rounds: u32) -> u32 {
     return 0;
 }
 
-HAVAL_FF_1 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
+HAVAL_FF_1 :: #force_inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_1(x6, x5, x4, x3, x2, x1, x0, rounds);
     x8 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w;
     return x8;
 }
 
-HAVAL_FF_2 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_2 :: #force_inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_2(x6, x5, x4, x3, x2, x1, x0, rounds);
     x8 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x8;
 }
 
-HAVAL_FF_3 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_3 :: #force_inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_3(x6, x5, x4, x3, x2, x1, x0, rounds);
     x8 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x8;
 }
 
-HAVAL_FF_4 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_4 :: #force_inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_4(x6, x5, x4, x3, x2, x1, x0, rounds);
     x8 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x8;
 }
 
-HAVAL_FF_5 :: inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
+HAVAL_FF_5 :: #force_inline proc (x7, x6, x5, x4, x3, x2, x1, x0, w, c, rounds: u32) -> u32 {
     tmp := HAVAL_FPHI_5(x6, x5, x4, x3, x2, x1, x0, rounds);
     x8 := util.ROTR32(tmp, 7) + util.ROTR32(x7, 11) + w + c;
     return x8;
 }
 
-HAVAL_CH2UINT :: inline proc  (str: []u8, word: []u32) {
+HAVAL_CH2UINT :: #force_inline proc  (str: []u8, word: []u32) {
     for _, i in word[:32] {
         word[i] = u32(str[i*4+0]) << 0 | u32(str[i*4+1]) << 8 | u32(str[i*4+2]) << 16 | u32(str[i*4+3]) << 24;
     }
 }
 
-HAVAL_UINT2CH :: inline proc (word: []u32, str: []u8, wlen: u32) {
+HAVAL_UINT2CH :: #force_inline proc (word: []u32, str: []u8, wlen: u32) {
     for _, i in word[:wlen] {
         str[i*4+0] = byte(word[i] >> 0) & 0xff;
         str[i*4+1] = byte(word[i] >> 8) & 0xff;

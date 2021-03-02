@@ -73,27 +73,27 @@ BLAKE2_TREE :: struct {
 	isLastNode : bool,
 };
 
-is_blake2s :: inline proc "contextless"($T) -> bool {
+is_blake2s :: #force_inline proc "contextless"($T) -> bool {
 	return T == BLAKE2S;
 }
 
-u32_le :: inline proc "contextless"(b: []byte) -> u32 {
+u32_le :: #force_inline proc "contextless"(b: []byte) -> u32 {
 	return u32(b[0]) | u32(b[1]) << 8 | u32(b[2]) << 16 | u32(b[3]) << 24;
 }
 
-u64_le :: inline proc "contextless"(b: []byte) -> u64 {
+u64_le :: #force_inline proc "contextless"(b: []byte) -> u64 {
 		return u64(b[0]) | u64(b[1]) << 8 | u64(b[2]) << 16 | u64(b[3]) << 24 |
 	           u64(b[4]) << 32 | u64(b[5]) << 40 | u64(b[6]) << 48 | u64(b[7]) << 56;
 }
 
-put_u32_le :: inline proc "contextless"(b: []byte, v: u32) {
+put_u32_le :: #force_inline proc "contextless"(b: []byte, v: u32) {
 	b[0] = byte(v);
 	b[1] = byte(v >> 8);
 	b[2] = byte(v >> 16);
 	b[3] = byte(v >> 24);
 }
 
-put_u64_le :: inline proc "contextless"(b: []byte, v: u64) {
+put_u64_le :: #force_inline proc "contextless"(b: []byte, v: u64) {
 	b[0] = byte(v);
 	b[1] = byte(v >> 8);
 	b[2] = byte(v >> 16);
@@ -265,7 +265,7 @@ blake2_blocks :: proc(ctx: ^$T, p: []u8) {
 	}
 }
 
-blake2s_blocks :: inline proc "contextless"(ctx: ^BLAKE2S, p: []u8) {
+blake2s_blocks :: #force_inline proc "contextless"(ctx: ^BLAKE2S, p: []u8) {
 	h0, h1, h2, h3, h4, h5, h6, h7 := ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7];
 	p := p;
 	for len(p) >= BLAKE2S_BLOCK_SIZE {
@@ -1419,7 +1419,7 @@ blake2s_blocks :: inline proc "contextless"(ctx: ^BLAKE2S, p: []u8) {
 	ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7] = h0, h1, h2, h3, h4, h5, h6, h7;
 }
 
-blake2b_blocks :: inline proc "contextless"(ctx: ^BLAKE2B, p: []u8) {
+blake2b_blocks :: #force_inline proc "contextless"(ctx: ^BLAKE2B, p: []u8) {
 	h0, h1, h2, h3, h4, h5, h6, h7 := ctx.h[0], ctx.h[1], ctx.h[2], ctx.h[3], ctx.h[4], ctx.h[5], ctx.h[6], ctx.h[7];
 	p := p;
 	for len(p) >= BLAKE2B_BLOCK_SIZE {

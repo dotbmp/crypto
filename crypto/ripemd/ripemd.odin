@@ -122,7 +122,7 @@ ripemd_reset :: proc(ctx: ^$T) {
     }
 }
 
-ripemd_block :: inline proc (ctx: ^$T, p: []byte) -> int {
+ripemd_block :: #force_inline proc (ctx: ^$T, p: []byte) -> int {
     when T      == RIPEMD_128 do return ripemd_128_block(ctx, p);
     else when T == RIPEMD_160 do return ripemd_160_block(ctx, p);
     else when T == RIPEMD_256 do return ripemd_256_block(ctx, p);

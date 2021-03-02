@@ -28,7 +28,7 @@ JH :: struct {
     buffer: [64]byte,
 }
 
-JH_L :: inline proc (a, b: byte) -> (byte, byte) {
+JH_L :: #force_inline proc (a, b: byte) -> (byte, byte) {
     a, b := a, b;
     (b) ~= ( ( (a) << 1) ~ ( (a) >> 3) ~ (( (a) >> 2) & 2) ) & 0xf;
     (a) ~= ( ( (b) << 1) ~ ( (b) >> 3) ~ (( (b) >> 2) & 2) ) & 0xf;

@@ -88,7 +88,7 @@ compare_files_slice_out :: proc(file1, file2: string, fn: proc "contextless" (da
 
 
 // @note(bp): this can replace the other two
-cast_slice :: inline proc "contextless" ($D: typeid/[]$DE, src: $S/[]$SE) -> D {
+cast_slice :: #force_inline proc "contextless" ($D: typeid/[]$DE, src: $S/[]$SE) -> D {
     src := src;
     dst := (^mem.Raw_Slice)(&src);
 
@@ -116,48 +116,47 @@ cast_slice :: inline proc "contextless" ($D: typeid/[]$DE, src: $S/[]$SE) -> D {
 }
 
 // @note(zh): This should be in core:mem
-bytes_to_slice :: inline proc "contextless" ($T: typeid/[]$E, bytes: []byte) -> T {
+bytes_to_slice :: #force_inline proc "contextless" ($T: typeid/[]$E, bytes: []byte) -> T {
     s := transmute(mem.Raw_Slice)bytes;
     s.len /= size_of(E);
     return transmute(T)s;
 }
 
 // @note(zh): This should be in core:mem
-slice_to_bytes :: inline proc "contextless" (slice: $E/[]$T) -> []byte {
+slice_to_bytes :: #force_inline proc "contextless" (slice: $E/[]$T) -> []byte {
     s := transmute(mem.Raw_Slice)slice;
     s.len *= size_of(T);
     return transmute([]byte)s;
 }
 
 // @note(zh): Just shared stuff that various implementations use
-ROTL16 :: inline proc "contextless" (a, b: u16) -> u16 {
+ROTL16 :: #force_inline proc "contextless" (a, b: u16) -> u16 {
     return ((a << b) | (a >> (16 - b)));
 }
 
-ROTR16 :: inline proc "contextless" (a, b: u16) -> u16 {
+ROTR16 :: #force_inline proc "contextless" (a, b: u16) -> u16 {
     return ((a >> b) | (a << (16 - b)));
 }
 
-//@note(zh): Needs to be done that way since Odin's shifting behavior is different than for example Go's
-ROTL32 :: inline proc "contextless"(a: u32, b: int) -> u32 {
+ROTL32 :: #force_inline proc "contextless"(a: u32, b: int) -> u32 {
     s := uint(b) & 31;
-    return u32((uint(a) << s) | (uint(a) >> (32 - s)));
+    return (a << s) | (a >> (32 - s));
 }
 
-ROTR32 :: inline proc "contextless" (a: u32, b: int) -> u32 {
+ROTR32 :: #force_inline proc "contextless" (a: u32, b: int) -> u32 {
     s := uint(b) & 31;
     return ((a >> s) | (a << (32 - s)));
 }
 
-ROTL64 :: inline proc "contextless" (a, b: u64) -> u64 {
+ROTL64 :: #force_inline proc "contextless" (a, b: u64) -> u64 {
     return ((a << b) | (a >> (64 - b)));
 }
 
-ROTR64 :: inline proc "contextless" (a, b: u64) -> u64 {
+ROTR64 :: #force_inline proc "contextless" (a, b: u64) -> u64 {
     return ((a >> b) | (a << (64 - b)));
 }
 
-ROTL128 :: inline proc "contextless" (a, b, c, d: ^u32, n: uint) {
+ROTL128 :: #force_inline proc "contextless" (a, b, c, d: ^u32, n: uint) {
     a, b, c, d := a, b, c, d;
     t := a^ >> (32 - n);
     a^ = ((a^ << n) | (b^ >> (32 - n)));

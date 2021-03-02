@@ -2,22 +2,22 @@ package des
 
 // @ref(zh): https://github.com/B-Con/crypto-algorithms/blob/master/des.c
 
-BITNUM :: inline proc "contextless"(a: []byte, b, c: u8) -> u32 {
+BITNUM :: #force_inline proc "contextless"(a: []byte, b, c: u8) -> u32 {
 	//  @todo(zh): Fix it once shifting works as you would expect
 	foo := i32((a[(b)/8] >> (7 - (b%8))));
 	bar := i32(0x01);
 	return u32((foo & bar) << (c));
 }
 
-BITNUMINTR :: inline proc "contextless"(a: u32, b, c: u8) -> u8 {
+BITNUMINTR :: #force_inline proc "contextless"(a: u32, b, c: u8) -> u8 {
     return u8((((a) >> (31 - (b))) & 0x00000001) << (c));
 }
 
-BITNUMINTL :: inline proc "contextless"(a, b, c: u32) -> u32 {
+BITNUMINTL :: #force_inline proc "contextless"(a, b, c: u32) -> u32 {
     return ((((a) << (b)) & 0x80000000) >> (c));
 }
 
-SBOXBIT :: inline proc "contextless"(a: u8) -> u32 {
+SBOXBIT :: #force_inline proc "contextless"(a: u8) -> u32 {
     return u32(((a) & 0x20) | (((a) & 0x1f) >> 1) | (((a) & 0x01) << 4));
 }
 
@@ -98,7 +98,7 @@ key_compression := [48]u32 {
 	43,48,38,55,33,52,45,41,49,35,28,31
 };
 
-IP :: inline proc "contextless"(state: []u32, input: []byte) {
+IP :: #force_inline proc "contextless"(state: []u32, input: []byte) {
     state[0] = BITNUM(input, 57, 31) | BITNUM(input, 49, 30) | BITNUM(input, 41, 29) | BITNUM(input, 33, 28) |
 			   BITNUM(input, 25, 27) | BITNUM(input, 17, 26) | BITNUM(input, 9,  25) | BITNUM(input, 1, 24)  |
 			   BITNUM(input, 59, 23) | BITNUM(input, 51, 22) | BITNUM(input, 43, 21) | BITNUM(input, 35, 20) |
@@ -118,7 +118,7 @@ IP :: inline proc "contextless"(state: []u32, input: []byte) {
 			   BITNUM(input, 30, 3)  | BITNUM(input, 22, 2)  | BITNUM(input, 14, 1)  | BITNUM(input, 6, 0);
 }
 
-INVERSE_IP :: inline proc "contextless"(state: []u32, input: []byte) {
+INVERSE_IP :: #force_inline proc "contextless"(state: []u32, input: []byte) {
     input[0] =  BITNUMINTR(state[1], 7, 7)  | BITNUMINTR(state[0], 7, 6)  | BITNUMINTR(state[1], 15, 5) |
 			    BITNUMINTR(state[0], 15, 4) | BITNUMINTR(state[1], 23, 3) | BITNUMINTR(state[0], 23, 2) |
 			    BITNUMINTR(state[1], 31, 1) | BITNUMINTR(state[0], 31, 0);
@@ -152,7 +152,7 @@ INVERSE_IP :: inline proc "contextless"(state: []u32, input: []byte) {
 			    BITNUMINTR(state[1], 24, 1) | BITNUMINTR(state[0], 24, 0);
 }
 
-F :: inline proc "contextless"(state: u32, key: []byte) -> u32 {
+F :: #force_inline proc "contextless"(state: u32, key: []byte) -> u32 {
     lrgstate: [6]byte;
     t1, t2: u32;
     state := state;

@@ -318,7 +318,7 @@ DEC_TABLE_BASE64 := [128]int {
     51, 52, 53, -1, -1, -1, -1, -1
 };
 
-key :: inline proc "contextless"(ctx: ^Ctx, key: []byte) {
+key :: #force_inline proc "contextless"(ctx: ^Ctx, key: []byte) {
     word: uint;
     off := 0;
     lr: [2]uint = {0, 0};
@@ -341,7 +341,7 @@ key :: inline proc "contextless"(ctx: ^Ctx, key: []byte) {
     }
 }
 
-encipher :: inline proc "contextless"(ctx: ^Ctx, lr: []uint, offset: int) {
+encipher :: #force_inline proc "contextless"(ctx: ^Ctx, lr: []uint, offset: int) {
     l := lr[offset] ~ ctx.P[0];
     r := lr[offset + 1];
 
@@ -354,7 +354,7 @@ encipher :: inline proc "contextless"(ctx: ^Ctx, lr: []uint, offset: int) {
     lr[offset + 1] = l;
 }
 
-stream_to_word :: inline proc "contextless"(data: []byte, off: int) -> (uint, int) {
+stream_to_word :: #force_inline proc "contextless"(data: []byte, off: int) -> (uint, int) {
     word: uint;
     off := off;
     length := len(data);

@@ -46,11 +46,11 @@ expand_key :: proc(key: []byte) -> [64]u16 {
 	return k;
 }
 
-uint16 :: inline proc "contextless"(b: []byte) -> u16 {
+uint16 :: #force_inline proc "contextless"(b: []byte) -> u16 {
 	return u16(b[0]) | u16(b[1]) << 8;
 }
 
-putuint16 :: inline proc "contextless"(b: []byte, v: u16) {
+putuint16 :: #force_inline proc "contextless"(b: []byte, v: u16) {
 	b[0] = byte(v);
 	b[1] = byte(v >> 8);
 }

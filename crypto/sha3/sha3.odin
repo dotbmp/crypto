@@ -162,44 +162,44 @@ shake_out :: proc "contextless" (c: ^Sha3_Context, out: []byte) {
 // @todo(bp): use shake for arbitrary bit length
 hash :: proc "contextless" (input, md: []byte) -> []byte {
     sha3: Sha3_Context;
-    inline sha3_init(&sha3, i32(len(md)));
-    inline sha3_update(&sha3, input);
-    inline sha3_final(&sha3, md);
+    #force_inline sha3_init(&sha3, i32(len(md)));
+    #force_inline sha3_update(&sha3, input);
+    #force_inline sha3_final(&sha3, md);
     return md;
 }
 
 hash_224 :: proc "contextless" (input: []byte) -> [28]byte {
     output: [28]byte = ---;
     sha3: Sha3_Context = ---;
-    inline sha3_init(&sha3, 28);
-    inline sha3_update(&sha3, input);
-    inline sha3_final(&sha3, output[:]);
+    #force_inline sha3_init(&sha3, 28);
+    #force_inline sha3_update(&sha3, input);
+    #force_inline sha3_final(&sha3, output[:]);
     return output;
 }
 
 hash_256 :: proc "contextless" (input: []byte) -> [32]byte {
     output: [32]byte = ---;
     sha3: Sha3_Context = ---;
-    inline sha3_init(&sha3, 32);
-    inline sha3_update(&sha3, input);
-    inline sha3_final(&sha3, output[:]);
+    #force_inline sha3_init(&sha3, 32);
+    #force_inline sha3_update(&sha3, input);
+    #force_inline sha3_final(&sha3, output[:]);
     return output;
 }
 
 hash_384 :: proc "contextless" (input: []byte) -> [48]byte {
     output: [48]byte = ---;
     sha3: Sha3_Context = ---;
-    inline sha3_init(&sha3, 48);
-    inline sha3_update(&sha3, input);
-    inline sha3_final(&sha3, output[:]);
+    #force_inline sha3_init(&sha3, 48);
+    #force_inline sha3_update(&sha3, input);
+    #force_inline sha3_final(&sha3, output[:]);
     return output;
 }
 
 hash_512 :: proc "contextless" (input: []byte) -> [64]byte {
     output: [64]byte = ---;
     sha3: Sha3_Context = ---;
-    inline sha3_init(&sha3, 64);
-    inline sha3_update(&sha3, input);
-    inline sha3_final(&sha3, output[:]);
+    #force_inline sha3_init(&sha3, 64);
+    #force_inline sha3_update(&sha3, input);
+    #force_inline sha3_final(&sha3, output[:]);
     return output;
 }

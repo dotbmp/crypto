@@ -61,37 +61,37 @@ Groestl_Variant :: enum {
     Q1024 = 3
 }
 
-GROESTL_MUL2 :: inline proc (b: u8) -> u8 {
+GROESTL_MUL2 :: #force_inline proc (b: u8) -> u8 {
     return (b >> 7) != 0 ? (b << 1) ~ 0x1b : (b << 1);
 }
 
-GROESTL_MUL3 :: inline proc (b: u8) -> u8 {
+GROESTL_MUL3 :: #force_inline proc (b: u8) -> u8 {
     return GROESTL_MUL2(b) ~ b;
 }
 
-GROESTL_MUL4 :: inline proc (b: u8) -> u8 {
+GROESTL_MUL4 :: #force_inline proc (b: u8) -> u8 {
     return GROESTL_MUL2(GROESTL_MUL2(b));
 }
 
-GROESTL_MUL5 :: inline proc (b: u8) -> u8 {
+GROESTL_MUL5 :: #force_inline proc (b: u8) -> u8 {
     return GROESTL_MUL4(b) ~ b;
 }
 
-GROESTL_MUL6 :: inline proc (b: u8) -> u8 {
+GROESTL_MUL6 :: #force_inline proc (b: u8) -> u8 {
     return GROESTL_MUL4(b) ~ GROESTL_MUL2(b);
 }
 
-GROESTL_MUL7 :: inline proc (b: u8) -> u8 {
+GROESTL_MUL7 :: #force_inline proc (b: u8) -> u8 {
     return GROESTL_MUL4(b) ~ GROESTL_MUL2(b) ~ b;
 }
 
-groestl_subbytes :: inline proc (x: [][16]byte, columns: int) {
+groestl_subbytes :: #force_inline proc (x: [][16]byte, columns: int) {
     for i := 0; i < 8; i += 1 {
         for j := 0; j < columns; j += 1 do x[i][j] = GROESTL_S[x[i][j]];
     }
 }
 
-groestl_shiftbytes :: inline proc (x: [][16]byte, columns: int, v: Groestl_Variant) {
+groestl_shiftbytes :: #force_inline proc (x: [][16]byte, columns: int, v: Groestl_Variant) {
     temp: [16]u8;
     R := &GROESTL_SHIFT[int(v) / 2][int(v) & 1];
 
@@ -101,7 +101,7 @@ groestl_shiftbytes :: inline proc (x: [][16]byte, columns: int, v: Groestl_Varia
     }
 }
 
-groestl_mixbytes :: inline proc (x: [][16]byte, columns: int) {
+groestl_mixbytes :: #force_inline proc (x: [][16]byte, columns: int) {
     temp: [8]u8;
 
     for i := 0; i < columns; i += 1 {
@@ -119,7 +119,7 @@ groestl_mixbytes :: inline proc (x: [][16]byte, columns: int) {
     }
 }
 
-groestl_p :: inline proc (ctx: ^GROESTL, x: [][16]byte) {
+groestl_p :: #force_inline proc (ctx: ^GROESTL, x: [][16]byte) {
     v := ctx.columns == 8 ? Groestl_Variant.P512 : Groestl_Variant.P1024;
     for i := 0; i < ctx.rounds; i += 1 {
         groestl_add_roundconstant(x, ctx.columns, u8(i), v);
@@ -129,7 +129,7 @@ groestl_p :: inline proc (ctx: ^GROESTL, x: [][16]byte) {
     }
 }
 
-groestl_q :: inline proc (ctx: ^GROESTL, x: [][16]byte) {
+groestl_q :: #force_inline proc (ctx: ^GROESTL, x: [][16]byte) {
     v := ctx.columns == 8 ? Groestl_Variant.Q512 : Groestl_Variant.Q1024;
     for i := 0; i < ctx.rounds; i += 1 {
         groestl_add_roundconstant(x, ctx.columns, u8(i), v);

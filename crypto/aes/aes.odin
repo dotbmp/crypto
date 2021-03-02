@@ -174,7 +174,7 @@ GF_MUL := [256][6]byte {
 
 BLOCK_SIZE :: 16;
 
-KE_ROTWORD :: inline proc "contextless"(x: u32) -> u32 {
+KE_ROTWORD :: #force_inline proc "contextless"(x: u32) -> u32 {
 	return (x << 8) | (x >> 24);
 }
 

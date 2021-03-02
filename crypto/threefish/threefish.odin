@@ -38,12 +38,12 @@ Threefish1024 :: struct {
     tmpData1, tmpData2: [CIPHER_QWORDS_1024]u64,
 };
 
-u64_le :: inline proc "contextless"(b: []byte) -> u64 {
+u64_le :: #force_inline proc "contextless"(b: []byte) -> u64 {
 	return u64(b[0]) | u64(b[1]) << 8 | u64(b[2]) << 16 | u64(b[3]) << 24 |
 	       u64(b[4]) << 32 | u64(b[5]) << 40 | u64(b[6]) << 48 | u64(b[7]) << 56;
 }
 
-put_u64_le :: inline proc "contextless"(b: []byte, v: u64) {
+put_u64_le :: #force_inline proc "contextless"(b: []byte, v: u64) {
     b[0] = byte(v);
     b[1] = byte(v >> 8);
     b[2] = byte(v >> 16);

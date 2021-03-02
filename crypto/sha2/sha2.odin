@@ -89,70 +89,70 @@ sha512_k := [80]u64
              0x4cc5d4becb3e42b6, 0x597f299cfc657e2a,
              0x5fcb6fab3ad6faec, 0x6c44198c4a475817};
 
-SHA256_CH :: inline proc "contextless"(x, y, z: u32) -> u32 {
+SHA256_CH :: #force_inline proc "contextless"(x, y, z: u32) -> u32 {
     return (x & y) ~ (~x & z);
 }
 
-SHA256_MAJ :: inline proc "contextless"(x, y, z: u32) -> u32 {
+SHA256_MAJ :: #force_inline proc "contextless"(x, y, z: u32) -> u32 {
     return (x & y) ~ (x & z) ~ (y & z);
 }
 
-SHA512_CH :: inline proc "contextless"(x, y, z: u64) -> u64 {
+SHA512_CH :: #force_inline proc "contextless"(x, y, z: u64) -> u64 {
     return (x & y) ~ (~x & z);
 }
 
-SHA512_MAJ :: inline proc "contextless"(x, y, z: u64) -> u64 {
+SHA512_MAJ :: #force_inline proc "contextless"(x, y, z: u64) -> u64 {
     return (x & y) ~ (x & z) ~ (y & z);
 }
 
-SHA256_F1 :: inline proc "contextless"(x: u32) -> u32 {
+SHA256_F1 :: #force_inline proc "contextless"(x: u32) -> u32 {
     return util.ROTR32(x, 2) ~ util.ROTR32(x, 13) ~ util.ROTR32(x, 22);
 }
 
-SHA256_F2 :: inline proc "contextless"(x: u32) -> u32 {
+SHA256_F2 :: #force_inline proc "contextless"(x: u32) -> u32 {
     return util.ROTR32(x, 6) ~ util.ROTR32(x, 11) ~ util.ROTR32(x, 25);
 }
 
-SHA256_F3 :: inline proc "contextless"(x: u32) -> u32 {
+SHA256_F3 :: #force_inline proc "contextless"(x: u32) -> u32 {
     return util.ROTR32(x, 7) ~ util.ROTR32(x, 18) ~ (x >> 3);
 }
 
-SHA256_F4 :: inline proc "contextless"(x: u32) -> u32 {
+SHA256_F4 :: #force_inline proc "contextless"(x: u32) -> u32 {
     return util.ROTR32(x, 17) ~ util.ROTR32(x, 19) ~ (x >> 10);
 }
 
-SHA512_F1 :: inline proc "contextless"(x: u64) -> u64 {
+SHA512_F1 :: #force_inline proc "contextless"(x: u64) -> u64 {
     return util.ROTR64(x, 28) ~ util.ROTR64(x, 34) ~ util.ROTR64(x, 39);
 }
 
-SHA512_F2 :: inline proc "contextless"(x: u64) -> u64 {
+SHA512_F2 :: #force_inline proc "contextless"(x: u64) -> u64 {
     return util.ROTR64(x, 14) ~ util.ROTR64(x, 18) ~ util.ROTR64(x, 41);
 }
 
-SHA512_F3 :: inline proc "contextless"(x: u64) -> u64 {
+SHA512_F3 :: #force_inline proc "contextless"(x: u64) -> u64 {
     return util.ROTR64(x, 1) ~ util.ROTR64(x, 8) ~ (x >> 7);
 }
 
-SHA512_F4 :: inline proc "contextless"(x: u64) -> u64 {
+SHA512_F4 :: #force_inline proc "contextless"(x: u64) -> u64 {
     return util.ROTR64(x, 19) ~ util.ROTR64(x, 61) ~ (x >> 6);
 }
 
-PACK32 :: inline proc "contextless"(b: []byte, x: ^u32) {
+PACK32 :: #force_inline proc "contextless"(b: []byte, x: ^u32) {
 	x^ = u32(b[3]) | u32(b[2]) << 8 | u32(b[1]) << 16 | u32(b[0]) << 24;
 }
 
-UNPACK32 :: inline proc "contextless"(b: []byte, v: u32) {
+UNPACK32 :: #force_inline proc "contextless"(b: []byte, v: u32) {
 	b[3] = byte(v);
 	b[2] = byte(v >> 8);
 	b[1] = byte(v >> 16);
 	b[0] = byte(v >> 24);
 }
 
-PACK64 :: inline proc "contextless"(b: []byte, x: ^u64) {
+PACK64 :: #force_inline proc "contextless"(b: []byte, x: ^u64) {
 	x^ = u64(b[7]) | u64(b[6]) << 8 | u64(b[5]) << 16 | u64(b[4]) << 24 | u64(b[3]) << 32 | u64(b[2]) << 40 | u64(b[1]) << 48 | u64(b[0]) << 56;
 }
 
-UNPACK64 :: inline proc "contextless"(b: []byte, v: u64) {
+UNPACK64 :: #force_inline proc "contextless"(b: []byte, v: u64) {
 	b[7] = byte(v);
 	b[6] = byte(v >> 8);
 	b[5] = byte(v >> 16);

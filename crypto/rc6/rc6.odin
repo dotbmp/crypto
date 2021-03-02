@@ -17,11 +17,11 @@ ROUNDS :: 20;
 ROUNDKEYS :: 44;
 KEYWORDS :: 4;
 
-u32_le :: inline proc "contextless"(b: []byte) -> u32 {
+u32_le :: #force_inline proc "contextless"(b: []byte) -> u32 {
 	return u32(b[0]) | u32(b[1]) << 8 | u32(b[2]) << 16 | u32(b[3]) << 24;
 }
 
-put_u32_le :: inline proc "contextless"(b: []byte, v: u32) {
+put_u32_le :: #force_inline proc "contextless"(b: []byte, v: u32) {
 	b[0] = byte(v);
 	b[1] = byte(v >> 8);
 	b[2] = byte(v >> 16);

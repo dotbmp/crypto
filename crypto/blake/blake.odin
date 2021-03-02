@@ -105,7 +105,7 @@ BLAKE_U512 := [16]u64 {
 	0xba7c9045f12c7f99, 0x24a19947b3916cf7, 0x0801f2e2858efc16, 0x636920d871574e69
 };
 
-blake256_g :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int) -> (u32, u32, u32, u32) #no_bounds_check {
+blake256_g :: #force_inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int) -> (u32, u32, u32, u32) #no_bounds_check {
 	a, b, c, d := a, b, c, d;
 	a += m[BLAKE_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE_U256[BLAKE_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;
@@ -124,7 +124,7 @@ blake256_g :: inline proc "contextless" (a, b, c, d: u32, m: [16]u32, i, j: int)
 	return a, b, c, d;
 }
 
-blake512_g :: inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int) -> (u64, u64, u64, u64) #no_bounds_check {
+blake512_g :: #force_inline proc "contextless" (a, b, c, d: u64, m: [16]u64, i, j: int) -> (u64, u64, u64, u64) #no_bounds_check {
 	a, b, c, d := a, b, c, d;
 	a += m[BLAKE_SIGMA[(i % 10) * 16 + (2 * j)]] ~ BLAKE_U512[BLAKE_SIGMA[(i % 10) * 16 + (2 * j + 1)]];
 	a += b;

@@ -203,7 +203,7 @@ Camellia256 :: struct {
 
 BLOCKSIZE :: 16;
 
-F :: inline proc "contextless"(r0, r1, r2, r3: ^u32, k0, k1: u32) {
+F :: #force_inline proc "contextless"(r0, r1, r2, r3: ^u32, k0, k1: u32) {
     k0, k1 := k0, k1;
 
     k0 ~= r0^;
@@ -225,7 +225,7 @@ F :: inline proc "contextless"(r0, r1, r2, r3: ^u32, k0, k1: u32) {
     r3^ ~= k0;
 }
 
-key_schedule_128 :: inline proc "contextless"(key: []byte) -> Camellia128 {
+key_schedule_128 :: #force_inline proc "contextless"(key: []byte) -> Camellia128 {
     ctx: Camellia128;
 
     r0 := u32(key[0])  << 24 | u32(key[1])  << 16 | u32(key[2])  << 8 | u32(key[3]);
@@ -281,7 +281,7 @@ key_schedule_128 :: inline proc "contextless"(key: []byte) -> Camellia128 {
     return ctx;
 }
 
-crypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
+crypt_128 :: #force_inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
     r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
 	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
 	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
@@ -352,7 +352,7 @@ crypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
 	dst[15] = byte(r1);
 }
 
-decrypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
+decrypt_128 :: #force_inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
 	r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
 	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
 	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
@@ -423,7 +423,7 @@ decrypt_128 :: inline proc "contextless"(ctx: ^Camellia128, dst, src: []byte) {
 	dst[15] = byte(r1);
 }
 
-key_schedule_256 :: inline proc "contextless"(key: []byte) -> Camellia256 {
+key_schedule_256 :: #force_inline proc "contextless"(key: []byte) -> Camellia256 {
     ctx: Camellia256;
 
 	k: [68]u32;
@@ -507,7 +507,7 @@ key_schedule_256 :: inline proc "contextless"(key: []byte) -> Camellia256 {
     return ctx;
 }
 
-crypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
+crypt_256 :: #force_inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
 	r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
 	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
 	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
@@ -592,7 +592,7 @@ crypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
 	dst[15] = byte(r1);
 }
 
-decrypt_256 :: inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
+decrypt_256 :: #force_inline proc "contextless"(ctx: ^Camellia256, dst, src: []byte) {
 	r0 := u32(src[0])  << 24 | u32(src[1])  << 16 | u32(src[2])  << 8 | u32(src[3]);
 	r1 := u32(src[4])  << 24 | u32(src[5])  << 16 | u32(src[6])  << 8 | u32(src[7]);
 	r2 := u32(src[8])  << 24 | u32(src[9])  << 16 | u32(src[10]) << 8 | u32(src[11]);
