@@ -19,7 +19,6 @@ import "../crypto/tiger"
 import "../crypto/tiger2"
 import "../crypto/jh"
 import "../crypto/groestl"
-import "../crypto/skein"
 
 TestHash :: struct {
     hash: string,
@@ -239,17 +238,6 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
             case "GROESTL-512":
                 out:= groestl.hash_512(transmute([]byte)(s.str));
-                if !check_hash(out[:], s.hash, s.str, algo) do return;
-
-            // Skein
-            case "Skein-256":
-                out:= skein.hash_256(transmute([]byte)(s.str));
-                if !check_hash(out[:], s.hash, s.str, algo) do return;
-            case "Skein-512":
-                out:= skein.hash_512(transmute([]byte)(s.str));
-                if !check_hash(out[:], s.hash, s.str, algo) do return;
-            case "Skein-1024":
-                out:= skein.hash_1024(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
             // Unsupported
@@ -758,22 +746,4 @@ main :: proc() {
         TestHash{"862849fd911852cd54beefa88759db4cead0ef8e36aaf15398303c5c4cbc016d9b4c42b32081cbdcba710d2693e7663d244fae116ec29ffb40168baf44f944e7", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
     test(groestl512TestVectors[:], "GROESTL-512");
-    // =================== //
-    // Skein               //
-    // Skein-256           //
-    skein256TestVectors := [?]TestHash {
-        TestHash{"c8877087da56e072870daa843f176e9453115929094c3a40c463a196c29bf7ba", ""},
-        //TestHash{"c0fbd7d779b20f0a4614a66697f9e41859eaf382f14bf857e8cdb210adb9b3fe", "The quick brown fox jumps over the lazy dog"},
-    };
-    test(skein256TestVectors[:], "Skein-256");
-    /*// Skein-512           //
-    skein512TestVectors := [?]TestHash {
-        TestHash{"94c2ae036dba8783d0b3f7d6cc111ff810702f5c77707999be7e1c9486ff238a7044de734293147359b4ac7e1d09cd247c351d69826b78dcddd951f0ef912713", "The quick brown fox jumps over the lazy dog"},
-    };
-    test(skein512TestVectors[:], "Skein-512");
-    // Skein-1024          //
-    skein1024TestVectors := [?]TestHash {
-        TestHash{"4cf6152f1a7e598098d28f04e13d7742ba39b7fadbbcf2167bda4e1615d551f3f6b4edbbb391ffa09e6cc0a4af1eb366b30b5f107b437e2ea5cb586afb0341bd97dabe7cc46e7be3a054aa605395e43b243654c01ffc14c8b5443488f35d80b504a612f3d29d767106d0d9249aaa4fd99b67a94fb8661a3520004501192d84fa", "The quick brown fox jumps over the lazy dog"},
-    };
-    test(skein1024TestVectors[:], "Skein-1024");*/
 }
