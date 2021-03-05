@@ -140,18 +140,18 @@ md5_transform :: proc(ctx: ^MD5_CTX, data: [BLOCK_SIZE]byte) {
     b = MD5_II(b,c,d,a,m[9], 21,0xeb86d391);
 
     ctx.state[0] += a;
-	ctx.state[1] += b;
-	ctx.state[2] += c;
-	ctx.state[3] += d;
+    ctx.state[1] += b;
+    ctx.state[2] += c;
+    ctx.state[3] += d;
 }
 
 md5_init :: proc(ctx: ^MD5_CTX) {
     ctx.datalen = 0;
-	ctx.bitlen = 0;
-	ctx.state[0] = 0x67452301;
-	ctx.state[1] = 0xefcdab89;
-	ctx.state[2] = 0x98badcfe;
-	ctx.state[3] = 0x10325476;
+    ctx.bitlen = 0;
+    ctx.state[0] = 0x67452301;
+    ctx.state[1] = 0xefcdab89;
+    ctx.state[2] = 0x98badcfe;
+    ctx.state[3] = 0x10325476;
 }
 
 md5_update :: proc(ctx: ^MD5_CTX, data: []byte) {
@@ -206,10 +206,10 @@ md5_final :: proc(ctx: ^MD5_CTX, hash: ^[DIGEST_SIZE]u8){
     md5_transform(ctx, ctx.data);
 
     for i = 0; i < 4; i+=1 {
-		hash[i]      = u8((ctx.state[0] >> (i * 8))) & 0x000000ff;
-		hash[i + 4]  = u8((ctx.state[1] >> (i * 8))) & 0x000000ff;
-		hash[i + 8]  = u8((ctx.state[2] >> (i * 8))) & 0x000000ff;
-		hash[i + 12] = u8((ctx.state[3] >> (i * 8))) & 0x000000ff;
+        hash[i]      = u8((ctx.state[0] >> (i * 8))) & 0x000000ff;
+        hash[i + 4]  = u8((ctx.state[1] >> (i * 8))) & 0x000000ff;
+        hash[i + 8]  = u8((ctx.state[2] >> (i * 8))) & 0x000000ff;
+        hash[i + 12] = u8((ctx.state[3] >> (i * 8))) & 0x000000ff;
     }
 }
 
@@ -217,7 +217,7 @@ hash :: proc(data: []byte) -> [DIGEST_SIZE]byte {
     hash : [DIGEST_SIZE]byte;
     ctx : MD5_CTX;
     md5_init(&ctx);
-	md5_update(&ctx, data);
-	md5_final(&ctx, &hash);
+    md5_update(&ctx, data);
+    md5_final(&ctx, &hash);
     return hash;
 }

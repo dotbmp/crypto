@@ -16,8 +16,8 @@ import "../crypto/idea"
 import "../crypto/aes"
 
 u64_le :: #force_inline proc "contextless"(b: []byte) -> u64 {
-	return u64(b[0]) | u64(b[1]) << 8 | u64(b[2]) << 16 | u64(b[3]) << 24 |
-	       u64(b[4]) << 32 | u64(b[5]) << 40 | u64(b[6]) << 48 | u64(b[7]) << 56;
+    return u64(b[0]) | u64(b[1]) << 8 | u64(b[2]) << 16 | u64(b[3]) << 24 |
+           u64(b[4]) << 32 | u64(b[5]) << 40 | u64(b[6]) << 48 | u64(b[7]) << 56;
 }
 
 put_u64_le :: #force_inline proc "contextless"(b: []byte, v: u64) {
@@ -305,11 +305,11 @@ test_bcrypt :: proc() {
 
 test_des :: proc() {
     key := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF};
-	schedule : [16][6]byte;
-	plaintext := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xE7};
-	expected_cipher := [8]byte {0xc9,0x57,0x44,0x25,0x6a,0x5e,0xd3,0x1d};
+    schedule : [16][6]byte;
+    plaintext := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xE7};
+    expected_cipher := [8]byte {0xc9,0x57,0x44,0x25,0x6a,0x5e,0xd3,0x1d};
 
-	ciphertext := des.encrypt(plaintext[:], key[:], schedule[:]);
+    ciphertext := des.encrypt(plaintext[:], key[:], schedule[:]);
     defer delete(ciphertext);
 
     for i := 0; i < len(plaintext); i += 1 {
@@ -334,13 +334,13 @@ test_des :: proc() {
 
 test_3des :: proc() {
     key3 := [24]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF,
-	                  0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF,
-	                  0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF};
+                      0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF,
+                      0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF};
     schedule3 : [3][16][6]byte;
     plaintext := [8]byte {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xE7};
     expected_cipher := [8]byte {0xc9,0x57,0x44,0x25,0x6a,0x5e,0xd3,0x1d};
-	
-	ciphertext := des.triple_encrypt(plaintext[:], key3[:], schedule3[:]);
+    
+    ciphertext := des.triple_encrypt(plaintext[:], key3[:], schedule3[:]);
     defer delete(ciphertext);
 
     for i := 0; i < len(plaintext); i += 1 {
@@ -527,8 +527,8 @@ test_camellia :: proc() {
         TestVector{"0123456789abcdeffedcba98765432100011223344556677", "0123456789abcdeffedcba9876543210", "b4993401b3e996f84ee5cee7d79b09b9"},
         TestVector{"0123456789abcdeffedcba987654321000112233445566778899aabbccddeeff", "0123456789abcdeffedcba9876543210", "9acc237dff16d76c20ef7c919e3a7509"},
     };
-	
-	for v in test_vectors {
+    
+    for v in test_vectors {
         cipher := camellia.encrypt(hex_bytes(v.key), hex_bytes(v.plaintext));
         if v.ciphertext != hex_string(cipher) {
             print_test_result("Camellia", false);

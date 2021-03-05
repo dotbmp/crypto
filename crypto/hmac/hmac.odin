@@ -116,6 +116,7 @@ hmac_sha2_final :: proc(ctx: ^$T, mac: []byte) {
     copy(mac[:], mac_temp[:]);
 }
 
+
 sha224 :: proc(data, key: []byte) -> [sha2.SHA224_DIGEST_SIZE]byte {
     mac: [sha2.SHA224_DIGEST_SIZE]byte;
     ctx: HmacSha224;

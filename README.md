@@ -55,8 +55,7 @@ A crypto library for the Odin language
 - [ ] [Lyra2]()
 - [ ] [Makwa]()
 - [ ] [yescrypt]()
-- [ ] [PBKDF1](https://en.wikipedia.org/wiki/PBKDF2)
-- [ ] [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2)
+- [X] [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2)
 #
 ## Key exchange algorithms:
 
