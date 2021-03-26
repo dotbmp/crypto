@@ -614,7 +614,7 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
     sourcePos: int;
     nn := len(source);
     sourceBits := u64(nn * 8);
-    sourceGap := uint((8 - (int(sourceBits & 7))) & 7);
+    sourceGap := u32((8 - (int(sourceBits & 7))) & 7);
     bufferRem := uint(ctx.bufferBits & 7);
     b: u32;
 
@@ -626,7 +626,7 @@ whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
 	}
 
 	for sourceBits > 8 {
-		b = u32(((source[sourcePos] << sourceGap) & 0xff) | ((source[sourcePos+1] & 0xff) >> (8 - sourceGap)));
+		b = u32(u32((source[sourcePos] << sourceGap) & 0xff) | u32((source[sourcePos+1] & 0xff) >> (8 - sourceGap)));
 
 		ctx.buffer[ctx.bufferPos] |= u8(b >> bufferRem);
 		ctx.bufferPos += 1;
