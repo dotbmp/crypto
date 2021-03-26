@@ -174,7 +174,7 @@ blake_block256 :: proc "contextless" (using ctx : ^BLAKE_256, p : []u8) #no_boun
 		}
 
 		for i, j = 0, 0; i < 16; i, j = i+1, j+4 {
-			m[i] = u32((^u32be)(&p[j])^);
+			m[i] = u32(p[j]) << 24 | u32(p[j + 1]) << 16 | u32(p[j + 2]) << 8 | u32(p[j + 3]);
 		}
 
 		for i = 0; i < 14; i += 1 {
@@ -226,9 +226,9 @@ blake512_compress :: proc "contextless" (using ctx : ^BLAKE_512, p : []u8) #no_b
 		}
 
 		for i, j = 0, 0; i < 16; i, j = i+1, j+8 {
-			m[i] = u64((^u64be)(&p[j])^);
+			m[i] = u64(p[j]) << 56 	   | u64(p[j + 1]) << 48 | u64(p[j + 2]) << 40 | u64(p[j + 3]) << 32 | 
+				   u64(p[j + 4]) << 24 | u64(p[j + 5]) << 16 | u64(p[j + 6]) << 8  | u64(p[j + 7]);
 		}
-
 		for i = 0; i < 16; i += 1 {
 			v[0], v[4], v[8],  v[12] = blake512_g(v[0], v[4], v[8],  v[12], m, i, 0);
 			v[1], v[5], v[9],  v[13] = blake512_g(v[1], v[5], v[9],  v[13], m, i, 1);
@@ -393,10 +393,9 @@ blake_checksum_256 :: proc (ctx: ^BLAKE_256) -> [BLAKE_SIZE_256]byte #no_bounds_
 }
 
 blake512_final :: proc (ctx: ^BLAKE_512) -> [BLAKE_SIZE_512]byte #no_bounds_check {
-	
 	nx := u64(ctx.nx);
 
-	tmp : [129]byte;
+	tmp: [129]byte;
 	tmp[0] = 0x80;
 	length := (ctx.t + nx) << 3;
 
@@ -426,8 +425,6 @@ blake512_final :: proc (ctx: ^BLAKE_512) -> [BLAKE_SIZE_512]byte #no_bounds_chec
 
 	for i : uint = 0; i < 16; i += 1 {
 		tmp[i] = (120 - 8 * i) < 64 ? byte(length >> (120 - 8 * i)) : 0; 
-		// @todo(bp): remove this hideous fucking monstrosity once the compiler is fixed
-		// @note(zh): won't be fixed. shifting is like this on purpose. Bill does not want the other behavior
 	}
 	blake_writeAdditionalData_512(ctx, tmp[0:16]);
 
@@ -470,23 +467,19 @@ hash_224 :: proc (data: []byte) -> [BLAKE_SIZE_224]byte #no_bounds_check {
 	blake_write_256(&ctx, data);
 	tmp := blake_checksum_256(&ctx);
 	copy(hash[:], tmp[:BLAKE_SIZE_224]);
-
     return hash;
 }
 
 hash_256 :: proc (data: []byte) -> [BLAKE_SIZE_256]byte #no_bounds_check {
-
 	hash : [BLAKE_SIZE_256]byte = ---;
     ctx : BLAKE_256;
     blake_reset_256(&ctx);
 	blake_write_256(&ctx, data);
 	hash = blake_checksum_256(&ctx);
-
     return hash;
 }
 
 hash_384 :: proc (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds_check {
-
 	hash : [BLAKE_SIZE_384]byte = ---;
     ctx : BLAKE_512;
     ctx.is384 = true;
@@ -494,17 +487,14 @@ hash_384 :: proc (data: []byte) -> [BLAKE_SIZE_384]byte #no_bounds_check {
 	blake512_write(&ctx, data);
 	tmp := blake512_final(&ctx);
 	copy(hash[:], tmp[:BLAKE_SIZE_384]);
-
     return hash;
 }
 
 hash_512 :: proc (data: []byte) -> [BLAKE_SIZE_512]byte #no_bounds_check {
-
 	hash : [BLAKE_SIZE_512]byte = ---;
     ctx : BLAKE_512;
     blake512_reset(&ctx);
 	blake512_write(&ctx, data);
 	hash = blake512_final(&ctx);
-
     return hash;
 }
