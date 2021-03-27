@@ -28,13 +28,6 @@ JH :: struct {
     buffer: [64]byte,
 }
 
-JH_L :: #force_inline proc (a, b: byte) -> (byte, byte) {
-    a, b := a, b;
-    (b) ~= ( ( (a) << 1) ~ ( (a) >> 3) ~ (( (a) >> 2) & 2) ) & 0xf;
-    (a) ~= ( ( (b) << 1) ~ ( (b) >> 3) ~ (( (b) >> 2) & 2) ) & 0xf;
-    return a, b;
-}
-
 JH_E8_finaldegroup :: proc(ctx: ^JH) {
     t0,t1,t2,t3: byte;
     tem: [256]u8;
@@ -63,7 +56,10 @@ jh_update_roundconstant :: proc(ctx: ^JH) {
     t: byte;
 
     for i := 0; i < 64; i += 1 do tem[i] = JH_S[0][ctx.roundconstant[i]];
-    for i := 0; i < 64; i += 2 do tem[i], tem[i+1] = JH_L(tem[i], tem[i+1]);
+    for i := 0; i < 64; i += 2 {
+        tem[i+1] ~= ((tem[i]   << 1) ~ (tem[i]   >> 3) ~ ((tem[i]   >> 2) & 2)) & 0xf;
+        tem[i]   ~= ((tem[i+1] << 1) ~ (tem[i+1] >> 3) ~ ((tem[i+1] >> 2) & 2)) & 0xf;
+    }
     for i := 0; i < 64; i += 4 {
         t = tem[i+2];
         tem[i+2] = tem[i+3];
@@ -86,7 +82,10 @@ JH_R8 :: proc(ctx: ^JH) {
 
     for i := u32(0); i < 256; i += 1 do roundconstant_expanded[i] = (ctx.roundconstant[i >> 2] >> (3 - (i & 3)) ) & 1;
     for i := 0; i < 256; i += 1 do tem[i] = JH_S[roundconstant_expanded[i]][ctx.A[i]];
-    for i := 0; i < 256; i += 2 do tem[i], tem[i+1] = JH_L(tem[i], tem[i+1]);
+    for i := 0; i < 256; i += 2 {
+        tem[i+1] ~= ((tem[i]   << 1) ~ (tem[i]   >> 3) ~ ((tem[i]   >> 2) & 2)) & 0xf;
+        tem[i]   ~= ((tem[i+1] << 1) ~ (tem[i+1] >> 3) ~ ((tem[i+1] >> 2) & 2)) & 0xf;
+    }
     for i := 0; i < 256; i += 4 {
         t = tem[i+2];
         tem[i+2] = tem[i+3];
