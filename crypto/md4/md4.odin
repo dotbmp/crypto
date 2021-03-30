@@ -127,12 +127,9 @@ md4_init :: proc(ctx: ^MD4_CTX) {
 }
 
 md4_update :: proc(ctx: ^MD4_CTX, data: []byte) {
-
     for i := 0; i < len(data); i += 1 {
-        
         ctx.data[ctx.datalen] = data[i];
         ctx.datalen += 1;
-
         if(ctx.datalen == 64) {
             md4_transform(ctx, ctx.data);
             ctx.bitlen += 512;
@@ -142,12 +139,9 @@ md4_update :: proc(ctx: ^MD4_CTX, data: []byte) {
 }
 
 md4_final :: proc(ctx: ^MD4_CTX, hash: ^[MD4_BLOCK_SIZE]u8){
-
     i : u32;
     i = ctx.datalen;
-
     if ctx.datalen < 56 {
-
         ctx.data[i] = 0x80;
         i += 1;
 
@@ -155,7 +149,6 @@ md4_final :: proc(ctx: ^MD4_CTX, hash: ^[MD4_BLOCK_SIZE]u8){
             ctx.data[i] = 0x00;
             i += 1;
         }
-    
     } else if ctx.datalen >= 56 {
 
         ctx.data[i] = 0x80;
@@ -165,7 +158,6 @@ md4_final :: proc(ctx: ^MD4_CTX, hash: ^[MD4_BLOCK_SIZE]u8){
             ctx.data[i] = 0x00;
             i+=1;
         }
-        
         md4_transform(ctx, ctx.data);
         mem.set(&ctx.data, 0, 56);
     }
@@ -190,13 +182,10 @@ md4_final :: proc(ctx: ^MD4_CTX, hash: ^[MD4_BLOCK_SIZE]u8){
 }
 
 hash :: proc(data: []byte) -> [MD4_BLOCK_SIZE]byte {
-
     hash : [MD4_BLOCK_SIZE]byte;
     ctx : MD4_CTX;
-
     md4_init(&ctx);
 	md4_update(&ctx, data);
 	md4_final(&ctx, &hash);
-
     return hash;
 }

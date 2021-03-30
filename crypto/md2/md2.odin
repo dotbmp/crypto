@@ -5,13 +5,13 @@ package md2
 MD2_BLOCK_SIZE :: 16;
 
 MD2_CTX :: struct {
-    data: [MD2_BLOCK_SIZE]u8,
-    state: [MD2_BLOCK_SIZE * 3]u8,
+    data:     [MD2_BLOCK_SIZE]u8,
+    state:    [MD2_BLOCK_SIZE * 3]u8,
     checksum: [MD2_BLOCK_SIZE]u8,
-    len: int,
+    len:      int,
 }
 
-MD2_TABLE := [MD2_BLOCK_SIZE * MD2_BLOCK_SIZE]u8{
+MD2_TABLE := [MD2_BLOCK_SIZE * MD2_BLOCK_SIZE]u8 {
 	41, 46, 67, 201, 162, 216, 124, 1, 61, 54, 84, 161, 236, 240, 6,
 	19, 98, 167, 5, 243, 192, 199, 115, 140, 152, 147, 43, 217, 188,
 	76, 130, 202, 30, 155, 87, 60, 253, 212, 224, 22, 103, 66, 111, 24,
@@ -33,14 +33,11 @@ MD2_TABLE := [MD2_BLOCK_SIZE * MD2_BLOCK_SIZE]u8{
 };
 
 md2_transform :: proc(ctx: ^MD2_CTX, data: [MD2_BLOCK_SIZE]byte) {
-
     j,k,t : u8;
-
 	for j=0; j < MD2_BLOCK_SIZE; j += 1 {
 		ctx.state[j + MD2_BLOCK_SIZE] = data[j];
 		ctx.state[j + MD2_BLOCK_SIZE * 2] = (ctx.state[j+MD2_BLOCK_SIZE] ~ ctx.state[j]);
 	}
-
 	t = 0;
 	for j = 0; j < MD2_BLOCK_SIZE + 2; j+=1 {
 		for k = 0; k < MD2_BLOCK_SIZE * 3; k+=1 {
@@ -49,7 +46,6 @@ md2_transform :: proc(ctx: ^MD2_CTX, data: [MD2_BLOCK_SIZE]byte) {
 		}
 		t = (t+j) & 0xFF;
 	}
-
 	t = ctx.checksum[MD2_BLOCK_SIZE - 1];
 	for j=0; j < MD2_BLOCK_SIZE; j+=1 {
 		ctx.checksum[j] ~= MD2_TABLE[data[j] ~ t];
@@ -58,20 +54,16 @@ md2_transform :: proc(ctx: ^MD2_CTX, data: [MD2_BLOCK_SIZE]byte) {
 }
 
 md2_init :: proc(ctx: ^MD2_CTX) {
-
 	for i:=0; i < MD2_BLOCK_SIZE * 3; i+=1 {
 		ctx.state[i] = 0;
-
 		if i < MD2_BLOCK_SIZE {
 			ctx.checksum[i] = 0;
 		}
     }
-
 	ctx.len = 0;
 }
 
 md2_update :: proc(ctx: ^MD2_CTX, data: []byte) {
-
 	for i := 0; i < len(data); i+=1 {
 		ctx.data[ctx.len] = data[i];
 		ctx.len+=1;
@@ -82,32 +74,24 @@ md2_update :: proc(ctx: ^MD2_CTX, data: []byte) {
 	}
 }
 
-md2_final :: proc(ctx: ^MD2_CTX, hash: ^[MD2_BLOCK_SIZE]u8){
-
+md2_final :: proc(ctx: ^MD2_CTX, hash: ^[MD2_BLOCK_SIZE]u8) {
 	to_pad := u8(MD2_BLOCK_SIZE - ctx.len);
-
     for ctx.len < MD2_BLOCK_SIZE {
-
         ctx.data[ctx.len] = to_pad;
 		ctx.len += 1;
     }
-
 	md2_transform(ctx, ctx.data);
 	md2_transform(ctx, ctx.checksum);
-
     for i := 0; i < MD2_BLOCK_SIZE; i += 1 {
         hash[i] = ctx.state[i];
     }
 }
 
 hash :: proc(data: []byte) -> [MD2_BLOCK_SIZE]byte {
-
-    hash : [MD2_BLOCK_SIZE]byte;
-    ctx : MD2_CTX;
-
+    hash: [MD2_BLOCK_SIZE]byte;
+    ctx:  MD2_CTX;
     md2_init(&ctx);
 	md2_update(&ctx, data);
 	md2_final(&ctx, &hash);
-
     return hash;
 }

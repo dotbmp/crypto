@@ -424,7 +424,7 @@ blake512_final :: proc (ctx: ^BLAKE_512) -> [BLAKE_SIZE_512]byte #no_bounds_chec
 	}
 
 	for i : uint = 0; i < 16; i += 1 {
-		tmp[i] = (120 - 8 * i) < 64 ? byte(length >> (120 - 8 * i)) : 0; 
+		tmp[i] = byte(length >> (120 - 8 * i)); 
 	}
 	blake_writeAdditionalData_512(ctx, tmp[0:16]);
 
