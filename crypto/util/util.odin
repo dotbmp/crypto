@@ -143,9 +143,9 @@ ROTL32 :: #force_inline proc "contextless"(a: u32, b: int) -> u32 {
     return (a << s) | (a >> (32 - s));
 }
 
-ROTR32 :: #force_inline proc "contextless" (a: u32, b: int) -> u32 {
+ROTL32 :: #force_inline proc "contextless"(a: u32, b: int) -> u32 {
     s := uint(b) & 31;
-    return ((a >> s) | (a << (32 - s)));
+    return u32((uint(a) << s) | (uint(a) >> (32 - s)));
 }
 
 ROTL64 :: #force_inline proc "contextless" (a, b: u64) -> u64 {
