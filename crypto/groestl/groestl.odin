@@ -34,31 +34,31 @@ GROESTL_S := [256]u8 {
     0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94,
     0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
     0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68,
-    0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
+    0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
 };
 
 GROESTL_SHIFT := [2][2][8]int {
     {{0,1,2,3,4,5,6,7}, {1,3,5,7,0,2,4,6}},
-    {{0,1,2,3,4,5,6,11}, {1,3,5,11,0,2,4,6}}
+    {{0,1,2,3,4,5,6,11}, {1,3,5,11,0,2,4,6}},
 };
 
 GROESTL :: struct {
-    chaining: [8][16]u8,
-    block_counter: u64,
-    hashbitlen: int,
-    buffer: [128]byte,
-    buf_ptr: int,
+    chaining:          [8][16]u8,
+    block_counter:     u64,
+    hashbitlen:        int,
+    buffer:            [128]byte,
+    buf_ptr:           int,
     bits_in_last_byte: int,
-    columns: int,
-    rounds: int,
-    statesize: int,
+    columns:           int,
+    rounds:            int,
+    statesize:         int,
 }
 
 Groestl_Variant :: enum {
-    P512 = 0, 
-    Q512 = 1, 
+    P512  = 0, 
+    Q512  = 1, 
     P1024 = 2, 
-    Q1024 = 3
+    Q1024 = 3,
 }
 
 GROESTL_MUL2 :: #force_inline proc (b: u8) -> u8 {

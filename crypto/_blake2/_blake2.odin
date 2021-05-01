@@ -3,74 +3,74 @@ package _blake2
 // @ref(zh): https://github.com/dchest/blake2s
 // @ref(zh): https://github.com/dchest/blake2b
 
-BLAKE2S_BLOCK_SIZE :: 64;
-BLAKE2S_SIZE :: 32;
-BLAKE2S_SALT_SIZE :: 8;
+BLAKE2S_BLOCK_SIZE  :: 64;
+BLAKE2S_SIZE        :: 32;
+BLAKE2S_SALT_SIZE   :: 8;
 BLAKE2S_PERSON_SIZE :: 8;
-BLAKE2S_KEY_SIZE :: 32;
+BLAKE2S_KEY_SIZE    :: 32;
 
-BLAKE2B_BLOCK_SIZE :: 128;
-BLAKE2B_SIZE :: 64;
-BLAKE2B_SALT_SIZE :: 16;
+BLAKE2B_BLOCK_SIZE  :: 128;
+BLAKE2B_SIZE        :: 64;
+BLAKE2B_SALT_SIZE   :: 16;
 BLAKE2B_PERSON_SIZE :: 16;
-BLAKE2B_KEY_SIZE :: 64;
+BLAKE2B_KEY_SIZE    :: 64;
 
 BLAKE2S :: struct {
-	h : [8]u32,
-	t : [2]u32,
-	f : [2]u32,
-	x : [BLAKE2S_BLOCK_SIZE]byte,
-	nx : int,
-	ih : [8]u32,
-	paddedKey : [BLAKE2S_BLOCK_SIZE]byte,
-	isKeyed : bool,
-	size : u8,
-	isLastNode : bool, 
+	h:          [8]u32,
+	t:          [2]u32,
+	f:          [2]u32,
+	x:          [BLAKE2S_BLOCK_SIZE]byte,
+	nx:         int,
+	ih:         [8]u32,
+	paddedKey:  [BLAKE2S_BLOCK_SIZE]byte,
+	isKeyed:    bool,
+	size:       u8,
+	isLastNode: bool, 
 }
 
 BLAKE2B :: struct {
-	h : [8]u64,
-	t : [2]u64,
-	f : [2]u64,
-	x : [BLAKE2B_BLOCK_SIZE]byte,
-	nx : int,
-	ih : [8]u64,
-	paddedKey : [BLAKE2B_BLOCK_SIZE]byte,
-	isKeyed : bool,
-	size : u8,
-	isLastNode : bool, 
+	h:          [8]u64,
+	t:          [2]u64,
+	f:          [2]u64,
+	x:          [BLAKE2B_BLOCK_SIZE]byte,
+	nx:         int,
+	ih:         [8]u64,
+	paddedKey:  [BLAKE2B_BLOCK_SIZE]byte,
+	isKeyed:    bool,
+	size:       u8,
+	isLastNode: bool, 
 }
 
 BLAKE2S_IV := [8]u32 {
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
 };
 
 BLAKE2B_IV := [8]u64 {
 	0x6a09e667f3bcc908, 0xbb67ae8584caa73b,
 	0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
 	0x510e527fade682d1, 0x9b05688c2b3e6c1f,
-	0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
+	0x1f83d9abfb41bd6b, 0x5be0cd19137e2179,
 };
 
 BLAKE2_CONFIG :: struct {
-    size : u8,
-	key : []byte, 
-	salt : []byte, 
-	person : []byte,
-	tree: union{BLAKE2_TREE},
+    size:   u8,
+	key:    []byte, 
+	salt:   []byte, 
+	person: []byte,
+	tree:   union{BLAKE2_TREE},
 };
 
 BLAKE2_OPTION :: union(T: typeid) {T}
 
 BLAKE2_TREE :: struct {
-	fanout : u8,
-	maxDepth : u8,
-	leafSize : u32,
-	nodeOffset : u64,
-	nodeDepth : u8,
-	innerHashSize : u8,
-	isLastNode : bool,
+	fanout:        u8,
+	maxDepth:      u8,
+	leafSize:      u32,
+	nodeOffset:    u64,
+	nodeDepth:     u8,
+	innerHashSize: u8,
+	isLastNode:    bool,
 };
 
 is_blake2s :: #force_inline proc "contextless"($T) -> bool {

@@ -19,6 +19,7 @@ import "../crypto/tiger"
 import "../crypto/tiger2"
 import "../crypto/jh"
 import "../crypto/groestl"
+import "../crypto/skein"
 
 TestHash :: struct {
     hash: string,
@@ -240,6 +241,17 @@ test :: proc(testVectors: []TestHash, algo: string) {
                 out:= groestl.hash_512(transmute([]byte)(s.str));
                 if !check_hash(out[:], s.hash, s.str, algo) do return;
 
+            // Skein
+            case "Skein-256":
+                out:= skein.hash_256(transmute([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "Skein-512":
+                out:= skein.hash_512(transmute([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+            case "Skein-1024":
+                out:= skein.hash_1024(transmute([]byte)(s.str));
+                if !check_hash(out[:], s.hash, s.str, algo) do return;
+
             // Unsupported
             case: 
                 fmt.printf(" --- %s not supported yet ---\n", algo);
@@ -260,7 +272,7 @@ main :: proc() {
         TestHash{"ab4f496bfb2a530b219ff33031fe06b0", "message digest"},
         TestHash{"4e8ddff3650292ab5a4108c3aa47940b", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"da33def2a42df13975352846c30338cd", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
-        TestHash{"d5976f79d83d3a0dc9806c3c66f3efd8", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"}
+        TestHash{"d5976f79d83d3a0dc9806c3c66f3efd8", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
     test(md2TestVectors[:], "MD2");
     // MD4                 //
@@ -271,7 +283,7 @@ main :: proc() {
         TestHash{"d9130a8164549fe818874806e1c7014b", "message digest"},
         TestHash{"d79e1c308aa5bbcdeea8ed63df412da9", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"043f8582f241db351ce627e153e7f0e4", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
-        TestHash{"e33b4ddc9c38f2199c3e7b164fcc0536", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"}
+        TestHash{"e33b4ddc9c38f2199c3e7b164fcc0536", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
     test(md4TestVectors[:], "MD4");
     // MD5                 //
@@ -282,7 +294,7 @@ main :: proc() {
         TestHash{"f96b697d7cb7938d525a2f31aaf161d0", "message digest"},
         TestHash{"c3fcd3d76192e4007dfb496cca67e13b", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"d174ab98d277d9f5a5611c2c9f419d9f", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
-        TestHash{"57edf4a22be3c955ac49da2e2107b67a", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"}
+        TestHash{"57edf4a22be3c955ac49da2e2107b67a", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
     test(md5TestVectors[:], "MD5");
    /* // MD6-256             //
@@ -438,10 +450,10 @@ main :: proc() {
     // RIPEMD-128          //
     ripemd128TestVectors := [?]TestHash {
         TestHash{"cdf26213a150dc3ecb610f18f6b38b46", ""},
-		TestHash{"86be7afa339d0fc7cfc785e72f578d33", "a"},
-		TestHash{"c14a12199c66e4ba84636b0f69144c77", "abc"},
-		TestHash{"9e327b3d6e523062afc1132d7df9d1b8", "message digest"},
-		TestHash{"fd2aa607f71dc8f510714922b371834e", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"86be7afa339d0fc7cfc785e72f578d33", "a"},
+        TestHash{"c14a12199c66e4ba84636b0f69144c77", "abc"},
+        TestHash{"9e327b3d6e523062afc1132d7df9d1b8", "message digest"},
+        TestHash{"fd2aa607f71dc8f510714922b371834e", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"a1aa0689d0fafa2ddc22e88b49133a06", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
         TestHash{"d1e959eb179c911faea4624c60c5c702", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
     };
@@ -449,10 +461,10 @@ main :: proc() {
     // RIPEMD-160          //
     ripemd160TestVectors := [?]TestHash {
         TestHash{"9c1185a5c5e9fc54612808977ee8f548b2258d31", ""},
-		TestHash{"0bdc9d2d256b3ee9daae347be6f4dc835a467ffe", "a"},
-		TestHash{"8eb208f7e05d987a9b044a8e98c6b087f15a0bfc", "abc"},
-		TestHash{"5d0689ef49d2fae572b881b123a85ffa21595f36", "message digest"},
-		TestHash{"f71c27109c692c1b56bbdceb5b9d2865b3708dbc", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"0bdc9d2d256b3ee9daae347be6f4dc835a467ffe", "a"},
+        TestHash{"8eb208f7e05d987a9b044a8e98c6b087f15a0bfc", "abc"},
+        TestHash{"5d0689ef49d2fae572b881b123a85ffa21595f36", "message digest"},
+        TestHash{"f71c27109c692c1b56bbdceb5b9d2865b3708dbc", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"12a053384a9c0c88e405a06c27dcf49ada62eb2b", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
         TestHash{"b0e20b6e3116640286ed3a87a5713079b21f5189", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
     };
@@ -460,10 +472,10 @@ main :: proc() {
     // RIPEMD-256          //
     ripemd256TestVectors := [?]TestHash {
         TestHash{"02ba4c4e5f8ecd1877fc52d64d30e37a2d9774fb1e5d026380ae0168e3c5522d", ""},
-		TestHash{"f9333e45d857f5d90a91bab70a1eba0cfb1be4b0783c9acfcd883a9134692925", "a"},
-		TestHash{"afbd6e228b9d8cbbcef5ca2d03e6dba10ac0bc7dcbe4680e1e42d2e975459b65", "abc"},
-		TestHash{"87e971759a1ce47a514d5c914c392c9018c7c46bc14465554afcdf54a5070c0e", "message digest"},
-		TestHash{"649d3034751ea216776bf9a18acc81bc7896118a5197968782dd1fd97d8d5133", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"f9333e45d857f5d90a91bab70a1eba0cfb1be4b0783c9acfcd883a9134692925", "a"},
+        TestHash{"afbd6e228b9d8cbbcef5ca2d03e6dba10ac0bc7dcbe4680e1e42d2e975459b65", "abc"},
+        TestHash{"87e971759a1ce47a514d5c914c392c9018c7c46bc14465554afcdf54a5070c0e", "message digest"},
+        TestHash{"649d3034751ea216776bf9a18acc81bc7896118a5197968782dd1fd97d8d5133", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"3843045583aac6c8c8d9128573e7a9809afb2a0f34ccc36ea9e72f16f6368e3f", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
         TestHash{"5740a408ac16b720b84424ae931cbb1fe363d1d0bf4017f1a89f7ea6de77a0b8", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},   
     };
@@ -471,10 +483,10 @@ main :: proc() {
     // RIPEMD-320          //
     ripemd320TestVectors := [?]TestHash {
         TestHash{"22d65d5661536cdc75c1fdf5c6de7b41b9f27325ebc61e8557177d705a0ec880151c3a32a00899b8", ""},
-		TestHash{"ce78850638f92658a5a585097579926dda667a5716562cfcf6fbe77f63542f99b04705d6970dff5d", "a"},
-		TestHash{"de4c01b3054f8930a79d09ae738e92301e5a17085beffdc1b8d116713e74f82fa942d64cdbc4682d", "abc"},
-		TestHash{"3a8e28502ed45d422f68844f9dd316e7b98533fa3f2a91d29f84d425c88d6b4eff727df66a7c0197", "message digest"},
-		TestHash{"cabdb1810b92470a2093aa6bce05952c28348cf43ff60841975166bb40ed234004b8824463e6b009", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"ce78850638f92658a5a585097579926dda667a5716562cfcf6fbe77f63542f99b04705d6970dff5d", "a"},
+        TestHash{"de4c01b3054f8930a79d09ae738e92301e5a17085beffdc1b8d116713e74f82fa942d64cdbc4682d", "abc"},
+        TestHash{"3a8e28502ed45d422f68844f9dd316e7b98533fa3f2a91d29f84d425c88d6b4eff727df66a7c0197", "message digest"},
+        TestHash{"cabdb1810b92470a2093aa6bce05952c28348cf43ff60841975166bb40ed234004b8824463e6b009", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"d034a7950cf722021ba4b84df769a5de2060e259df4c9bb4a4268c0e935bbc7470a969c9d072a1ac", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
         TestHash{"ed544940c86d67f250d232c30b7b3e5770e0c60c8cb9a4cafe3b11388af9920e1b99230b843c86a4", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},   
     };
@@ -485,10 +497,10 @@ main :: proc() {
     // @note(bp): Haval needs more test strings!
     haval_3_128TestVectors := [?]TestHash {
         TestHash{"c68f39913f901f3ddf44c707357a7d70", ""},
-		TestHash{"0cd40739683e15f01ca5dbceef4059f1", "a"},
-		TestHash{"9e40ed883fb63e985d299b40cda2b8f2", "abc"},
-		TestHash{"3caf4a79e81adcd6d1716bcc1cef4573", "message digest"},
-		TestHash{"dc502247fb3eb8376109eda32d361d82", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"0cd40739683e15f01ca5dbceef4059f1", "a"},
+        TestHash{"9e40ed883fb63e985d299b40cda2b8f2", "abc"},
+        TestHash{"3caf4a79e81adcd6d1716bcc1cef4573", "message digest"},
+        TestHash{"dc502247fb3eb8376109eda32d361d82", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"44068770868768964d1f2c3bff4aa3d8", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
         TestHash{"de5eb3f7d9eb08fae7a07d68e3047ec6", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},  
     };
@@ -496,10 +508,10 @@ main :: proc() {
     // HAVAL-3-160       //
     haval_3_160TestVectors := [?]TestHash {
         TestHash{"d353c3ae22a25401d257643836d7231a9a95f953", ""},
-		TestHash{"4da08f514a7275dbc4cece4a347385983983a830", "a"},
+        TestHash{"4da08f514a7275dbc4cece4a347385983983a830", "a"},
         TestHash{"b21e876c4d391e2a897661149d83576b5530a089", "abc"},
-		TestHash{"43a47f6f1c016207f08be8115c0977bf155346da", "message digest"},
-		TestHash{"eba9fa6050f24c07c29d1834a60900ea4e32e61b", "abcdefghijklmnopqrstuvwxyz"},
+        TestHash{"43a47f6f1c016207f08be8115c0977bf155346da", "message digest"},
+        TestHash{"eba9fa6050f24c07c29d1834a60900ea4e32e61b", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"c30bce448cf8cfe957c141e90c0a063497cdfeeb", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
         TestHash{"97dc988d97caae757be7523c4e8d4ea63007a4b9", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"}, 
     };
@@ -507,79 +519,79 @@ main :: proc() {
     // HAVAL-3-192       //
     haval_3_192TestVectors := [?]TestHash {
         TestHash{"e9c48d7903eaf2a91c5b350151efcb175c0fc82de2289a4e", ""},
-		TestHash{"b359c8835647f5697472431c142731ff6e2cddcacc4f6e08", "a"},
+        TestHash{"b359c8835647f5697472431c142731ff6e2cddcacc4f6e08", "a"},
     };
     test(haval_3_192TestVectors[:], "HAVAL-3-192");
     // HAVAL-3-224       //
     haval_3_224TestVectors := [?]TestHash {
         TestHash{"c5aae9d47bffcaaf84a8c6e7ccacd60a0dd1932be7b1a192b9214b6d", ""},
-		TestHash{"731814ba5605c59b673e4caae4ad28eeb515b3abc2b198336794e17b", "a"},
+        TestHash{"731814ba5605c59b673e4caae4ad28eeb515b3abc2b198336794e17b", "a"},
     };
     test(haval_3_224TestVectors[:], "HAVAL-3-224");
     // HAVAL-3-256       //
     haval_3_256TestVectors := [?]TestHash {
         TestHash{"4f6938531f0bc8991f62da7bbd6f7de3fad44562b8c6f4ebf146d5b4e46f7c17", ""},
-		TestHash{"47c838fbb4081d9525a0ff9b1e2c05a98f625714e72db289010374e27db021d8", "a"},
+        TestHash{"47c838fbb4081d9525a0ff9b1e2c05a98f625714e72db289010374e27db021d8", "a"},
     };
     test(haval_3_256TestVectors[:], "HAVAL-3-256");
     // HAVAL-4-128        //
     haval_4_128TestVectors := [?]TestHash {
         TestHash{"ee6bbf4d6a46a679b3a856c88538bb98", ""},
-		TestHash{"5cd07f03330c3b5020b29ba75911e17d", "a"},
+        TestHash{"5cd07f03330c3b5020b29ba75911e17d", "a"},
     };
     test(haval_4_128TestVectors[:], "HAVAL-4-128");
     // HAVAL-4-160       //
     haval_4_160TestVectors := [?]TestHash {
         TestHash{"1d33aae1be4146dbaaca0b6e70d7a11f10801525", ""},
-		TestHash{"e0a5be29627332034d4dd8a910a1a0e6fe04084d", "a"},
+        TestHash{"e0a5be29627332034d4dd8a910a1a0e6fe04084d", "a"},
     };
     test(haval_4_160TestVectors[:], "HAVAL-4-160");
     // HAVAL-4-192       //
     haval_4_192TestVectors := [?]TestHash {
         TestHash{"4a8372945afa55c7dead800311272523ca19d42ea47b72da", ""},
-		TestHash{"856c19f86214ea9a8a2f0c4b758b973cce72a2d8ff55505c", "a"},
+        TestHash{"856c19f86214ea9a8a2f0c4b758b973cce72a2d8ff55505c", "a"},
     };
     test(haval_4_192TestVectors[:], "HAVAL-4-192");
     // HAVAL-4-224       //
     haval_4_224TestVectors := [?]TestHash {
         TestHash{"3e56243275b3b81561750550e36fcd676ad2f5dd9e15f2e89e6ed78e", ""},
-		TestHash{"742f1dbeeaf17f74960558b44f08aa98bdc7d967e6c0ab8f799b3ac1", "a"},
+        TestHash{"742f1dbeeaf17f74960558b44f08aa98bdc7d967e6c0ab8f799b3ac1", "a"},
     };
     test(haval_4_224TestVectors[:], "HAVAL-4-224");
     // HAVAL-4-256       //
     haval_4_256TestVectors := [?]TestHash {
         TestHash{"c92b2e23091e80e375dadce26982482d197b1a2521be82da819f8ca2c579b99b", ""},
-		TestHash{"e686d2394a49b44d306ece295cf9021553221db132b36cc0ff5b593d39295899", "a"},
+        TestHash{"e686d2394a49b44d306ece295cf9021553221db132b36cc0ff5b593d39295899", "a"},
     };
     test(haval_4_256TestVectors[:], "HAVAL-4-256");
     // HAVAL-5-128        //
     haval_5_128TestVectors := [?]TestHash {
         TestHash{"184b8482a0c050dca54b59c7f05bf5dd", ""},
-		TestHash{"f23fbe704be8494bfa7a7fb4f8ab09e5", "a"},
+        TestHash{"f23fbe704be8494bfa7a7fb4f8ab09e5", "a"},
     };
     test(haval_5_128TestVectors[:], "HAVAL-5-128");
     // HAVAL-5-160       //
     haval_5_160TestVectors := [?]TestHash {
         TestHash{"255158cfc1eed1a7be7c55ddd64d9790415b933b", ""},
-		TestHash{"f5147df7abc5e3c81b031268927c2b5761b5a2b5", "a"},
+        TestHash{"f5147df7abc5e3c81b031268927c2b5761b5a2b5", "a"},
     };
     test(haval_5_160TestVectors[:], "HAVAL-5-160");
     // HAVAL-5-192       //
     haval_5_192TestVectors := [?]TestHash {
         TestHash{"4839d0626f95935e17ee2fc4509387bbe2cc46cb382ffe85", ""},
-		TestHash{"5ffa3b3548a6e2cfc06b7908ceb5263595df67cf9c4b9341", "a"},
+        TestHash{"5ffa3b3548a6e2cfc06b7908ceb5263595df67cf9c4b9341", "a"},
     };
     test(haval_5_192TestVectors[:], "HAVAL-5-192");
     // HAVAL-5-224       //
     haval_5_224TestVectors := [?]TestHash {
         TestHash{"4a0513c032754f5582a758d35917ac9adf3854219b39e3ac77d1837e", ""},
-		TestHash{"67b3cb8d4068e3641fa4f156e03b52978b421947328bfb9168c7655d", "a"},
+        TestHash{"67b3cb8d4068e3641fa4f156e03b52978b421947328bfb9168c7655d", "a"},
     };
     test(haval_5_224TestVectors[:], "HAVAL-5-224");
     // HAVAL-5-256       //
     haval_5_256TestVectors := [?]TestHash {
         TestHash{"be417bb4dd5cfb76c7126f4f8eeb1553a449039307b1a3cd451dbfdc0fbbe330", ""},
-		TestHash{"de8fd5ee72a5e4265af0a756f4e1a1f65c9b2b2f47cf17ecf0d1b88679a3e22f", "a"},
+        TestHash{"de8fd5ee72a5e4265af0a756f4e1a1f65c9b2b2f47cf17ecf0d1b88679a3e22f", "a"},
     };
     test(haval_5_256TestVectors[:], "HAVAL-5-256");
     // =================== //
@@ -630,7 +642,7 @@ main :: proc() {
     tiger128TestVectors := [?]TestHash {
         TestHash{"3293ac630c13f0245f92bbb1766e1616", ""},
         TestHash{"77befbef2e7ef8ab2ec8f93bf587a7fc", "a"},
-	    TestHash{"2aab1484e8c158f2bfb8c5ff41b57a52", "abc"},
+        TestHash{"2aab1484e8c158f2bfb8c5ff41b57a52", "abc"},
         TestHash{"d981f8cb78201a950dcf3048751e441c", "message digest"},
         TestHash{"1714a472eee57d30040412bfcc55032a", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"0f7bf9a19b9c58f2b7610df7e84f0ac3", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
@@ -643,7 +655,7 @@ main :: proc() {
     tiger160TestVectors := [?]TestHash {
         TestHash{"3293ac630c13f0245f92bbb1766e16167a4e5849", ""},
         TestHash{"77befbef2e7ef8ab2ec8f93bf587a7fc613e247f", "a"},
-	    TestHash{"2aab1484e8c158f2bfb8c5ff41b57a525129131c", "abc"},
+        TestHash{"2aab1484e8c158f2bfb8c5ff41b57a525129131c", "abc"},
         TestHash{"d981f8cb78201a950dcf3048751e441c517fca1a", "message digest"},
         TestHash{"1714a472eee57d30040412bfcc55032a0b11602f", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"0f7bf9a19b9c58f2b7610df7e84f0ac3a71c631e", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
@@ -656,7 +668,7 @@ main :: proc() {
     tiger192TestVectors := [?]TestHash {
         TestHash{"3293ac630c13f0245f92bbb1766e16167a4e58492dde73f3", ""},
         TestHash{"77befbef2e7ef8ab2ec8f93bf587a7fc613e247f5f247809", "a"},
-	    TestHash{"2aab1484e8c158f2bfb8c5ff41b57a525129131c957b5f93", "abc"},
+        TestHash{"2aab1484e8c158f2bfb8c5ff41b57a525129131c957b5f93", "abc"},
         TestHash{"d981f8cb78201a950dcf3048751e441c517fca1aa55a29f6", "message digest"},
         TestHash{"1714a472eee57d30040412bfcc55032a0b11602ff37beee9", "abcdefghijklmnopqrstuvwxyz"},
         TestHash{"0f7bf9a19b9c58f2b7610df7e84f0ac3a71c631e7b53f78e", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"},
@@ -746,4 +758,22 @@ main :: proc() {
         TestHash{"862849fd911852cd54beefa88759db4cead0ef8e36aaf15398303c5c4cbc016d9b4c42b32081cbdcba710d2693e7663d244fae116ec29ffb40168baf44f944e7", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"},
     };
     test(groestl512TestVectors[:], "GROESTL-512");
+    // =================== //
+    // Skein               //
+    // Skein-256           //
+    skein256TestVectors := [?]TestHash {
+        TestHash{"c8877087da56e072870daa843f176e9453115929094c3a40c463a196c29bf7ba", ""},
+        //TestHash{"c0fbd7d779b20f0a4614a66697f9e41859eaf382f14bf857e8cdb210adb9b3fe", "The quick brown fox jumps over the lazy dog"},
+    };
+    test(skein256TestVectors[:], "Skein-256");
+    /*// Skein-512           //
+    skein512TestVectors := [?]TestHash {
+        TestHash{"94c2ae036dba8783d0b3f7d6cc111ff810702f5c77707999be7e1c9486ff238a7044de734293147359b4ac7e1d09cd247c351d69826b78dcddd951f0ef912713", "The quick brown fox jumps over the lazy dog"},
+    };
+    test(skein512TestVectors[:], "Skein-512");
+    // Skein-1024          //
+    skein1024TestVectors := [?]TestHash {
+        TestHash{"4cf6152f1a7e598098d28f04e13d7742ba39b7fadbbcf2167bda4e1615d551f3f6b4edbbb391ffa09e6cc0a4af1eb366b30b5f107b437e2ea5cb586afb0341bd97dabe7cc46e7be3a054aa605395e43b243654c01ffc14c8b5443488f35d80b504a612f3d29d767106d0d9249aaa4fd99b67a94fb8661a3520004501192d84fa", "The quick brown fox jumps over the lazy dog"},
+    };
+    test(skein1024TestVectors[:], "Skein-1024");*/
 }
