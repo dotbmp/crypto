@@ -1,10 +1,19 @@
 package _tiger
 
+/*
+    Copyright 2021 zhibog
+    Made available under the BSD-3 license.
+
+    List of contributors:
+        zhibog, dotbmp:  Initial implementation.
+        Jeroen van Rijn: Context design to be able to change from Odin implementation to bindings.
+
+    Implementation of the Tiger hashing algorithm, as defined in <https://www.cs.technion.ac.il/~biham/Reports/Tiger/>
+*/
+
 import "../util"
 
-// @ref(zh): https://github.com/cxmcc/tiger
-
-TIGER_T1 := [?]u64 {
+T1 := [?]u64 {
 	0x02aab17cf7e90c5e, 0xac424b03e243a8ec, 0x72cd5be30dd5fcd3, 0x6d019b93f6f97f3a,
 	0xcd9978ffd21f9193, 0x7573a1c9708029e2, 0xb164326b922a83c3, 0x46883eee04915870,
 	0xeaace3057103ece6, 0xc54169b808a3535c, 0x4ce754918ddec47c, 0x0aa2f4dfdc0df40c,
@@ -69,9 +78,9 @@ TIGER_T1 := [?]u64 {
 	0x505f33ac0afb4eaa, 0xe8a5cd99a2cce187, 0x534974801e2d30bb, 0x8d2d5711d5876d90,
 	0x1f1a412891bc038e, 0xd6e2e71d82e56648, 0x74036c3a497732b7, 0x89b67ed96361f5ab,
 	0xffed95d8f1ea02a2, 0xe72b3bd61464d43d, 0xa6300f170bdc4820, 0xebc18760ed78a77a,
-};
+}
 
-TIGER_T2 := [?]u64 {
+T2 := [?]u64 {
 	0xe6a6be5a05a12138, 0xb5a122a5b4f87c98, 0x563c6089140b6990, 0x4c46cb2e391f5dd5,
 	0xd932addbc9b79434, 0x08ea70e42015aff5, 0xd765a6673e478cf1, 0xc4fb757eab278d99,
 	0xdf11c6862d6e0692, 0xddeb84f10d7f3b16, 0x6f2ef604a665ea04, 0x4a8e0f0ff0e0dfb3,
@@ -136,9 +145,9 @@ TIGER_T2 := [?]u64 {
 	0xac2f4df3e5ce32ed, 0xcb33d14326ea4c11, 0xa4e9044cc77e58bc, 0x5f513293d934fcef,
 	0x5dc9645506e55444, 0x50de418f317de40a, 0x388cb31a69dde259, 0x2db4a83455820a86,
 	0x9010a91e84711ae9, 0x4df7f0b7b1498371, 0xd62a2eabc0977179, 0x22fac097aa8d5c0e,
-};
+}
 
-TIGER_T3 := [?]u64 {
+T3 := [?]u64 {
 	0xf49fcc2ff1daf39b, 0x487fd5c66ff29281, 0xe8a30667fcdca83f, 0x2c9b4be3d2fcce63,
 	0xda3ff74b93fbbbc2, 0x2fa165d2fe70ba66, 0xa103e279970e93d4, 0xbecdec77b0e45e71,
 	0xcfb41e723985e497, 0xb70aaa025ef75017, 0xd42309f03840b8e0, 0x8efc1ad035898579,
@@ -203,9 +212,9 @@ TIGER_T3 := [?]u64 {
 	0x64669a0f83b1a05f, 0x27b3ff7d9644f48b, 0xcc6b615c8db675b3, 0x674f20b9bcebbe95,
 	0x6f31238275655982, 0x5ae488713e45cf05, 0xbf619f9954c21157, 0xeabac46040a8eae9,
 	0x454c6fe9f2c0c1cd, 0x419cf6496412691c, 0xd3dc3bef265b0f70, 0x6d0e60f5c3578a9e,
-};
+}
 
-TIGER_T4 := [?]u64 {
+T4 := [?]u64 {
 	0x5b0e608526323c55, 0x1a46c1a9fa1b59f5, 0xa9e245a17c4c8ffa, 0x65ca5159db2955d7,
 	0x05db0a76ce35afc2, 0x81eac77ea9113d45, 0x528ef88ab6ac0a0d, 0xa09ea253597be3ff,
 	0x430ddfb3ac48cd56, 0xc4b3a67af45ce46f, 0x4ececfd8fbe2d05e, 0x3ef56f10b39935f0,
@@ -270,143 +279,133 @@ TIGER_T4 := [?]u64 {
 	0x6345a0dc5fbbd519, 0x8628fe269b9465ca, 0x1e5d01603f9c51ec, 0x4de44006a15049b7,
 	0xbf6c70e5f776cbb1, 0x411218f2ef552bed, 0xcb0c0708705a36a3, 0xe74d14754f986044,
 	0xcd56d9430ea8280e, 0xc12591d7535f5065, 0xc83223f1720aef96, 0xc3a0396f7363a51f,
-};
+}
 
-TIGER :: struct {
-    a: u64,
-	b: u64,
-	c: u64,
-	x: [64]byte,
-	nx: int,
+Tiger_Context :: struct {
+    a:      u64,
+	b:      u64,
+	c:      u64,
+	x:      [64]byte,
+	nx:     int,
 	length: u64,
-	ver: int,
+	ver:    int,
 }
 
-tiger_round :: #force_inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64) {
-	a, b, c := a, b, c;
-	c ~= x;
-	a -= TIGER_T1[c & 0xff] ~ TIGER_T2[(c >> 16) & 0xff] ~ TIGER_T3[(c >> 32) & 0xff] ~ TIGER_T4[(c >> 48) & 0xff];
-	b += TIGER_T4[(c >> 8) & 0xff] ~ TIGER_T3[(c >> 24) & 0xff] ~ TIGER_T2[(c >> 40) & 0xff] ~ TIGER_T1[(c >> 56) & 0xff];
-	b *= mul;
-	return a, b, c;
+round :: #force_inline proc "contextless"(a, b, c, x, mul: u64) -> (u64, u64, u64) {
+	a, b, c := a, b, c
+	c ~= x
+	a -= T1[c & 0xff] ~ T2[(c >> 16) & 0xff] ~ T3[(c >> 32) & 0xff] ~ T4[(c >> 48) & 0xff]
+	b += T4[(c >> 8) & 0xff] ~ T3[(c >> 24) & 0xff] ~ T2[(c >> 40) & 0xff] ~ T1[(c >> 56) & 0xff]
+	b *= mul
+	return a, b, c
 }
 
-tiger_pass :: #force_inline proc "contextless"(a, b, c: u64, x: []u64, mul: u64) -> (u64, u64, u64) {
-	a, b, c := a, b, c;
-	a, b, c = tiger_round(a, b, c, x[0], mul);
-	b, c, a = tiger_round(b, c, a, x[1], mul);
-	c, a, b = tiger_round(c, a, b, x[2], mul);
-	a, b, c = tiger_round(a, b, c, x[3], mul);
-	b, c, a = tiger_round(b, c, a, x[4], mul);
-	c, a, b = tiger_round(c, a, b, x[5], mul);
-	a, b, c = tiger_round(a, b, c, x[6], mul);
-	b, c, a = tiger_round(b, c, a, x[7], mul);
-	return a, b, c;
+pass :: #force_inline proc "contextless"(a, b, c: u64, d: []u64, mul: u64) -> (x, y, z: u64) {
+	x, y, z = round(a, b, c, d[0], mul)
+	y, z, x = round(y, z, x, d[1], mul)
+	z, x, y = round(z, x, y, d[2], mul)
+	x, y, z = round(x, y, z, d[3], mul)
+	y, z, x = round(y, z, x, d[4], mul)
+	z, x, y = round(z, x, y, d[5], mul)
+	x, y, z = round(x, y, z, d[6], mul)
+	y, z, x = round(y, z, x, d[7], mul)
+	return
 }
 
-tiger_keyschedule :: #force_inline proc "contextless"(x: []u64) {
-	x[0] -= x[7] ~ 0xa5a5a5a5a5a5a5a5;
-	x[1] ~= x[0];
-	x[2] += x[1];
-	x[3] -= x[2] ~ ((~x[1]) << 19);
-	x[4] ~= x[3];
-	x[5] += x[4];
-	x[6] -= x[5] ~ ((~x[4]) >> 23);
-	x[7] ~= x[6];
-	x[0] += x[7];
-	x[1] -= x[0] ~ ((~x[7]) << 19);
-	x[2] ~= x[1];
-	x[3] += x[2];
-	x[4] -= x[3] ~ ((~x[2]) >> 23);
-	x[5] ~= x[4];
-	x[6] += x[5];
-	x[7] -= x[6] ~ 0x0123456789abcdef;
+key_schedule :: #force_inline proc "contextless"(x: []u64) {
+	x[0] -= x[7] ~ 0xa5a5a5a5a5a5a5a5
+	x[1] ~= x[0]
+	x[2] += x[1]
+	x[3] -= x[2] ~ ((~x[1]) << 19)
+	x[4] ~= x[3]
+	x[5] += x[4]
+	x[6] -= x[5] ~ ((~x[4]) >> 23)
+	x[7] ~= x[6]
+	x[0] += x[7]
+	x[1] -= x[0] ~ ((~x[7]) << 19)
+	x[2] ~= x[1]
+	x[3] += x[2]
+	x[4] -= x[3] ~ ((~x[2]) >> 23)
+	x[5] ~= x[4]
+	x[6] += x[5]
+	x[7] -= x[6] ~ 0x0123456789abcdef
 }
 
-tiger_compress :: #force_inline proc "contextless"(ctx: ^TIGER, data: []byte) {
-	a := ctx.a;
-	b := ctx.b;
-	c := ctx.c;
-
-	x := util.cast_slice([]u64, data);
-
-	ctx.a, ctx.b, ctx.c = tiger_pass(ctx.a, ctx.b, ctx.c, x, 5);
-	tiger_keyschedule(x);
-	ctx.c, ctx.a, ctx.b = tiger_pass(ctx.c, ctx.a, ctx.b, x, 7);
-	tiger_keyschedule(x);
-	ctx.b, ctx.c, ctx.a = tiger_pass(ctx.b, ctx.c, ctx.a, x, 9);
-
-	ctx.a ~= a;
-	ctx.b -= b;
-	ctx.c += c;
+compress :: #force_inline proc "contextless"(ctx: ^Tiger_Context, data: []byte) {
+	a := ctx.a
+	b := ctx.b
+	c := ctx.c
+	x := util.cast_slice([]u64, data)
+	ctx.a, ctx.b, ctx.c = pass(ctx.a, ctx.b, ctx.c, x, 5)
+	key_schedule(x)
+	ctx.c, ctx.a, ctx.b = pass(ctx.c, ctx.a, ctx.b, x, 7)
+	key_schedule(x)
+	ctx.b, ctx.c, ctx.a = pass(ctx.b, ctx.c, ctx.a, x, 9)
+	ctx.a ~= a
+	ctx.b -= b
+	ctx.c += c
 }
 
-tiger_init :: proc(ctx: ^TIGER) {
-	ctx.a = 0x0123456789abcdef;
-	ctx.b = 0xfedcba9876543210;
-	ctx.c = 0xf096a5b4c3b2e187;
-	ctx.nx = 0;
-	ctx.length = 0;
+init_odin :: proc(ctx: ^Tiger_Context) {
+	ctx.a = 0x0123456789abcdef
+	ctx.b = 0xfedcba9876543210
+	ctx.c = 0xf096a5b4c3b2e187
 }
 
-tiger_update :: proc(ctx: ^TIGER, input: []byte) {
-	// TODO(zh): Fix useage of input directly. Will break without this because of strings living in .rodata
-	p := make([]byte, len(input));
-	copy(p, input);
+update_odin :: proc(ctx: ^Tiger_Context, input: []byte) {
+	p := make([]byte, len(input))
+	copy(p, input)
 
-	length := len(p);
-	ctx.length += u64(length);
+	length     := len(p)
+	ctx.length += u64(length)
 	if ctx.nx > 0 {
-		n := len(p);
+		n := len(p)
 		if n > 64 - ctx.nx {
-			n = 64 - ctx.nx;
+			n = 64 - ctx.nx
 		}
-		copy(ctx.x[ctx.nx:ctx.nx + n], p[:n]);
-		ctx.nx += n;
+		copy(ctx.x[ctx.nx:ctx.nx + n], p[:n])
+		ctx.nx += n
 		if ctx.nx == 64 {
-			tiger_compress(ctx, ctx.x[:64 - 1]);
-			ctx.nx = 0;
+			compress(ctx, ctx.x[:64 - 1])
+			ctx.nx = 0
 		}
-		p = p[n:];
+		p = p[n:]
 	}
 	for len(p) >= 64 {
-		tiger_compress(ctx, p[:64]);
-		p = p[64:];
+		compress(ctx, p[:64])
+		p = p[64:]
 	}
 	if len(p) > 0 {
-		ctx.nx = copy(ctx.x[:], p);
+		ctx.nx = copy(ctx.x[:], p)
 	}
 }
 
-tiger_final :: proc(ctx: ^TIGER) -> [24]byte {
-	length := ctx.length;
-	tmp: [64]byte;
+final_odin :: proc(ctx: ^Tiger_Context, hash: []byte) {
+	length := ctx.length
+	tmp: [64]byte
 	if ctx.ver == 1 {
-		tmp[0] = 0x01;
+		tmp[0] = 0x01
 	} else {
-		tmp[0] = 0x80;
+		tmp[0] = 0x80
 	}
 
-	size := length & 0x3f;
+	size := length & 0x3f
 	if size < 56 {
-		tiger_update(ctx, tmp[:56 - size]);
+		update_odin(ctx, tmp[:56 - size])
 	} else {
-		tiger_update(ctx, tmp[:64 + 56 - size]);
+		update_odin(ctx, tmp[:64 + 56 - size])
 	}
 
-	length <<= 3;
+	length <<= 3
 	for i := uint(0); i < 8; i += 1 {
-		tmp[i] = byte(length >> (8 * i));
+		tmp[i] = byte(length >> (8 * i))
 	}
-	tiger_update(ctx, tmp[:8]);
+	update_odin(ctx, tmp[:8])
 
 	for i := uint(0); i < 8; i += 1 {
-		tmp[i] = byte(ctx.a >> (8 * i));
-		tmp[i + 8] = byte(ctx.b >> (8 * i));
-		tmp[i + 16] = byte(ctx.c >> (8 * i));
+		tmp[i]      = byte(ctx.a >> (8 * i))
+		tmp[i + 8]  = byte(ctx.b >> (8 * i))
+		tmp[i + 16] = byte(ctx.c >> (8 * i))
 	}
-
-	digest: [24]byte;
-	copy(digest[:], tmp[:24]);
-	return digest;
+	copy(hash[:], tmp[:len(hash)])
 }

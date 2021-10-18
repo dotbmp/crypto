@@ -1,13 +1,190 @@
 package whirlpool
 
-// @ref(bp): https://github.com/jzelinskie/whirlpool
-// whirlpool stub
-// reference implementaton:
-// @ref(bp): ./refs/whirlpool.zip
+/*
+    Copyright 2021 zhibog
+    Made available under the BSD-3 license.
 
-WHIRLPOOL_ROUNDS :: 10;
+    List of contributors:
+        zhibog, dotbmp:  Initial implementation.
+        Jeroen van Rijn: Context design to be able to change from Odin implementation to bindings.
 
-WHIRLPOOL_C0 := [256]u64 {
+    Implementation of the Whirlpool hashing algorithm, as defined in <https://web.archive.org/web/20171129084214/http://www.larc.usp.br/~pbarreto/WhirlpoolPage.html>
+*/
+
+import "core:os"
+import "core:io"
+
+import "../botan"
+import "../_ctx"
+import "../util"
+
+/*
+    Context initialization and switching between the Odin implementation and the bindings
+*/
+
+USE_BOTAN_LIB :: bool(#config(USE_BOTAN_LIB, false))
+
+@(private)
+_init_vtable :: #force_inline proc() -> ^_ctx.Hash_Context {
+    ctx := _ctx._init_vtable()
+    when USE_BOTAN_LIB {
+        use_botan()
+    } else {
+        _assign_hash_vtable(ctx)
+    }
+    return ctx
+}
+
+@(private)
+_assign_hash_vtable :: #force_inline proc(ctx: ^_ctx.Hash_Context) {
+    ctx.hash_bytes_64  = hash_bytes_odin
+    ctx.hash_file_64   = hash_file_odin
+    ctx.hash_stream_64 = hash_stream_odin
+    ctx.update         = _update_odin
+    ctx.final          = _final_odin
+}
+
+_hash_impl := _init_vtable()
+
+// use_botan assigns the internal vtable of the hash context to use the Botan bindings
+use_botan :: #force_inline proc() {
+    botan.assign_hash_vtable(_hash_impl, botan.HASH_WHIRLPOOL)
+}
+
+// use_odin assigns the internal vtable of the hash context to use the Odin implementation
+use_odin :: #force_inline proc() {
+    _assign_hash_vtable(_hash_impl)
+}
+
+/*
+    High level API
+*/
+
+// hash_string will hash the given input and return the
+// computed hash
+hash_string :: proc(data: string) -> [64]byte {
+    return hash_bytes(transmute([]byte)(data))
+}
+
+// hash_bytes will hash the given input and return the
+// computed hash
+hash_bytes :: proc(data: []byte) -> [64]byte {
+    _create_whirlpool_ctx()
+    return _hash_impl->hash_bytes_64(data)
+}
+
+// hash_stream will read the stream in chunks and compute a
+// hash from its contents
+hash_stream :: proc(s: io.Stream) -> ([64]byte, bool) {
+    _create_whirlpool_ctx()
+    return _hash_impl->hash_stream_64(s)
+}
+
+// hash_file will read the file provided by the given handle
+// and compute a hash
+hash_file :: proc(hd: os.Handle, load_at_once := false) -> ([64]byte, bool) {
+    _create_whirlpool_ctx()
+    return _hash_impl->hash_file_64(hd, load_at_once)
+}
+
+hash :: proc {
+    hash_stream,
+    hash_file,
+    hash_bytes,
+    hash_string,
+}
+
+/*
+    Low level API
+*/
+
+init :: proc(ctx: ^_ctx.Hash_Context) {
+    _hash_impl->init()
+}
+
+update :: proc(ctx: ^_ctx.Hash_Context, data: []byte) {
+    _hash_impl->update(data)
+}
+
+final :: proc(ctx: ^_ctx.Hash_Context, hash: []byte) {
+    _hash_impl->final(hash)
+}
+
+hash_bytes_odin :: #force_inline proc(ctx: ^_ctx.Hash_Context, data: []byte) -> [64]byte {
+    hash: [64]byte
+    if c, ok := ctx.internal_ctx.(Whirlpool_Context); ok {
+        update_odin(&c, data)
+        final_odin(&c, hash[:])
+    }
+    return hash
+}
+
+hash_stream_odin :: #force_inline proc(ctx: ^_ctx.Hash_Context, fs: io.Stream) -> ([64]byte, bool) {
+    hash: [64]byte
+    if c, ok := ctx.internal_ctx.(Whirlpool_Context); ok {
+        buf := make([]byte, 512)
+        defer delete(buf)
+        read := 1
+        for read > 0 {
+            read, _ = fs->impl_read(buf)
+            if read > 0 {
+                update_odin(&c, buf[:read])
+            } 
+        }
+        final_odin(&c, hash[:])
+        return hash, true
+    } else {
+        return hash, false
+    }
+}
+
+hash_file_odin :: #force_inline proc(ctx: ^_ctx.Hash_Context, hd: os.Handle, load_at_once := false) -> ([64]byte, bool) {
+    if !load_at_once {
+        return hash_stream_odin(ctx, os.stream_from_handle(hd))
+    } else {
+        if buf, ok := os.read_entire_file(hd); ok {
+            return hash_bytes_odin(ctx, buf[:]), ok
+        }
+    }
+    return [64]byte{}, false
+}
+
+@(private)
+_create_whirlpool_ctx :: #force_inline proc() {
+    ctx: Whirlpool_Context
+    _hash_impl.internal_ctx = ctx
+    _hash_impl.hash_size    = ._64
+}
+
+@(private)
+_update_odin :: #force_inline proc(ctx: ^_ctx.Hash_Context, data: []byte) {
+    if c, ok := ctx.internal_ctx.(Whirlpool_Context); ok {
+        update_odin(&c, data)
+    }
+}
+
+@(private)
+_final_odin :: #force_inline proc(ctx: ^_ctx.Hash_Context, hash: []byte) {
+    if c, ok := ctx.internal_ctx.(Whirlpool_Context); ok {
+        final_odin(&c, hash)
+    }
+}
+
+/*
+	Whirlpool implementation
+*/
+
+ROUNDS :: 10
+
+Whirlpool_Context :: struct {
+    bitlength:   [32]byte,
+    buffer:      [64]byte,
+    buffer_bits: int,
+    buffer_pos:  int,
+    hash:        [8]u64,
+}
+
+C0 := [256]u64 {
 	0x18186018c07830d8, 0x23238c2305af4626, 0xc6c63fc67ef991b8, 0xe8e887e8136fcdfb,
 	0x878726874ca113cb, 0xb8b8dab8a9626d11, 0x0101040108050209, 0x4f4f214f426e9e0d,
 	0x3636d836adee6c9b, 0xa6a6a2a6590451ff, 0xd2d26fd2debdb90c, 0xf5f5f3f5fb06f70e,
@@ -72,9 +249,9 @@ WHIRLPOOL_C0 := [256]u64 {
 	0x7070dd70a7ade0d7, 0xb6b6e2b6d954716f, 0xd0d067d0ceb7bd1e, 0xeded93ed3b7ec7d6,
 	0xcccc17cc2edb85e2, 0x424215422a578468, 0x98985a98b4c22d2c, 0xa4a4aaa4490e55ed,
 	0x2828a0285d885075, 0x5c5c6d5cda31b886, 0xf8f8c7f8933fed6b, 0x8686228644a411c2,
-};
+}
 
-WHIRLPOOL_C1 := [256]u64 {
+C1 := [256]u64 {
 	0xd818186018c07830, 0x2623238c2305af46, 0xb8c6c63fc67ef991, 0xfbe8e887e8136fcd,
 	0xcb878726874ca113, 0x11b8b8dab8a9626d, 0x0901010401080502, 0x0d4f4f214f426e9e,
 	0x9b3636d836adee6c, 0xffa6a6a2a6590451, 0x0cd2d26fd2debdb9, 0x0ef5f5f3f5fb06f7,
@@ -139,9 +316,9 @@ WHIRLPOOL_C1 := [256]u64 {
 	0xd77070dd70a7ade0, 0x6fb6b6e2b6d95471, 0x1ed0d067d0ceb7bd, 0xd6eded93ed3b7ec7,
 	0xe2cccc17cc2edb85, 0x68424215422a5784, 0x2c98985a98b4c22d, 0xeda4a4aaa4490e55,
 	0x752828a0285d8850, 0x865c5c6d5cda31b8, 0x6bf8f8c7f8933fed, 0xc28686228644a411,
-};
+}
 
-WHIRLPOOL_C2 := [256]u64 {
+C2 := [256]u64 {
 	0x30d818186018c078, 0x462623238c2305af, 0x91b8c6c63fc67ef9, 0xcdfbe8e887e8136f,
 	0x13cb878726874ca1, 0x6d11b8b8dab8a962, 0x0209010104010805, 0x9e0d4f4f214f426e,
 	0x6c9b3636d836adee, 0x51ffa6a6a2a65904, 0xb90cd2d26fd2debd, 0xf70ef5f5f3f5fb06,
@@ -206,9 +383,9 @@ WHIRLPOOL_C2 := [256]u64 {
 	0xe0d77070dd70a7ad, 0x716fb6b6e2b6d954, 0xbd1ed0d067d0ceb7, 0xc7d6eded93ed3b7e,
 	0x85e2cccc17cc2edb, 0x8468424215422a57, 0x2d2c98985a98b4c2, 0x55eda4a4aaa4490e,
 	0x50752828a0285d88, 0xb8865c5c6d5cda31, 0xed6bf8f8c7f8933f, 0x11c28686228644a4,
-};
+}
 
-WHIRLPOOL_C3 := [256]u64 {
+C3 := [256]u64 {
 	0x7830d818186018c0, 0xaf462623238c2305, 0xf991b8c6c63fc67e, 0x6fcdfbe8e887e813,
 	0xa113cb878726874c, 0x626d11b8b8dab8a9, 0x0502090101040108, 0x6e9e0d4f4f214f42,
 	0xee6c9b3636d836ad, 0x0451ffa6a6a2a659, 0xbdb90cd2d26fd2de, 0x06f70ef5f5f3f5fb,
@@ -273,9 +450,9 @@ WHIRLPOOL_C3 := [256]u64 {
 	0xade0d77070dd70a7, 0x54716fb6b6e2b6d9, 0xb7bd1ed0d067d0ce, 0x7ec7d6eded93ed3b,
 	0xdb85e2cccc17cc2e, 0x578468424215422a, 0xc22d2c98985a98b4, 0x0e55eda4a4aaa449,
 	0x8850752828a0285d, 0x31b8865c5c6d5cda, 0x3fed6bf8f8c7f893, 0xa411c28686228644,
-};
+}
 
-WHIRLPOOL_C4 := [256]u64 {
+C4 := [256]u64 {
 	0xc07830d818186018, 0x05af462623238c23, 0x7ef991b8c6c63fc6, 0x136fcdfbe8e887e8,
 	0x4ca113cb87872687, 0xa9626d11b8b8dab8, 0x0805020901010401, 0x426e9e0d4f4f214f,
 	0xadee6c9b3636d836, 0x590451ffa6a6a2a6, 0xdebdb90cd2d26fd2, 0xfb06f70ef5f5f3f5,
@@ -340,9 +517,9 @@ WHIRLPOOL_C4 := [256]u64 {
 	0xa7ade0d77070dd70, 0xd954716fb6b6e2b6, 0xceb7bd1ed0d067d0, 0x3b7ec7d6eded93ed,
 	0x2edb85e2cccc17cc, 0x2a57846842421542, 0xb4c22d2c98985a98, 0x490e55eda4a4aaa4,
 	0x5d8850752828a028, 0xda31b8865c5c6d5c, 0x933fed6bf8f8c7f8, 0x44a411c286862286,
-};
+}
 
-WHIRLPOOL_C5 := [256]u64 {
+C5 := [256]u64 {
 	0x18c07830d8181860, 0x2305af462623238c, 0xc67ef991b8c6c63f, 0xe8136fcdfbe8e887,
 	0x874ca113cb878726, 0xb8a9626d11b8b8da, 0x0108050209010104, 0x4f426e9e0d4f4f21,
 	0x36adee6c9b3636d8, 0xa6590451ffa6a6a2, 0xd2debdb90cd2d26f, 0xf5fb06f70ef5f5f3,
@@ -407,9 +584,9 @@ WHIRLPOOL_C5 := [256]u64 {
 	0x70a7ade0d77070dd, 0xb6d954716fb6b6e2, 0xd0ceb7bd1ed0d067, 0xed3b7ec7d6eded93,
 	0xcc2edb85e2cccc17, 0x422a578468424215, 0x98b4c22d2c98985a, 0xa4490e55eda4a4aa,
 	0x285d8850752828a0, 0x5cda31b8865c5c6d, 0xf8933fed6bf8f8c7, 0x8644a411c2868622,
-};
+}
 
-WHIRLPOOL_C6 := [256]u64 {
+C6 := [256]u64 {
 	0x6018c07830d81818, 0x8c2305af46262323, 0x3fc67ef991b8c6c6, 0x87e8136fcdfbe8e8,
 	0x26874ca113cb8787, 0xdab8a9626d11b8b8, 0x0401080502090101, 0x214f426e9e0d4f4f,
 	0xd836adee6c9b3636, 0xa2a6590451ffa6a6, 0x6fd2debdb90cd2d2, 0xf3f5fb06f70ef5f5,
@@ -474,9 +651,9 @@ WHIRLPOOL_C6 := [256]u64 {
 	0xdd70a7ade0d77070, 0xe2b6d954716fb6b6, 0x67d0ceb7bd1ed0d0, 0x93ed3b7ec7d6eded,
 	0x17cc2edb85e2cccc, 0x15422a5784684242, 0x5a98b4c22d2c9898, 0xaaa4490e55eda4a4,
 	0xa0285d8850752828, 0x6d5cda31b8865c5c, 0xc7f8933fed6bf8f8, 0x228644a411c28686,
-};
+}
 
-WHIRLPOOL_C7 := [256]u64 {
+C7 := [256]u64 {
 	0x186018c07830d818, 0x238c2305af462623, 0xc63fc67ef991b8c6, 0xe887e8136fcdfbe8,
 	0x8726874ca113cb87, 0xb8dab8a9626d11b8, 0x0104010805020901, 0x4f214f426e9e0d4f,
 	0x36d836adee6c9b36, 0xa6a2a6590451ffa6, 0xd26fd2debdb90cd2, 0xf5f3f5fb06f70ef5,
@@ -541,9 +718,9 @@ WHIRLPOOL_C7 := [256]u64 {
 	0x70dd70a7ade0d770, 0xb6e2b6d954716fb6, 0xd067d0ceb7bd1ed0, 0xed93ed3b7ec7d6ed,
 	0xcc17cc2edb85e2cc, 0x4215422a57846842, 0x985a98b4c22d2c98, 0xa4aaa4490e55eda4,
 	0x28a0285d88507528, 0x5c6d5cda31b8865c, 0xf8c7f8933fed6bf8, 0x86228644a411c286,
-};
+}
 
-WHIRLPOOL_RC := [WHIRLPOOL_ROUNDS + 1]u64 {
+RC := [ROUNDS + 1]u64 {
 	0x0000000000000000,
 	0x1823c6e887b8014f,
 	0x36a6d2f5796f9152,
@@ -555,155 +732,139 @@ WHIRLPOOL_RC := [WHIRLPOOL_ROUNDS + 1]u64 {
 	0xe427418ba77d95d8,
 	0xfbee7c66dd17479e,
 	0xca2dbf07ad5a8333,
-};
-
-WHIRLPOOL :: struct {
-    bitLength: [32]byte,
-    buffer: [64]byte,
-    bufferBits: int,
-    bufferPos: int,
-    hash: [8]u64,
 }
 
-WHIRLPOOL_U64 :: #force_inline proc (b: []byte) -> u64 {
-	return u64(b[7]) | u64(b[6]) << 8 | u64(b[5]) << 16 | u64(b[4]) << 24 | u64(b[3]) << 32 | u64(b[2]) << 40 | u64(b[1]) << 48 | u64(b[0]) << 56;
-}
+transform :: proc (ctx: ^Whirlpool_Context) {
+	K, block, state, L: [8]u64
 
-whirlpool_transform :: #force_inline proc (ctx: ^WHIRLPOOL) {
-	K, block, state, L: [8]u64;
-
-	for i := 0; i < 8; i += 1 do block[i] = WHIRLPOOL_U64(ctx.buffer[8 * i:]);
+	for i := 0; i < 8; i += 1 {block[i] = util.U64_BE(ctx.buffer[8 * i:])}
 
 	for i := 0; i < 8; i += 1 {
-		K[i] = ctx.hash[i];
-		state[i] = block[i] ~ K[i];
+		K[i] = ctx.hash[i]
+		state[i] = block[i] ~ K[i]
 	}
 
-	for r := 1; r <= WHIRLPOOL_ROUNDS; r += 1 {
+	for r := 1; r <= ROUNDS; r += 1 {
 		for i := 0; i < 8; i += 1 {
-			L[i] = WHIRLPOOL_C0[byte(K[i % 8] >> 56)] ~
-				WHIRLPOOL_C1[byte(K[(i + 7) % 8] >> 48)] ~
-				WHIRLPOOL_C2[byte(K[(i + 6) % 8] >> 40)] ~
-				WHIRLPOOL_C3[byte(K[(i + 5) % 8] >> 32)] ~
-				WHIRLPOOL_C4[byte(K[(i + 4) % 8] >> 24)] ~
-				WHIRLPOOL_C5[byte(K[(i + 3) % 8] >> 16)] ~
-				WHIRLPOOL_C6[byte(K[(i + 2) % 8] >> 8)] ~
-				WHIRLPOOL_C7[byte(K[(i + 1) % 8])];
+			L[i] = C0[byte(K[i % 8] >> 56)] ~
+				C1[byte(K[(i + 7) % 8] >> 48)] ~
+				C2[byte(K[(i + 6) % 8] >> 40)] ~
+				C3[byte(K[(i + 5) % 8] >> 32)] ~
+				C4[byte(K[(i + 4) % 8] >> 24)] ~
+				C5[byte(K[(i + 3) % 8] >> 16)] ~
+				C6[byte(K[(i + 2) % 8] >> 8)] ~
+				C7[byte(K[(i + 1) % 8])]
 		}
-		L[0] ~= WHIRLPOOL_RC[r];
+		L[0] ~= RC[r]
 
-		for i := 0; i < 8; i += 1 do K[i] = L[i];
+		for i := 0; i < 8; i += 1 {K[i] = L[i]}
 
 		for i := 0; i < 8; i += 1 {
-			L[i] = WHIRLPOOL_C0[byte(state[i % 8] >> 56)] ~
-				WHIRLPOOL_C1[byte(state[(i + 7) % 8] >> 48)] ~
-				WHIRLPOOL_C2[byte(state[(i + 6) % 8] >> 40)] ~
-				WHIRLPOOL_C3[byte(state[(i + 5) % 8] >> 32)] ~
-				WHIRLPOOL_C4[byte(state[(i + 4) % 8] >> 24)] ~
-				WHIRLPOOL_C5[byte(state[(i + 3) % 8] >> 16)] ~
-				WHIRLPOOL_C6[byte(state[(i + 2) % 8] >> 8)] ~
-				WHIRLPOOL_C7[byte(state[(i + 1) % 8])] ~
-				K[i % 8];
+			L[i] = C0[byte(state[i % 8] >> 56)] ~
+				C1[byte(state[(i + 7) % 8] >> 48)] ~
+				C2[byte(state[(i + 6) % 8] >> 40)] ~
+				C3[byte(state[(i + 5) % 8] >> 32)] ~
+				C4[byte(state[(i + 4) % 8] >> 24)] ~
+				C5[byte(state[(i + 3) % 8] >> 16)] ~
+				C6[byte(state[(i + 2) % 8] >> 8)] ~
+				C7[byte(state[(i + 1) % 8])] ~
+				K[i % 8]
 		}
-		for i := 0; i < 8; i += 1 do state[i] = L[i];
+		for i := 0; i < 8; i += 1 {state[i] = L[i]}
 	}
-	for i := 0; i < 8; i += 1 do ctx.hash[i] ~= state[i] ~ block[i];
+	for i := 0; i < 8; i += 1 {ctx.hash[i] ~= state[i] ~ block[i]}
 }
 
-whirlpool_update :: proc(ctx: ^WHIRLPOOL, source: []byte) {
-    sourcePos: int;
-    nn := len(source);
-    sourceBits := u64(nn * 8);
-    sourceGap := u32((8 - (int(sourceBits & 7))) & 7);
-    bufferRem := uint(ctx.bufferBits & 7);
-    b: u32;
+update_odin :: proc(ctx: ^Whirlpool_Context, source: []byte) {
+    source_pos: int
+    nn := len(source)
+    source_bits := u64(nn * 8)
+    source_gap := u32((8 - (int(source_bits & 7))) & 7)
+    buffer_rem := uint(ctx.buffer_bits & 7)
+    b: u32
 
-	for i, carry, value := 31, u32(0), u32(sourceBits); i >= 0 && (carry != 0 || value != 0); i -= 1 {
-		carry += u32(ctx.bitLength[i]) + (u32(value & 0xff));
-		ctx.bitLength[i] = byte(carry);
-		carry >>= 8;
-		value >>= 8;
+	for i, carry, value := 31, u32(0), u32(source_bits); i >= 0 && (carry != 0 || value != 0); i -= 1 {
+		carry += u32(ctx.bitlength[i]) + (u32(value & 0xff))
+		ctx.bitlength[i] = byte(carry)
+		carry >>= 8
+		value >>= 8
 	}
 
-	for sourceBits > 8 {
-		b = u32(u32((source[sourcePos] << sourceGap) & 0xff) | u32((source[sourcePos+1] & 0xff) >> (8 - sourceGap)));
+	for source_bits > 8 {
+		b = u32(u32((source[source_pos] << source_gap) & 0xff) | u32((source[source_pos+1] & 0xff) >> (8 - source_gap)))
 
-		ctx.buffer[ctx.bufferPos] |= u8(b >> bufferRem);
-		ctx.bufferPos += 1;
-		ctx.bufferBits += int(8 - bufferRem);
+		ctx.buffer[ctx.buffer_pos] |= u8(b >> buffer_rem)
+		ctx.buffer_pos += 1
+		ctx.buffer_bits += int(8 - buffer_rem)
 
-		if ctx.bufferBits == 512 {
-			whirlpool_transform(ctx);
-			ctx.bufferBits = 0;
-			ctx.bufferPos = 0;
+		if ctx.buffer_bits == 512 {
+			transform(ctx)
+			ctx.buffer_bits = 0
+			ctx.buffer_pos = 0
 		}
-		ctx.buffer[ctx.bufferPos] = byte(b << (8 - bufferRem));
-		ctx.bufferBits += int(bufferRem);
-		sourceBits -= 8;
-		sourcePos += 1;
+		ctx.buffer[ctx.buffer_pos] = byte(b << (8 - buffer_rem))
+		ctx.buffer_bits += int(buffer_rem)
+		source_bits -= 8
+		source_pos += 1
 	}
 
-	if sourceBits > 0 {
-		b = u32((source[sourcePos] << sourceGap) & 0xff);
-		ctx.buffer[ctx.bufferPos] |= byte(b) >> bufferRem;
-	} else do b = 0;
+	if source_bits > 0 {
+		b = u32((source[source_pos] << source_gap) & 0xff)
+		ctx.buffer[ctx.buffer_pos] |= byte(b) >> buffer_rem
+	} else {b = 0}
 
-	if u64(bufferRem) + sourceBits < 8 {
-		ctx.bufferBits += int(sourceBits);
+	if u64(buffer_rem) + source_bits < 8 {
+		ctx.buffer_bits += int(source_bits)
 	} else {
-		ctx.bufferPos += 1;
-		ctx.bufferBits += 8 - int(bufferRem);
-		sourceBits -= u64(8 - bufferRem);
+		ctx.buffer_pos += 1
+		ctx.buffer_bits += 8 - int(buffer_rem)
+		source_bits -= u64(8 - buffer_rem)
 
-		if ctx.bufferBits == 512 {
-			whirlpool_transform(ctx);
-			ctx.bufferBits = 0;
-			ctx.bufferPos = 0;
+		if ctx.buffer_bits == 512 {
+			transform(ctx)
+			ctx.buffer_bits = 0
+			ctx.buffer_pos = 0
 		}
-		ctx.buffer[ctx.bufferPos] = byte(b << (8 - bufferRem));
-		ctx.bufferBits += int(sourceBits);
+		ctx.buffer[ctx.buffer_pos] = byte(b << (8 - buffer_rem))
+		ctx.buffer_bits += int(source_bits)
 	}
 }
 
-whirlpool_final :: proc(ctx: ^WHIRLPOOL) -> [64]byte {
-	n := ctx;
-	n.buffer[n.bufferPos] |= 0x80 >> (uint(n.bufferBits) & 7);
-	n.bufferPos += 1;
+final_odin :: proc(ctx: ^Whirlpool_Context, hash: []byte) {
+	n := ctx
+	n.buffer[n.buffer_pos] |= 0x80 >> (uint(n.buffer_bits) & 7)
+	n.buffer_pos += 1
 
-	if n.bufferPos > 64 - 32 {
-		if n.bufferPos < 64 {
-			for i := 0; i < 64 - n.bufferPos; i += 1 do n.buffer[n.bufferPos + i] = 0;
+	if n.buffer_pos > 64 - 32 {
+		if n.buffer_pos < 64 {
+			for i := 0; i < 64 - n.buffer_pos; i += 1 {
+				n.buffer[n.buffer_pos + i] = 0
+			}
 		}
-		whirlpool_transform(ctx);
-		n.bufferPos = 0;
+		transform(ctx)
+		n.buffer_pos = 0
 	}
 
-	if n.bufferPos < 64 - 32 {
-		for i := 0; i < (64 - 32) - n.bufferPos; i += 1 do n.buffer[n.bufferPos + i] = 0;
+	if n.buffer_pos < 64 - 32 {
+		for i := 0; i < (64 - 32) - n.buffer_pos; i += 1 {
+			n.buffer[n.buffer_pos + i] = 0
+		}
 	}
-	n.bufferPos = 64 - 32;
+	n.buffer_pos = 64 - 32
 
-	for i := 0; i < 32; i += 1 do n.buffer[n.bufferPos + i] = n.bitLength[i];
-	whirlpool_transform(ctx);
+	for i := 0; i < 32; i += 1 {
+		n.buffer[n.buffer_pos + i] = n.bitlength[i]
+	}
+	transform(ctx)
 
-	digest: [64]byte;
 	for i := 0; i < 8; i += 1 {
-		digest[i * 8] = byte(n.hash[i] >> 56);
-		digest[i * 8 + 1] = byte(n.hash[i] >> 48);
-		digest[i * 8 + 2] = byte(n.hash[i] >> 40);
-		digest[i * 8 + 3] = byte(n.hash[i] >> 32);
-		digest[i * 8 + 4] = byte(n.hash[i] >> 24);
-		digest[i * 8 + 5] = byte(n.hash[i] >> 16);
-		digest[i * 8 + 6] = byte(n.hash[i] >> 8);
-		digest[i * 8 + 7] = byte(n.hash[i]);
+		hash[i * 8]     = byte(n.hash[i] >> 56)
+		hash[i * 8 + 1] = byte(n.hash[i] >> 48)
+		hash[i * 8 + 2] = byte(n.hash[i] >> 40)
+		hash[i * 8 + 3] = byte(n.hash[i] >> 32)
+		hash[i * 8 + 4] = byte(n.hash[i] >> 24)
+		hash[i * 8 + 5] = byte(n.hash[i] >> 16)
+		hash[i * 8 + 6] = byte(n.hash[i] >> 8)
+		hash[i * 8 + 7] = byte(n.hash[i])
 	}
-	return digest;
-}
-
-hash :: proc (input: []byte) -> [64]byte {
-    hash: [64]byte;
-    ctx: WHIRLPOOL;
-    whirlpool_update(&ctx, input);
-    hash = whirlpool_final(&ctx);
-    return hash;
 }

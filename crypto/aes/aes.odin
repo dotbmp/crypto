@@ -569,7 +569,7 @@ encrypt_cbc :: proc(ctx: ^$T, key, plaintext, iv: []byte, allocator := context.a
 	copy(iv_buf[:], iv[:]);
 	for i := 0; i < blocks; i += 1 {
 		copy(input[:], plaintext[i * BLOCK_SIZE:]);
-		util.xor_buf(iv_buf[:], input[:]);
+		util.XOR_BUF(iv_buf[:], input[:]);
 		output = encrypt_block(ctx, key[:], input[:]);
 		copy(ciphertext[i * BLOCK_SIZE:], output[:]);
 		copy(iv_buf[:], output[:]);
@@ -585,7 +585,7 @@ decrypt_cbc :: proc(ctx: ^$T, ciphertext, iv: []byte, allocator := context.alloc
 	for i := 0; i < blocks; i += 1 {
 		copy(input[:], ciphertext[i * BLOCK_SIZE:]);
 		output = decrypt_block(ctx, input[:]);
-		util.xor_buf(iv_buf[:], output[:]);
+		util.XOR_BUF(iv_buf[:], output[:]);
 		copy(plaintext[i * BLOCK_SIZE:], output[:]);
 		copy(iv_buf[:], input[:]);
 	}

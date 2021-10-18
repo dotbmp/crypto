@@ -1,10 +1,15 @@
 # crypto
 A crypto library for the Odin language
 
-#
+This repository is only used for dev purposes.
+Please use it via the [Odin core library](https://github.com/odin-lang/Odin/tree/master/core/crypto).
+
+# Planned algorithms
+
 ## Hash algorithms:
 
 - [x] [BLAKE / BLAKE2](https://en.wikipedia.org/wiki/BLAKE_(hash_function))
+- [ ] [BLAKE3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3)
 - [x] [GOST](https://en.wikipedia.org/wiki/GOST_(hash_function)) 
 - [x] [Grøstl](https://en.wikipedia.org/wiki/Gr%C3%B8stl)
 - [x] [HAVAL](https://en.wikipedia.org/wiki/HAVAL)
@@ -63,40 +68,6 @@ A crypto library for the Odin language
 - [ ] [SRP](https://en.wikipedia.org/wiki/Secure_Remote_Password_protocol)
 - [ ] [DH (Diffie-Hellman)](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange)
 - [ ] [PSK](https://en.wikipedia.org/wiki/Pre-shared_key)
-
-
-#
-## Example useage
-
-```odin
-package main
-
-import "crypto/md4"
-import "crypto/haval"
-
-main :: proc() {
-    md4_hash   := md4.hash(transmute([]byte)("foo")); // MD4 only has a single output size
-    haval_hash := haval.hash_3_256(transmute([]byte)("bar")); // 3 rounds with output size of 256 bits
-}
-```
-#
-## API
-
-The API follows a couple simple ideas.
-We try to have one call for each thing where possible. The idea behind it is to make using it very easy and simple, without needing to set up a lot or calling 3 procs just to get a hash.
-Having said that, you can still call the procs however you want.
-
-For the hash algorithms, the proc is almost always* called hash.
-If there are different sizes of hashes, it is just hash followed by the size (e.g. hash_256, hash_512).
-If the algorithm has additional parameters, like number of rounds that is added to the proc name as well.
-(e.g. hash_3_256)
-
-*One algorithm that does not follow this is the HMAC implementation, where the proc names are just the hash names themselves, since there is more than one HMAC implementation. Another example of this is BCrypt.
-
-For the encryption algorithms the corresponding procs are called encrypt and decrypt, if there are various sizes or modes of operation the modes are added to the proc name. (e.g. encrypt_ecb, encrypt_cbc, triple_encrypt/decrypt in the case of Triple-DES)
-
-API design regarding salting and file hashing is not yet done.
-Ideally we want to have a single call for both and then just deal with whatever is put in accordingly and call the correct proc.
 
 #
 ## Disclaimer
